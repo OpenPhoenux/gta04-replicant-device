@@ -40,3 +40,6 @@ TARGET_BOOTLOADER_BOARD_NAME := gta04
 
 #skip device specific audio libraries
 BOARD_USES_GENERIC_AUDIO := true
+
+#skip camera for now
+USE_CAMERA_STUB := true
