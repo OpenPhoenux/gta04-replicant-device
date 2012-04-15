@@ -30,7 +30,7 @@ TARGET_NO_BOOTLOADER := false
 TARGET_NO_KERNEL := false
 TARGET_NO_RADIOIMAGE := true
 BOARD_USES_UBOOT := true
-BOARD_CUSTOM_BOOTIMG_MK := device/goldelico/gta04/bootimage.mk
+BOARD_CUSTOM_BOOTIMG_MK := device/goldelico/gta04/bootimg.mk
 
 # Board specs
 COMMON_GLOBAL_CFLAGS += -DTARGET_OMAP3
