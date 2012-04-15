@@ -38,8 +38,12 @@ TARGET_OMAP3 := true
 TARGET_BOARD_PLATFORM := omap3
 TARGET_BOOTLOADER_BOARD_NAME := gta04
 
-#skip device specific audio libraries
+# Hardware
+BOARD_HAVE_FM_RADIO := false
+# skip device specific audio libraries
 BOARD_USES_GENERIC_AUDIO := true
-
-#skip camera for now
 USE_CAMERA_STUB := true
+
+# Init
+# uncomment the following lines for sdcard init.rc
+#TARGET_PROVIDES_INIT := true
