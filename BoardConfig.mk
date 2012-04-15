@@ -45,5 +45,8 @@ BOARD_USES_GENERIC_AUDIO := true
 USE_CAMERA_STUB := true
 
 # Init
-# uncomment the following lines for sdcard init.rc
-#TARGET_PROVIDES_INIT := true
+# set BOARD_SDCARD_INIT to true if booting from sdcard
+BOARD_SDCARD_INIT := false
+ifeq ($(BOARD_SDCARD_INIT),true)
+TARGET_PROVIDES_INIT := true
+endif
