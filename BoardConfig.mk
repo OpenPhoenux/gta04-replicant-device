@@ -46,7 +46,8 @@ USE_CAMERA_STUB := true
 
 # Init
 # set BOARD_SDCARD_INIT to true if booting from sdcard
-BOARD_SDCARD_INIT := false
+BOARD_SDCARD_INIT ?= false
 ifeq ($(BOARD_SDCARD_INIT),true)
 TARGET_PROVIDES_INIT := true
+TARGET_PROVIDES_INIT_RC := true
 endif

@@ -17,12 +17,6 @@
 PRODUCT_COPY_FILES := \
 	device/goldelico/gta04/vold.fstab:system/etc/vold.fstab
 
-# Init
-ifeq ($(BOARD_SDCARD_INIT),true)
-PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/init-sdcard.rc:root/init.rc
-endif
-
 # APNS
 PRODUCT_COPY_FILES += \
         vendor/replicant/prebuilt/common/etc/apns-conf.xml:system/etc/apns-conf.xml
