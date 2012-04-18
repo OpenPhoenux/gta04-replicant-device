@@ -26,4 +26,6 @@
     <bool name="cm_default_show_soft_back">true</bool>
     <bool name="cm_default_show_soft_search">true</bool>
     <bool name="cm_default_show_soft_quick_na">false</bool>
+
+    <bool name="cm_default_home_on_longpress_back">true</bool>
 </resources>
