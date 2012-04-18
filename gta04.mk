@@ -33,4 +33,4 @@ PRODUCT_TAGS += dalvik.gc.type-precise
 PRODUCT_LOCALES := hdpi
 
 # Overlay
-#DEVICE_PACKAGE_OVERLAYS := device/goldelico/gta04/overlay
+DEVICE_PACKAGE_OVERLAYS := device/goldelico/gta04/overlay
