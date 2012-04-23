@@ -1,0 +1,2 @@
+on boot
+    write /sys/class/usb_composite/usb_mass_storage/enable 1

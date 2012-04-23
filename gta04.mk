@@ -14,6 +14,7 @@
 
 # Hardware
 PRODUCT_COPY_FILES := \
+	device/goldelico/gta04/init.gta04.rc:root/init.gta04.rc \
 	device/goldelico/gta04/vold.fstab:system/etc/vold.fstab \
 	device/goldelico/gta04/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
 	device/goldelico/gta04/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
