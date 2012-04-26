@@ -40,8 +40,10 @@ TARGET_BOOTLOADER_BOARD_NAME := gta04
 
 # Hardware
 BOARD_HAVE_FM_RADIO := false
-# skip device specific audio libraries
-BOARD_USES_GENERIC_AUDIO := true
+BOARD_USES_GENERIC_AUDIO := false
+BOARD_USES_ALSA_AUDIO := true
+BOARD_USES_TINYALSA_LIBAUDIO := true
+TARGET_PROVIDES_LIBAUDIO := true
 USE_CAMERA_STUB := true
 
 # Init

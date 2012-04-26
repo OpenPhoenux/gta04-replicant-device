@@ -19,6 +19,11 @@ PRODUCT_COPY_FILES := \
 	device/goldelico/gta04/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
 	device/goldelico/gta04/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
 
+# Audio
+PRODUCT_PACKAGES += \
+	libaudio \
+	libaudiopolicy
+
 # APNS
 PRODUCT_COPY_FILES += \
         vendor/replicant/prebuilt/common/etc/apns-conf.xml:system/etc/apns-conf.xml
