@@ -33,6 +33,8 @@ PRODUCT_TAGS += dalvik.gc.type-precise
 
 # Graphics
 PRODUCT_LOCALES := hdpi
+PRODUCT_PACKAGES += \
+	gralloc.omap3
 
 # Overlay
 DEVICE_PACKAGE_OVERLAYS := device/goldelico/gta04/overlay
