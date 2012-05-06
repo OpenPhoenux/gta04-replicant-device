@@ -1,0 +1,26 @@
+<tinyalsa-audio device="GTA04">
+	<device type="init">
+		<path name="enable">
+			<ctl name="DAC1 Digital Fine Playback Volume" value="60" /> 
+			<ctl name="DAC2 Digital Fine Playback Volume" value="60" /> 
+			<ctl name="DAC1 Digital Coarse Playback Volume" value="0" /> 
+			<ctl name="DAC2 Digital Coarse Playback Volume" value="0" /> 
+
+			<ctl name="DAC1 Analog Playback Volume" value="16" /> 
+			<ctl name="DAC2 Analog Playback Volume" value="16" /> 
+		</path>
+	</device>
+	<device type="output" name="speaker">
+		<path name="enable">
+			<ctl name="HandsfreeL Mux" value="AudioL2" />
+			<ctl name="HandsfreeR Mux" value="AudioR2" />
+			<ctl name="HandsfreeL Switch" value="on" />
+			<ctl name="HandsfreeR Switch" value="on" />
+		</path>
+		<path name="disable">
+			<ctl name="HandsfreeL Switch" value="off" />
+			<ctl name="HandsfreeR Switch" value="off" />
+		</path>
+	</device>
+</tinyalsa-audio>
+
