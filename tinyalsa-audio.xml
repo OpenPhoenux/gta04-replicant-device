@@ -8,6 +8,10 @@
 
 			<ctl name="DAC1 Analog Playback Volume" value="16" /> 
 			<ctl name="DAC2 Analog Playback Volume" value="16" /> 
+
+			<ctl name="Analog Capture Volume" value="5" />
+			<ctl name="TX1 Digital Capture Volume" value="12" />
+			<ctl name="TX2 Digital Capture Volume" value="12" />
 		</path>
 	</device>
 	<device type="output" name="speaker">
@@ -20,6 +24,14 @@
 		<path name="disable">
 			<ctl name="HandsfreeL Switch" value="off" />
 			<ctl name="HandsfreeR Switch" value="off" />
+		</path>
+	</device>
+	<device type="input" name="builtin-mic">
+		<path name="enable">
+			<ctl name="Analog Left Main Mic Capture Switch" value="on" />
+		</path>
+		<path name="disable">
+			<ctl name="Analog Left Main Mic Capture Switch" value="off" />
 		</path>
 	</device>
 </tinyalsa-audio>
