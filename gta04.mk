@@ -16,8 +16,13 @@
 PRODUCT_COPY_FILES := \
 	device/goldelico/gta04/init.gta04.rc:root/init.gta04.rc \
 	device/goldelico/gta04/vold.fstab:system/etc/vold.fstab \
+	device/goldelico/gta04/ueventd.gta04.rc:root/ueventd.gta04.rc \
 	device/goldelico/gta04/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
 	device/goldelico/gta04/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
+
+# Install script
+PRODUCT_COPY_FILES := \
+	device/goldelico/gta04/replicant_gta04_install.sh:replicant_gta04_install.sh
 
 # Audio
 PRODUCT_PACKAGES += \
@@ -26,6 +31,10 @@ PRODUCT_PACKAGES += \
 
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/tinyalsa-audio.xml:system/etc/tinyalsa-audio.xml
+
+# RIL
+PRODUCT_PACKAGES += \
+	libhayes-ril
 
 # APNS
 PRODUCT_COPY_FILES += \

@@ -1,0 +1,12 @@
+# Modem
+
+/dev/ttyHS0			0660	radio	radio
+/dev/ttyHS1			0660	radio	radio
+/dev/ttyHS2			0660	radio	radio
+/dev/ttyHS3			0660	radio	radio
+/dev/ttyHS4			0660	radio	radio
+/dev/ttyHS5			0660	radio	radio
+/dev/ttyHS6			0660	radio	radio
+/dev/ttyHS7			0660	radio	radio
+/dev/ttyHS8			0660	radio	radio
+/dev/ttyHS9			0660	radio	radio

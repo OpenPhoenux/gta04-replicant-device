@@ -3,3 +3,4 @@
 #
 
 ro.sf.lcd_density=210
+rild.libpath=/system/lib/libhayes-ril.so
