@@ -21,7 +21,7 @@ PRODUCT_COPY_FILES := \
 	device/goldelico/gta04/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
 
 # Install script
-PRODUCT_COPY_FILES := \
+PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/replicant_gta04_install.sh:replicant_gta04_install.sh
 
 # Audio
