@@ -143,7 +143,7 @@ drive_select_confirm() {
 	done
 
 	echo ""
-	echo -n "Are you sure? "
+	echo -n "Are you sure? [Y/N] "
 	read confirm
 
 	if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]
@@ -186,7 +186,7 @@ drive_empty() {
 drive_rescue() {
 	if [ -f ".drive_start_backup" ]
 	then
-		echo -n "Something went wrong, do you want to restore drive start backup? "
+		echo -n "Something went wrong, do you want to restore drive start backup? [Y/N] "
 		if [ "$confirm" = "y" ] || [ "$confirm" = "Y" ]
 		then
 			dd if=".drive_start_backup" of="$DRIVE" bs=1024 count=1024
