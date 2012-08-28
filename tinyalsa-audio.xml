@@ -9,12 +9,45 @@
 			<ctl name="DAC1 Analog Playback Volume" value="16" /> 
 			<ctl name="DAC2 Analog Playback Volume" value="16" /> 
 
-			<ctl name="Analog Capture Volume" value="5" />
 			<ctl name="TX1 Digital Capture Volume" value="12" />
 			<ctl name="TX2 Digital Capture Volume" value="12" />
+
+			<ctl name="Analog Capture Volume" value="5" />
+			<ctl name="Voice route" value="Voice to SoC" />
 		</path>
 	</device>
-	<device type="output" name="speaker">
+	<device type="output" name="earpiece" mode="normal">
+		<path name="enable">
+			<ctl name="Earpiece Mixer AudioL2" value="on" />
+			<ctl name="Earpiece Playback Volume" value="3" />
+		</path>
+		<path name="disable">
+			<ctl name="Earpiece Mixer AudioL2" value="off" />
+			<ctl name="Earpiece Playback Volume" value="0" />
+		</path>
+	</device>
+	<device type="output" name="earpiece" mode="in-call">
+		<path name="enable">
+			<ctl name="Voice route" value="Voice to twl4030" />
+			<ctl name="Earpiece Mixer Voice" value="on" />
+			<ctl name="Earpiece Playback Volume" value="3" />
+			<ctl name="DAC Voice Digital Downlink Volume" value="40" />
+			<ctl name="DAC Voice Analog Downlink Switch" value="on" />
+
+			<ctl name="Analog Left Main Mic Capture Switch" attr="mic" value="on" />
+			<ctl name="DAC Voice Analog Downlink Volume" attr="voice-volume" value="0-15" />
+		</path>
+		<path name="disable">
+			<ctl name="Voice route" value="Voice to SoC" />
+			<ctl name="Earpiece Mixer Voice" value="off" />
+			<ctl name="Earpiece Playback Volume" value="0" />
+			<ctl name="DAC Voice Digital Downlink Volume" value="0" />
+			<ctl name="DAC Voice Analog Downlink Switch" value="off" />
+
+			<ctl name="Analog Left Main Mic Capture Switch" attr="mic" value="off" />
+		</path>
+	</device>
+	<device type="output" name="speaker" mode="normal">
 		<path name="enable">
 			<ctl name="HandsfreeL Mux" value="AudioL2" />
 			<ctl name="HandsfreeR Mux" value="AudioR2" />
@@ -26,6 +59,7 @@
 			<ctl name="HandsfreeR Switch" value="off" />
 		</path>
 	</device>
+
 	<device type="input" name="builtin-mic">
 		<path name="enable">
 			<ctl name="Analog Left Main Mic Capture Switch" value="on" />
