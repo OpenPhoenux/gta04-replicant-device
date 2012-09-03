@@ -1,4 +1,18 @@
 on boot
     write /sys/class/usb_composite/usb_mass_storage/enable 1
+
+    # Modem GPIO
     chown radio radio /sys/class/gpio/gpio186/value
     chmod 660 /sys/class/gpio/gpio186/value
+
+    # Lights
+    chown system system /sys/class/backlight/pwm-backlight/brightness
+    chown system system /sys/class/backlight/pwm-backlight/max_brightness
+    chown system system /sys/class/leds/gta04:red:power/brightness
+    chown system system /sys/class/leds/gta04:red:power/max_brightness
+    chown system system /sys/class/leds/gta04:green:power/brightness
+    chown system system /sys/class/leds/gta04:green:power/max_brightness
+    chown system system /sys/class/leds/gta04:red:aux/brightness
+    chown system system /sys/class/leds/gta04:red:aux/max_brightness
+    chown system system /sys/class/leds/gta04:green:aux/brightness
+    chown system system /sys/class/leds/gta04:green:aux/max_brightness
