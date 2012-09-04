@@ -54,5 +54,8 @@ PRODUCT_LOCALES := hdpi
 PRODUCT_PACKAGES += \
 	gralloc.omap3
 
+PRODUCT_COPY_FILES += \
+	device/goldelico/gta04/initlogo.rle:root/initlogo.rle
+
 # Overlay
 DEVICE_PACKAGE_OVERLAYS := device/goldelico/gta04/overlay
