@@ -20,6 +20,9 @@ PRODUCT_COPY_FILES := \
 	device/goldelico/gta04/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
 	device/goldelico/gta04/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
 
+PRODUCT_PACKAGES += \
+	lights.gta04 \
+
 # Install script
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/replicant_gta04_install.sh:replicant_gta04_install.sh
