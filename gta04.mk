@@ -51,8 +51,6 @@ PRODUCT_TAGS += dalvik.gc.type-precise
 
 # Graphics
 PRODUCT_LOCALES := hdpi
-PRODUCT_PACKAGES += \
-	gralloc.omap3
 
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/initlogo.rle:root/initlogo.rle

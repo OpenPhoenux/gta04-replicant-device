@@ -46,6 +46,8 @@ BOARD_USES_ALSA_AUDIO := true
 BOARD_USES_TINYALSA_LIBAUDIO := true
 TARGET_PROVIDES_LIBAUDIO := true
 USE_CAMERA_STUB := true
+BOARD_NO_32BPP := true
+BOARD_NO_PAGE_FLIPPING := true
 
 # Init
 # set BOARD_SDCARD_INIT to true if booting from sdcard
