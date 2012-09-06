@@ -31,7 +31,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
 	libaudio \
 	libaudiopolicy \
-	libaudio-ril-inteface
+	libaudio-ril-interface
 
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/tinyalsa-audio.xml:system/etc/tinyalsa-audio.xml
