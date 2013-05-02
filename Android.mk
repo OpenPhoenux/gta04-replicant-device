@@ -16,18 +16,8 @@ LOCAL_PATH := $(call my-dir)
 
 ifeq ($(TARGET_DEVICE),gta04)
 
-ifeq ($(BOARD_SDCARD_INIT),true)
-file := $(TARGET_ROOT_OUT)/init.rc
-$(file) : $(LOCAL_PATH)/init-sdcard.rc | $(ACP)
-	$(transform-prebuilt-to-target)
-ALL_PREBUILT += $(file)
-$(INSTALLED_RAMDISK_TARGET): $(file)
-endif
-
 ifneq ($(TARGET_SIMULATOR),true)
 include $(call all-makefiles-under,$(LOCAL_PATH))
 endif
 
 endif
-
-

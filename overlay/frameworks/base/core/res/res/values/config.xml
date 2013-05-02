@@ -18,14 +18,10 @@
 -->
 
 <resources>
-    <bool name="cm_default_has_soft_buttons">true</bool>
-    <bool name="cm_default_soft_buttons_left">true</bool>
+	<!-- If this is true, the screen will come on when you unplug usb/power/whatever. -->
+	<bool name="config_unplugTurnsOnScreen">true</bool>
 
-    <bool name="cm_default_show_soft_home">true</bool>
-    <bool name="cm_default_show_soft_menu">true</bool>
-    <bool name="cm_default_show_soft_back">false</bool>
-    <bool name="cm_default_show_soft_search">false</bool>
-    <bool name="cm_default_show_soft_quick_na">false</bool>
-
-    <bool name="cm_default_home_on_longpress_back">true</bool>
+	<!-- Whether a software navigation bar should be shown. NOTE: in the future this may be
+	autodetected from the Configuration. -->
+	<bool name="config_showNavigationBar">true</bool>
 </resources>

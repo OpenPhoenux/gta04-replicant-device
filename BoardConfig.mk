@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Paul Kocialkowski <contact@paulk.fr>
+# Copyright (C) 2012-2013 Paul Kocialkowski <contact@paulk.fr>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,51 +12,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# BoardConfig.mk
-#
-# Product-specific compile-time definitions.
-#
-
-# CPU specs
+# CPU
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
 TARGET_ARCH_VARIANT := armv7-a-neon
+TARGET_GLOBAL_CFLAGS += -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp
+TARGET_GLOBAL_CPPFLAGS += -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp
 ARCH_ARM_HAVE_TLS_REGISTER := true
-TARGET_GLOBAL_CFLAGS += -mtune=cortex-a8
-TARGET_GLOBAL_CPPFLAGS += -mtune=cortex-a8
 
-# Images specs
+# Platform
+TARGET_BOARD_PLATFORM := omap3
+TARGET_BOOTLOADER_BOARD_NAME := gta04
+
+# Images
+TARGET_NO_RADIOIMAGE := true
 TARGET_NO_BOOTLOADER := false
 TARGET_NO_KERNEL := false
-TARGET_NO_RADIOIMAGE := true
 BOARD_USES_UBOOT := true
 BOARD_CUSTOM_BOOTIMG_MK := device/goldelico/gta04/bootimg.mk
 
-# Board specs
-COMMON_GLOBAL_CFLAGS += -DTARGET_OMAP3
-TARGET_OMAP3 := true
-TARGET_BOARD_PLATFORM := omap3
-TARGET_BOOTLOADER_BOARD_NAME := gta04
-OMAP_ENHANCEMENT := true
+# Bootloaders
+TARGET_BOOTLOADER_SOURCE := bootable/bootloader/goldelico/gta04/u-boot/
+TARGET_BOOTLOADER_CONFIG := omap3_gta04_config
+TARGET_XLOADER_SOURCE := bootable/bootloader/goldelico/gta04/x-loader/
+TARGET_XLOADER_CONFIG := omap3530gta04_config
 
-ifdef OMAP_ENHANCEMENT
-COMMON_GLOBAL_CFLAGS += -DOMAP_ENHANCEMENT
-endif
+# Kernel
+TARGET_KERNEL_CONFIG := gta04_defconfig
+TARGET_KERNEL_SOURCE := kernel/goldelico/gta04
 
 # Hardware
 BOARD_HAVE_FM_RADIO := false
+BOARD_HAVE_BLUETOOTH := false
 BOARD_USES_GENERIC_AUDIO := false
-BOARD_USES_ALSA_AUDIO := true
-BOARD_USES_TINYALSA_LIBAUDIO := true
-TARGET_PROVIDES_LIBAUDIO := true
 USE_CAMERA_STUB := true
-BOARD_NO_32BPP := true
-BOARD_NO_PAGE_FLIPPING := true
 
-# Init
-# set BOARD_SDCARD_INIT to true if booting from sdcard
-BOARD_SDCARD_INIT ?= false
-ifeq ($(BOARD_SDCARD_INIT),true)
-TARGET_PROVIDES_INIT := true
-TARGET_PROVIDES_INIT_RC := true
-endif
+BOARD_HAS_NO_SELECT_BUTTON := true
+
+# Audio
+BOARD_USE_TINYALSA_AUDIO := true

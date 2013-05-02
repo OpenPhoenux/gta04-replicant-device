@@ -1,6 +1,13 @@
-on boot
-    write /sys/class/usb_composite/usb_mass_storage/enable 1
+import init.gta04.usb.rc
 
+on early-init
+    export EXTERNAL_STORAGE /mnt/sdcard
+    mkdir /mnt/sdcard 0000 system system
+
+    # for backwards compatibility
+    symlink /mnt/sdcard /sdcard
+
+on boot
     # Modem GPIO
     chown radio radio /sys/class/gpio/gpio186/value
     chmod 660 /sys/class/gpio/gpio186/value
@@ -16,3 +23,16 @@ on boot
     chown system system /sys/class/leds/gta04:red:aux/max_brightness
     chown system system /sys/class/leds/gta04:green:aux/brightness
     chown system system /sys/class/leds/gta04:green:aux/max_brightness
+
+on fs
+    mount ext4 /dev/block/mmcblk0p2 /system wait
+    mount ext4 /dev/block/mmcblk0p2 /system ro wait remount
+    mount ext4 /dev/block/mmcblk0p3 /cache nosuid wait
+    mount ext4 /dev/block/mmcblk0p4 /data nosuid wait
+
+on post-fs-data
+    mkdir /data/media 0775 media_rw media_rw
+    chown media_rw media_rw /data/media
+
+service sdcard /system/bin/sdcard /data/media 1023 1023
+	class late_start

@@ -2,5 +2,5 @@
 # system.prop for GTA04
 #
 
-ro.sf.lcd_density=210
+ro.sf.lcd_density=200
 rild.libpath=/system/lib/libhayes-ril.so

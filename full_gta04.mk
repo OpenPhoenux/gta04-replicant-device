@@ -1,4 +1,4 @@
-# Copyright (C) 2012 Paul Kocialkowski <contact@paulk.fr>
+# Copyright (C) 2012-2013 Paul Kocialkowski <contact@paulk.fr>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,10 +13,9 @@
 # limitations under the License.
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/languages_full.mk)
-$(call inherit-product, device/goldelico/gta04/gta04.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full.mk)
+$(call inherit-product, device/goldelico/gta04/gta04.mk)
 
-# GTA04 uses high-density artwork where available
 PRODUCT_LOCALES += hdpi
 
 PRODUCT_NAME := full_gta04

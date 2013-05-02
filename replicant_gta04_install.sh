@@ -1,8 +1,8 @@
 #!/bin/sh
 
-# Replicant GTA04 Install script
+# Replicant GTA04 installer
 #
-# Copyright (C) 2012 Paul Kocialkowski, GPLv2
+# Copyright (C) 2012-2013 Paul Kocialkowski, GPLv2
 #
 # Based on mkcard.sh v0.5
 # Copyright (C) 2009 Graeme Gregory <dp@xora.org.uk>, GPLv2
@@ -27,7 +27,6 @@ export LC_ALL=C
 # Global vars
 #
 
-TYPE=""
 DRIVE=""
 DRIVE_NAME=""
 DRIVE_SIZE=""
@@ -49,18 +48,13 @@ display_banner() {
 }
 
 display_help() {
-	echo "Usage: $0 [TYPE] [DRIVE]"
+	echo "Usage: $0 [FILES_BASE] [DRIVE]"
 	echo ""
 	echo "Arguments:"
-	echo "- The [TYPE] argument can either be:"
-	echo "  * \"install\" to create an install sdcard"
-	echo "  * \"system\" to create a system sdcard"
+	echo "- The [FILES_BASE] argument is the path to the files"
+	echo "  The following files must be in that directory:"
+	echo "  MLO, u-boot.bin, splash.rgb16z, boot.scr, boot.img, system.tar.bz2"
 	echo "- The [DRIVE] argument is the sdcard drive node and can be omitted"
-	echo ""
-	echo "Notes:"
-	echo "The following files must be present in the directory where you run the script:"
-	echo "* bootloader.img boot.scr boot.img (install)"
-	echo "* system.tar.bz2 (system)"
 }
 
 # Drive
@@ -204,71 +198,16 @@ drive_eject() {
 	eject "$DRIVE"
 }
 
-# Install
-
-install_partitions_set() {
-	{
-		echo ",,0c"
-	} | sfdisk -D -H 255 -S 63 -C "$DRIVE_CYLINDERS" "$DRIVE"
-	if [ $? != 0 ]
-	then
-		drive_rescue
-		exit 1
-	fi
-
-	sleep 1
-
-	mkfs.vfat -F 32 -n "install" "${DRIVE}1"
-
-	sleep 1
-}
-
-install_write() {
-	echo "Writing install files"
-
-	mkdir -p "$MOUNT_BASE/install"
-	mount "${DRIVE}1" "$MOUNT_BASE/install"
-
-	cp "bootloader.img" "$MOUNT_BASE/install"
-	if [ $? != 0 ]
-	then
-		exit 1
-	fi
-
-	cp "boot.scr" "$MOUNT_BASE/install"
-	if [ $? != 0 ]
-	then
-		exit 1
-	fi
-
-	cp "boot.img" "$MOUNT_BASE/install"
-	if [ $? != 0 ]
-	then
-		exit 1
-	fi
-
-	dir=$( pwd )
-	echo "Syncing files"
-	cd "$MOUNT_BASE/install"
-	sync
-	cd "$dir"
-
-	umount "$MOUNT_BASE/install"
-	rmdir "$MOUNT_BASE/install"
-}
-
-# System
-
-system_partitions_set() {
+drive_partitions_set() {
+	boot_size=$( echo "(50 * 1024 * 1024) / ($DRIVE_SIZE/$DRIVE_CYLINDERS)" | bc )
 	system_size=$( echo "(250 * 1024 * 1024) / ($DRIVE_SIZE/$DRIVE_CYLINDERS)" | bc )
-	data_size=$( echo "(250 * 1024 * 1024) / ($DRIVE_SIZE/$DRIVE_CYLINDERS)" | bc )
 	cache_size=$( echo "(100 * 1024 * 1024) / ($DRIVE_SIZE/$DRIVE_CYLINDERS)" | bc )
 
 	{
-		echo ",$system_size,83"
-		echo ",$data_size,83"
-		echo ",$cache_size,83"
-		echo ",,0c"
+		echo ",$boot_size,c,*"
+		echo ",$system_size,83,-"
+		echo ",$cache_size,83,-"
+		echo ",,83,-"
 	} | sfdisk -D -H 255 -S 63 -C "$DRIVE_CYLINDERS" "$DRIVE"
 	if [ $? != 0 ]
 	then
@@ -278,19 +217,46 @@ system_partitions_set() {
 
 	sleep 1
 
-	mkfs.ext2 -L "system" "${DRIVE}1"
-	mkfs.ext2 -L "data" "${DRIVE}2"
-	mkfs.ext2 -L "cache" "${DRIVE}3"
-	mkfs.vfat -F 32 -n "storage" "${DRIVE}4"
+	if [ -e "${DRIVE}p1" ]
+	then
+		DRIVE_PART="${DRIVE}p"
+	else
+		DRIVE_PART="${DRIVE}"
+	fi
+
+	mkfs.vfat -F 32 -n "boot" "${DRIVE_PART}1"
+	mkfs.ext2 -L "system" "${DRIVE_PART}2"
+	mkfs.ext2 -L "cache" "${DRIVE_PART}3"
+	mkfs.ext2 -L "data" "${DRIVE_PART}4"
 
 	sleep 1
 }
 
-system_write() {
+drive_write() {
+	echo "Writing boot files"
+
+	mkdir -p "$MOUNT_BASE/boot"
+	mount "${DRIVE_PART}1" "$MOUNT_BASE/boot"
+
+	cp $FILES_BASE/MLO "$MOUNT_BASE/boot/"
+	cp $FILES_BASE/u-boot.bin "$MOUNT_BASE/boot/"
+	cp $FILES_BASE/splash.rgb16z "$MOUNT_BASE/boot"
+	cp $FILES_BASE/boot.scr "$MOUNT_BASE/boot"
+	cp $FILES_BASE/boot.img "$MOUNT_BASE/boot"
+
+	dir=$( pwd )
+	echo "Syncing boot files"
+	cd "$MOUNT_BASE/boot"
+	sync
+	cd "$dir"
+
+	umount "$MOUNT_BASE/boot"
+	rmdir "$MOUNT_BASE/boot"
+
 	echo "Writing system files"
 
 	mkdir -p "$MOUNT_BASE/system"
-	mount "${DRIVE}1" "$MOUNT_BASE/system"
+	mount "${DRIVE_PART}2" "$MOUNT_BASE/system"
 
 	tar -p -xf "system.tar.bz2" -C "$MOUNT_BASE/system/" --strip-components=1 "system/"
 	if [ $? != 0 ]
@@ -302,7 +268,7 @@ system_write() {
 	fi
 
 	dir=$( pwd )
-	echo "Syncing files"
+	echo "Syncing system files"
 	cd "$MOUNT_BASE/system"
 	sync
 	cd "$dir"
@@ -318,7 +284,7 @@ display_end() {
 
 # Script start
 
-if [ $# -eq 0 ]
+if [ $# -eq 0 ] || [ $# -gt 2 ] || [ "$1" = "--help" ] || [ "$1" = "help" ]
 then
 	display_help
 	exit 1
@@ -326,22 +292,16 @@ fi
 
 if [ $# -eq 1 ]
 then
-	TYPE=$1
+	FILES_BASE=$1
 fi
 
 if [ $# -eq 2 ]
 then
-	TYPE=$1
+	FILES_BASE=$1
 	DRIVE=$2
 fi
 
 display_banner
-
-if [ "$TYPE" != "install" ] && [ "$TYPE" != "system" ]
-then
-	display_help
-	exit 1
-fi
 
 if [ "$DRIVE" = "" ]
 then
@@ -354,15 +314,8 @@ drive_umount
 drive_empty
 drive_infos_get
 
-# Install/System
-if [ "$TYPE" = "install" ]
-then
-	install_partitions_set
-	install_write
-else
-	system_partitions_set
-	system_write
-fi
+drive_partitions_set
+drive_write
 
 # Finishing
 display_end

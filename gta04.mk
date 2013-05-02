@@ -12,45 +12,28 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Hardware
-PRODUCT_COPY_FILES := \
-	device/goldelico/gta04/init.gta04.rc:root/init.gta04.rc \
-	device/goldelico/gta04/vold.fstab:system/etc/vold.fstab \
-	device/goldelico/gta04/ueventd.gta04.rc:root/ueventd.gta04.rc \
-	device/goldelico/gta04/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
-	device/goldelico/gta04/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
-
-PRODUCT_PACKAGES += \
-	lights.gta04 \
+# Overlay
+DEVICE_PACKAGE_OVERLAYS := device/goldelico/gta04/overlay
 
 # Install script
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/replicant_gta04_install.sh:replicant_gta04_install.sh
 
-# Audio
-PRODUCT_PACKAGES += \
-	libaudio \
-	libaudiopolicy \
-	libaudio-ril-interface
-
+# Ramdisk
 PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/tinyalsa-audio.xml:system/etc/tinyalsa-audio.xml
+	device/goldelico/gta04/init.gta04.rc:root/init.gta04.rc \
+	device/goldelico/gta04/init.gta04.usb.rc:root/init.gta04.usb.rc \
+	device/goldelico/gta04/ueventd.gta04.rc:root/ueventd.gta04.rc
 
-# RIL
-PRODUCT_PACKAGES += \
-	libhayes-ril
-
-# APNS
-PRODUCT_COPY_FILES += \
-	vendor/replicant/prebuilt/common/etc/apns-conf.xml:system/etc/apns-conf.xml
-
-# Dalvik
+# USB
 PRODUCT_PROPERTY_OVERRIDES += \
-	dalvik.vm.heapsize=32m \
-	dalvik.vm.checkjni=false \
-	ro.kernel.android.checkjni=0
+	persist.sys.usb.config=mass_storage,adb
 
-PRODUCT_TAGS += dalvik.gc.type-precise
+# Input
+PRODUCT_COPY_FILES += \
+	device/goldelico/gta04/tsc2007.idc:system/usr/idc/tsc2007.idc \
+	device/goldelico/gta04/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
+	device/goldelico/gta04/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
 
 # Graphics
 PRODUCT_LOCALES := hdpi
@@ -58,5 +41,28 @@ PRODUCT_LOCALES := hdpi
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/initlogo.rle:root/initlogo.rle
 
-# Overlay
-DEVICE_PACKAGE_OVERLAYS := device/goldelico/gta04/overlay
+# Audio
+PRODUCT_PACKAGES += \
+	audio.primary.omap3
+
+PRODUCT_COPY_FILES += \
+	device/goldelico/gta04/configs/tinyalsa-audio.xml:system/etc/tinyalsa-audio.xml
+
+# Lights
+PRODUCT_PACKAGES += \
+	lights.gta04 \
+
+# APNS
+PRODUCT_COPY_FILES += \
+	vendor/replicant/prebuilt/common/etc/apns-conf.xml:system/etc/apns-conf.xml
+
+# Dalvik
+PRODUCT_PROPERTY_OVERRIDES += \
+	dalvik.vm.lockprof.threshold=500 \
+	dalvik.vm.dexopt-data-only=1 \
+	dalvik.vm.checkjni=false \
+	ro.kernel.android.checkjni=0
+
+PRODUCT_TAGS += dalvik.gc.type-precise
+
+include frameworks/base/build/phone-hdpi-512-dalvik-heap.mk

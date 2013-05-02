@@ -1,24 +1,27 @@
 LOCAL_PATH := $(call my-dir)
 
-INSTALLED_BOOTIMAGE_TARGET := $(PRODUCT_OUT)/boot.img
-INSTALLED_RECOVERYIMAGE_TARGET := $(PRODUCT_OUT)/recovery.img
-INSTALLED_BOOTLOADERIMAGE_TARGET := $(PRODUCT_OUT)/bootloader.img
-INSTALLED_BOOTSCR_TARGET := $(PRODUCT_OUT)/boot.scr
-GTA04_BOOTSCR_SOURCE := device/goldelico/gta04/u-boot/boot-scr/replicant-boot.txt
+INSTALLED_XLOADER_MODULE := $(PRODUCT_OUT)/xloader
 
-.NOTPARALLEL: $(INSTALLED_BOOTIMAGE_TARGET)
-.NOTPARALLEL: $(INSTALLED_RECOVERYIMAGE_TARGET)
+INSTALLED_BOOTLOADERIMAGE_TARGET := $(PRODUCT_OUT)/u-boot.bin
+INSTALLED_XLOADERIMAGE_TARGET := $(PRODUCT_OUT)/MLO
+INSTALLED_BOOTLOADER_SCRIPT_TARGET := $(PRODUCT_OUT)/boot.scr
+INSTALLED_BOOTLOADER_SPLASH_TARGET := $(PRODUCT_OUT)/splash.rgb16z
 
 $(INSTALLED_BOOTIMAGE_TARGET): $(INSTALLED_RAMDISK_TARGET) $(INSTALLED_KERNEL_TARGET)
 	$(call pretty,"Boot image: $@")
-	$(ACP) $(PRODUCT_OUT)/kernel $@
+	$(ACP) $(INSTALLED_KERNEL_TARGET) $@
+	@echo -e ${CL_INS}"Made boot image: $@"${CL_RST}
 
-$(INSTALLED_RECOVERYIMAGE_TARGET): $(recovery_ramdisk) $(recovery_kernel) $(PRODUCT_OUT)/utilities/busybox $(PRODUCT_OUT)/utilities/mke2fs
-	$(call pretty,"Recovery image: $@")
-	$(ACP) $(PRODUCT_OUT)/kernel-recovery $@
-
-$(INSTALLED_BOOTLOADERIMAGE_TARGET): $(INSTALLED_BOOTLOADER_TARGET) $(MKIMAGE)
-	$(hide) $(ACP) -fp $(INSTALLED_BOOTLOADER_TARGET) $@
-	$(MKIMAGE) -A arm -T script -C none -n "boot.scr" -d $(GTA04_BOOTSCR_SOURCE) $(INSTALLED_BOOTSCR_TARGET)
+$(INSTALLED_BOOTLOADERIMAGE_TARGET): $(INSTALLED_XLOADER_MODULE) $(INSTALLED_BOOTLOADER_MODULE) $(MKIMAGE)
+	$(call pretty,"X-Loader image: $(INSTALLED_XLOADER_MODULE)")
+	$(ACP) $(INSTALLED_XLOADER_MODULE) $(INSTALLED_XLOADERIMAGE_TARGET)
+	@echo -e ${CL_INS}"Made X-Loader image: $(INSTALLED_XLOADERIMAGE_TARGET)"${CL_RST}
+	$(call pretty,"Bootloader splash: $(INSTALLED_BOOTLOADER_SPLASH_TARGET)")
+	$(ACP) $(BOOTLOADER_SRC)/../boot-scr/splash.rgb16z $(INSTALLED_BOOTLOADER_SPLASH_TARGET)
+	@echo -e ${CL_INS}"Made bootloader splash: $(INSTALLED_BOOTLOADER_SPLASH_TARGET)"${CL_RST}
+	$(call pretty,"Bootloader script: $(INSTALLED_BOOTLOADER_SCRIPT_TARGET)")
+	$(MKIMAGE) -A arm -T script -C none -n "boot.scr" -d $(BOOTLOADER_SRC)/../boot-scr/boot.txt $(INSTALLED_BOOTLOADER_SCRIPT_TARGET)
+	@echo -e ${CL_INS}"Made bootloader script: $(INSTALLED_BOOTLOADER_SCRIPT_TARGET)"${CL_RST}
 	$(call pretty,"Bootloader image: $@")
-	$(call pretty,"Boot-scr: $(INSTALLED_BOOTSCR_TARGET)")
+	$(ACP) $(INSTALLED_BOOTLOADER_MODULE) $@
+	@echo -e ${CL_INS}"Made bootloader image: $@"${CL_RST}
