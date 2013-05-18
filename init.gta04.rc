@@ -1,38 +1,43 @@
 import init.gta04.usb.rc
 
 on early-init
-    export EXTERNAL_STORAGE /mnt/sdcard
-    mkdir /mnt/sdcard 0000 system system
+	export EXTERNAL_STORAGE /mnt/sdcard
+	mkdir /mnt/sdcard 0000 system system
+	symlink /mnt/sdcard /sdcard
 
-    # for backwards compatibility
-    symlink /mnt/sdcard /sdcard
+	mkdir /mnt/boot 0000 system system
 
 on boot
-    # Modem GPIO
-    chown radio radio /sys/class/gpio/gpio186/value
-    chmod 660 /sys/class/gpio/gpio186/value
+	# Modem GPIO
+	chown radio radio /sys/class/gpio/gpio186/value
+	chmod 660 /sys/class/gpio/gpio186/value
 
-    # Lights
-    chown system system /sys/class/backlight/pwm-backlight/brightness
-    chown system system /sys/class/backlight/pwm-backlight/max_brightness
-    chown system system /sys/class/leds/gta04:red:power/brightness
-    chown system system /sys/class/leds/gta04:red:power/max_brightness
-    chown system system /sys/class/leds/gta04:green:power/brightness
-    chown system system /sys/class/leds/gta04:green:power/max_brightness
-    chown system system /sys/class/leds/gta04:red:aux/brightness
-    chown system system /sys/class/leds/gta04:red:aux/max_brightness
-    chown system system /sys/class/leds/gta04:green:aux/brightness
-    chown system system /sys/class/leds/gta04:green:aux/max_brightness
+	# Lights
+	chown system system /sys/class/backlight/pwm-backlight/brightness
+	chown system system /sys/class/backlight/pwm-backlight/max_brightness
+	chown system system /sys/class/leds/gta04:red:power/brightness
+	chown system system /sys/class/leds/gta04:red:power/max_brightness
+	chown system system /sys/class/leds/gta04:green:power/brightness
+	chown system system /sys/class/leds/gta04:green:power/max_brightness
+	chown system system /sys/class/leds/gta04:red:aux/brightness
+	chown system system /sys/class/leds/gta04:red:aux/max_brightness
+	chown system system /sys/class/leds/gta04:green:aux/brightness
+	chown system system /sys/class/leds/gta04:green:aux/max_brightness
+
+	# Audio
+	chown system audio /sys/class/gpio/gpio55/value
+	chmod 0660 /sys/class/gpio/gpio55/value
 
 on fs
-    mount ext4 /dev/block/mmcblk0p2 /system wait
-    mount ext4 /dev/block/mmcblk0p2 /system ro wait remount
-    mount ext4 /dev/block/mmcblk0p3 /cache nosuid wait
-    mount ext4 /dev/block/mmcblk0p4 /data nosuid wait
+	mount ext4 /dev/block/mmcblk0p2 /system wait
+	mount ext4 /dev/block/mmcblk0p2 /system ro wait remount
+	mount ext4 /dev/block/mmcblk0p3 /cache nosuid wait
+	mount ext4 /dev/block/mmcblk0p4 /data nosuid wait
+	mount vfat /dev/block/mmcblk0p1 /mnt/boot/ ro wait
 
 on post-fs-data
-    mkdir /data/media 0775 media_rw media_rw
-    chown media_rw media_rw /data/media
+	mkdir /data/media 0775 media_rw media_rw
+	chown media_rw media_rw /data/media
 
 service sdcard /system/bin/sdcard /data/media 1023 1023
 	class late_start
