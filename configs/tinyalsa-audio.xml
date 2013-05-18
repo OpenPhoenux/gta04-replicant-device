@@ -5,18 +5,17 @@
 
 		<device type="default">
 			<path type="enable">
-			<ctrl name="DAC1 Digital Fine Playback Volume" value="60" /> 
-			<ctrl name="DAC2 Digital Fine Playback Volume" value="60" /> 
-			<ctrl name="DAC1 Digital Coarse Playback Volume" value="0" /> 
-			<ctrl name="DAC2 Digital Coarse Playback Volume" value="0" /> 
+				<ctrl name="DAC1 Digital Fine Playback Volume" value="60" />
+				<ctrl name="DAC2 Digital Fine Playback Volume" value="60" />
+				<ctrl name="DAC1 Digital Coarse Playback Volume" value="0" />
+				<ctrl name="DAC2 Digital Coarse Playback Volume" value="0" />
 
-			<ctrl name="DAC1 Analog Playback Volume" value="16" /> 
-			<ctrl name="DAC2 Analog Playback Volume" value="16" /> 
+				<ctrl name="Headset Playback Volume" value="1" />
 
-			<ctrl name="TX1 Digital Capture Volume" value="12" />
-			<ctrl name="TX2 Digital Capture Volume" value="12" />
+				<ctrl name="TX1 Digital Capture Volume" value="12" />
+				<ctrl name="TX2 Digital Capture Volume" value="12" />
 
-			<ctrl name="Analog Capture Volume" value="5" />
+				<ctrl name="Analog Capture Volume" value="5" />
 			</path>
 		</device>
 		<device type="earpiece">
@@ -29,16 +28,46 @@
 				<ctrl name="Earpiece Playback Volume" value="0" />
 			</path>
 		</device>
-		<device type="speaker">
-			<path type="enable">
+                <device type="speaker">
+                        <path type="enable">
+				<ctrl name="DAC1 Analog Playback Volume" value="16" />
+				<ctrl name="DAC2 Analog Playback Volume" value="16" />
 				<ctrl name="HandsfreeL Mux" value="AudioL2" />
 				<ctrl name="HandsfreeR Mux" value="AudioR2" />
 				<ctrl name="HandsfreeL Switch" value="on" />
 				<ctrl name="HandsfreeR Switch" value="on" />
-			</path>
-			<path type="disable">
+                        </path>
+                        <path type="disable">
 				<ctrl name="HandsfreeL Switch" value="off" />
 				<ctrl name="HandsfreeR Switch" value="off" />
+                        </path>
+		</device>
+		<device type="wired-headphone">
+			<path type="enable">
+				<write name="/sys/class/gpio/gpio55/value" value="1" />
+				<ctrl name="DAC1 Analog Playback Volume" value="10" />
+				<ctrl name="DAC2 Analog Playback Volume" value="10" />
+				<ctrl name="HeadsetR Mixer AudioR2" value="on" />
+				<ctrl name="HeadsetL Mixer AudioL2" value="on" />
+			</path>
+			<path type="disable">
+				<write name="/sys/class/gpio/gpio55/value" value="0" />
+				<ctrl name="HeadsetR Mixer AudioR2" value="off" />
+				<ctrl name="HeadsetL Mixer AudioL2" value="off" />
+			</path>
+		</device>
+		<device type="wired-headset">
+			<path type="enable">
+				<write name="/sys/class/gpio/gpio55/value" value="1" />
+				<ctrl name="DAC1 Analog Playback Volume" value="10" />
+				<ctrl name="DAC2 Analog Playback Volume" value="10" />
+				<ctrl name="HeadsetR Mixer AudioR2" value="on" />
+				<ctrl name="HeadsetL Mixer AudioL2" value="on" />
+			</path>
+			<path type="disable">
+				<write name="/sys/class/gpio/gpio55/value" value="0" />
+				<ctrl name="HeadsetR Mixer AudioR2" value="off" />
+				<ctrl name="HeadsetL Mixer AudioL2" value="off" />
 			</path>
 		</device>
 	</output>
