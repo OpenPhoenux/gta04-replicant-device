@@ -84,6 +84,14 @@
 				<ctrl name="Analog Left Main Mic Capture Switch" value="off" />
 			</path>
 		</device>
+		<device type="wired-headset">
+			<path type="enable">
+				<ctrl name="Analog Left Headset Mic Capture Switch" value="on" />
+			</path>
+			<path type="disable">
+				<ctrl name="Analog Left Headset Mic Capture Switch" value="off" />
+			</path>
+		</device>
 	</input>
 
 	<modem card="0" device="0">
