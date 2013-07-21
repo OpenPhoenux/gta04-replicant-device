@@ -40,6 +40,7 @@ TARGET_XLOADER_CONFIG := omap3530gta04_config
 # Kernel
 TARGET_KERNEL_CONFIG := gta04_defconfig
 TARGET_KERNEL_SOURCE := kernel/goldelico/gta04
+TARGET_KERNEL_LOADADDR := 0x80008000
 
 # Hardware
 BOARD_HAVE_FM_RADIO := false
