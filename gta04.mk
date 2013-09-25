@@ -25,6 +25,10 @@ PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/init.gta04.usb.rc:root/init.gta04.usb.rc \
 	device/goldelico/gta04/ueventd.gta04.rc:root/ueventd.gta04.rc
 
+# Battery
+PRODUCT_COPY_FILES += \
+	device/goldelico/gta04/battery-init.sh:system/battery-init.sh
+
 # USB
 PRODUCT_PROPERTY_OVERRIDES += \
 	persist.sys.usb.config=mass_storage,adb
