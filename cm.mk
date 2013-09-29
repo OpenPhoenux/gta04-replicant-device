@@ -1,7 +1,12 @@
 # Inherit some common CM stuff.
 $(call inherit-product, vendor/replicant/config/gsm.mk)
 
+# Release name
 PRODUCT_RELEASE_NAME := GTA04
+
+# Boot animation
+TARGET_BOOTANIMATION_NAME := square-480x480
+
 # Inherit some common CM stuff.
 $(call inherit-product, vendor/replicant/config/common_full_phone.mk)
 

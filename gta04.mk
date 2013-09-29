@@ -25,6 +25,10 @@ PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/init.gta04.usb.rc:root/init.gta04.usb.rc \
 	device/goldelico/gta04/ueventd.gta04.rc:root/ueventd.gta04.rc
 
+# Don't install kernel boot splash (initlogo.rle), as it is not universal for all Display sizes (Letux 2804/3704/7004)
+#PRODUCT_COPY_FILES += \
+#	device/goldelico/gta04/initlogo.rle:root/initlogo.rle
+
 # Battery
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/battery-init.sh:system/battery-init.sh
@@ -41,9 +45,6 @@ PRODUCT_COPY_FILES += \
 
 # Graphics
 PRODUCT_LOCALES := hdpi
-
-PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/initlogo.rle:root/initlogo.rle
 
 # Audio
 PRODUCT_PACKAGES += \
