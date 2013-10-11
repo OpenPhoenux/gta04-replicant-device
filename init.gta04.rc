@@ -28,12 +28,12 @@ on boot
 	chown system audio /sys/class/gpio/gpio55/value
 	chmod 0660 /sys/class/gpio/gpio55/value
 
-on fs
-	mount ext4 /dev/block/mmcblk0p2 /system wait
-	mount ext4 /dev/block/mmcblk0p2 /system ro wait remount
-	mount ext4 /dev/block/mmcblk0p3 /cache nosuid wait
-	mount ext4 /dev/block/mmcblk0p4 /data nosuid wait
-	mount vfat /dev/block/mmcblk0p1 /mnt/boot/ ro wait
+#on fs
+	#mount ext4 /dev/block/mmcblk0p2 /system wait
+	#mount ext4 /dev/block/mmcblk0p2 /system ro wait remount
+	#mount ext4 /dev/block/mmcblk0p3 /cache nosuid wait
+	#mount ext4 /dev/block/mmcblk0p4 /data nosuid wait
+	#mount vfat /dev/block/mmcblk0p1 /mnt/boot/ ro wait
 
 # Battery Driver
 service battery /system/battery-init.sh

@@ -31,6 +31,9 @@ TARGET_NO_KERNEL := false
 BOARD_USES_UBOOT := true
 BOARD_CUSTOM_BOOTIMG_MK := device/goldelico/gta04/bootimg.mk
 
+# Init RC
+TARGET_PROVIDES_INIT_RC := true
+
 # Bootloaders
 TARGET_BOOTLOADER_SOURCE := bootable/bootloader/goldelico/gta04/u-boot/
 TARGET_BOOTLOADER_CONFIG := omap3_gta04_config

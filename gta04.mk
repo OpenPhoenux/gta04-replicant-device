@@ -19,8 +19,10 @@ DEVICE_PACKAGE_OVERLAYS := device/goldelico/gta04/overlay
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/replicant_gta04_install.sh:replicant_gta04_install.sh
 
-# Ramdisk
+# System Root
 PRODUCT_COPY_FILES += \
+	device/goldelico/gta04/init.rc:root/init.rc \
+	device/goldelico/gta04/ueventd.rc:root/ueventd.rc \
 	device/goldelico/gta04/init.gta04.rc:root/init.gta04.rc \
 	device/goldelico/gta04/init.gta04.usb.rc:root/init.gta04.usb.rc \
 	device/goldelico/gta04/ueventd.gta04.rc:root/ueventd.gta04.rc
