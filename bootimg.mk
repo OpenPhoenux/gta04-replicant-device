@@ -1,5 +1,13 @@
 LOCAL_PATH := $(call my-dir)
 
+# Make it possible to build the kernel with a locally provided toolchain
+# (LOCAL_TOOLCHAIN), as the Android toolchain isn't able to build newer
+# kernels (e.g. 3.12).
+# Behave normally if LOCAL_TOOLCHAIN= isn't given.
+ifneq ($(LOCAL_TOOLCHAIN),)
+    override ARM_CROSS_COMPILE := CROSS_COMPILE="$(LOCAL_TOOLCHAIN)"
+endif
+
 INSTALLED_XLOADER_MODULE := $(PRODUCT_OUT)/xloader
 
 INSTALLED_BOOTLOADERIMAGE_TARGET := $(PRODUCT_OUT)/u-boot.bin
