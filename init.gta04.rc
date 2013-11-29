@@ -4,6 +4,9 @@ on early-init
 	export EXTERNAL_STORAGE /mnt/sdcard
 	mkdir /mnt/sdcard 0000 system system
 	symlink /mnt/sdcard /sdcard
+	#TODO: who should own sdcard, what are the correct permisisons
+	#chrown ? ? /mnt/sdcard
+	chmod 777 /mnt/sdcard
 
 	mkdir /mnt/boot 0000 system system
 
