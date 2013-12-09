@@ -247,6 +247,41 @@ static int open_lights(const struct hw_module_t *module, char const *name,
 		return -1;
 	}
 
+	FILE * file = fopen("/proc/cmdline", "r");
+	if (file) {
+		char cmdline[4096];
+		if (fgets(cmdline, sizeof(cmdline), file)) {
+			/* check if we are on Letux3704 (GTA04B2) or Letux7004 (GTA04B3) */
+			if (strstr(cmdline, "mux=GTA04B2") != NULL ||
+				strstr(cmdline, "mux=GTA04B3") != NULL) {
+				LOGD("Detected Letux3704/Letux7004, setting LED sysfs paths.");
+                /* TODO: implement setting correct sysfs paths
+				battery_red_brightness[0] = "\0";
+				battery_red_max_brightness[0] = "\0";
+				strcpy(battery_green_brightness,
+				"/sys/class/leds/gta04:right/brightness");
+				strcpy(battery_green_max_brightness,
+				"/sys/class/leds/gta04:right/max_brightness");
+
+				strcpy(notifications_red_brightness,
+				"/sys/class/leds/gta04:left/brightness");
+				strcpy(notifications_red_max_brightness,
+				"/sys/class/leds/gta04:left/max_brightness");
+				notifications_green_brightness[0] = "\0";
+				notifications_green_max_brightness[0] = "\0";
+                */
+			}
+		} else {
+			LOGE("Error reading cmdline: %s (%d)", strerror(errno),
+				errno);
+		}
+		fclose(file);
+	} else {
+		LOGE("Could not detect device variant. Error opening /proc/cmdline: %s (%d)", strerror(errno),
+			errno);
+	}
+	fclose(file);
+
 	pthread_mutex_init(&lights_mutex, NULL);
 
 	dev = calloc(1, sizeof(struct light_device_t));
