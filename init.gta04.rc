@@ -31,6 +31,14 @@ on boot
 	chown system audio /sys/class/gpio/gpio55/value
 	chmod 0660 /sys/class/gpio/gpio55/value
 
+	#Bluetooth
+	insmod /system/lib/modules/bluetooth.ko
+	insmod /system/lib/modules/hci_uart.ko
+	chown bluetooth bluetooth /dev/ttyO0
+	chmod 0600 /dev/ttyO0
+	chown bluetooth bluetooth /sys/class/rfkill/rfkill1/state
+	chown bluetooth bluetooth /sys/class/rfkill/rfkill1/type
+
 #on fs
 	#mount ext4 /dev/block/mmcblk0p2 /system wait
 	#mount ext4 /dev/block/mmcblk0p2 /system ro wait remount
@@ -46,6 +54,14 @@ service battery /system/battery-init.sh
 on post-fs-data
 	mkdir /data/media 0775 media_rw media_rw
 	chown media_rw media_rw /data/media
+
+# for bluetooth (speed=3000000, choose 115200 for GTA04A3 boards)
+service hciattach /system/bin/hciattach -s 3000000 /dev/ttyO0 any 3000000
+	class main
+	user bluetooth
+	group bluetooth net_bt_admin
+	#disabled #should be disabled to save power
+	oneshot
 
 service sdcard /system/bin/sdcard /data/media 1023 1023
 	class late_start

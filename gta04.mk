@@ -45,6 +45,11 @@ PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
 	device/goldelico/gta04/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
 
+# Bluetooth configuration files
+PRODUCT_COPY_FILES += \
+	system/bluetooth/data/main.le.conf:system/etc/bluetooth/main.conf \
+	frameworks/base/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml
+
 # Graphics
 PRODUCT_LOCALES := hdpi
 
