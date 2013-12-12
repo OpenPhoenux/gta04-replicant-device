@@ -36,8 +36,14 @@ on boot
 	insmod /system/lib/modules/hci_uart.ko
 	chown bluetooth bluetooth /dev/ttyO0
 	chmod 0600 /dev/ttyO0
+	#rfkill1 is only available if hciattach is running
+	start hciattach
+	start bluetoothd
+	wait /sys/class/rfkill/rfkill1/state
+	chmod 0660 /sys/class/rfkill/rfkill1/state
 	chown bluetooth bluetooth /sys/class/rfkill/rfkill1/state
 	chown bluetooth bluetooth /sys/class/rfkill/rfkill1/type
+	write /sys/class/rfkill/rfkill1/state 0
 
 #on fs
 	#mount ext4 /dev/block/mmcblk0p2 /system wait
@@ -56,11 +62,11 @@ on post-fs-data
 	chown media_rw media_rw /data/media
 
 # for bluetooth (speed=3000000, choose 115200 for GTA04A3 boards)
-service hciattach /system/bin/hciattach -s 3000000 /dev/ttyO0 any 3000000
+service hciattach /system/bin/logwrapper /system/bin/hciattach -s 3000000 /dev/ttyO0 any 3000000 flow
 	class main
 	user bluetooth
 	group bluetooth net_bt_admin
-	#disabled #should be disabled to save power
+	disabled
 	oneshot
 
 service sdcard /system/bin/sdcard /data/media 1023 1023
