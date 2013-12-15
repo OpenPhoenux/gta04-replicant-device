@@ -53,17 +53,15 @@ USE_CAMERA_STUB := true
 
 BOARD_HAS_NO_SELECT_BUTTON := true
 
-# Connectivity - Wi-Fi
-#WPA_SUPPLICANT_VERSION := VER_0_8_X
+# Wifi
 BOARD_WPA_SUPPLICANT_DRIVER := WEXT
-#BOARD_WLAN_DEVICE := bcm4329
-#BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wext
+WPA_SUPPLICANT_VERSION      := VER_0_8_X
 WIFI_DRIVER_MODULE_PATH     := "/system/lib/modules/libertas_sdio.ko"
-#WIFI_DRIVER_FW_PATH_STA     := "/vendor/firmware/fw_bcm4329.bin"
+WIFI_DRIVER_MODULE_NAME     := "libertas_sdio"
+BOARD_WLAN_DEVICE           := sd8686
+WIFI_DRIVER_FW_PATH_STA     := "/system/etc/firmware/sd8686.bin" #FIXME: what about sd8686_helper.bin?
 #WIFI_DRIVER_FW_PATH_AP      := "/vendor/firmware/fw_bcm4329_apsta.bin"
-WIFI_DRIVER_MODULE_NAME     :=  "libertas_sdio"
 #WIFI_DRIVER_MODULE_ARG      :=  "iface_name=wlan0 firmware_path=/vendor/firmware/fw_bcm4329.bin nvram_path=/vendor/firmware/nvram_net.txt"
-
 
 # Audio
 BOARD_USE_TINYALSA_AUDIO := true
