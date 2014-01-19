@@ -18,6 +18,7 @@ on boot
 	# Lights
 	chown system system /sys/class/backlight/pwm-backlight/brightness
 	chown system system /sys/class/backlight/pwm-backlight/max_brightness
+	# Letux 2804
 	chown system system /sys/class/leds/gta04:red:power/brightness
 	chown system system /sys/class/leds/gta04:red:power/max_brightness
 	chown system system /sys/class/leds/gta04:green:power/brightness
@@ -26,6 +27,11 @@ on boot
 	chown system system /sys/class/leds/gta04:red:aux/max_brightness
 	chown system system /sys/class/leds/gta04:green:aux/brightness
 	chown system system /sys/class/leds/gta04:green:aux/max_brightness
+	Letux 3704/7004
+	chown system system /sys/class/leds/gta04:left/brightness
+	chown system system /sys/class/leds/gta04:left/max_brightness
+	chown system system /sys/class/leds/gta04:right/brightness
+	chown system system /sys/class/leds/gta04:right/max_brightness
 
 	# Audio
 	chown system audio /sys/class/gpio/gpio55/value

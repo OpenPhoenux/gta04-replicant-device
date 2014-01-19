@@ -36,22 +36,22 @@ const char backlight_brightness[] =
 const char backlight_max_brightness[] =
 	"/sys/class/backlight/pwm-backlight/max_brightness";
 
-const char battery_red_brightness[] =
+char battery_red_brightness[] =
 	"/sys/class/leds/gta04:red:power/brightness";
-const char battery_red_max_brightness[] =
+char battery_red_max_brightness[] =
 	"/sys/class/leds/gta04:red:power/max_brightness";
-const char battery_green_brightness[] =
+char battery_green_brightness[] =
 	"/sys/class/leds/gta04:green:power/brightness";
-const char battery_green_max_brightness[] =
+char battery_green_max_brightness[] =
 	"/sys/class/leds/gta04:green:power/max_brightness";
 
-const char notifications_red_brightness[] =
+char notifications_red_brightness[] =
 	"/sys/class/leds/gta04:red:aux/brightness";
-const char notifications_red_max_brightness[] =
+char notifications_red_max_brightness[] =
 	"/sys/class/leds/gta04:red:aux/max_brightness";
-const char notifications_green_brightness[] =
+char notifications_green_brightness[] =
 	"/sys/class/leds/gta04:green:aux/brightness";
-const char notifications_green_max_brightness[] =
+char notifications_green_max_brightness[] =
 	"/sys/class/leds/gta04:green:aux/max_brightness";
 
 /*
@@ -145,6 +145,7 @@ static int set_light_notifications(struct light_device_t *dev,
 	if(rc >= 0)
 		rc = sysfs_write_int(notifications_green_brightness, green);
 	pthread_mutex_unlock(&lights_mutex);
+	LOGD("set_light_notifications: %d (red), %d (green)", red, green);
 
 	return rc;
 }
@@ -181,6 +182,7 @@ static int set_light_battery(struct light_device_t *dev,
 	if(rc >= 0)
 		rc = sysfs_write_int(battery_green_brightness, green);
 	pthread_mutex_unlock(&lights_mutex);
+	LOGD("set_light_battery: %d (red), %d (green)", red, green);
 
 	return rc;
 }
@@ -255,9 +257,9 @@ static int open_lights(const struct hw_module_t *module, char const *name,
 			if (strstr(cmdline, "mux=GTA04B2") != NULL ||
 				strstr(cmdline, "mux=GTA04B3") != NULL) {
 				LOGD("Detected Letux3704/Letux7004, setting LED sysfs paths.");
-                /* TODO: implement setting correct sysfs paths
-				battery_red_brightness[0] = "\0";
-				battery_red_max_brightness[0] = "\0";
+				/* FIXME: make sure not to overflow the strings */
+				strcpy(battery_red_brightness, "");
+				strcpy(battery_red_max_brightness, "");
 				strcpy(battery_green_brightness,
 				"/sys/class/leds/gta04:right/brightness");
 				strcpy(battery_green_max_brightness,
@@ -267,9 +269,10 @@ static int open_lights(const struct hw_module_t *module, char const *name,
 				"/sys/class/leds/gta04:left/brightness");
 				strcpy(notifications_red_max_brightness,
 				"/sys/class/leds/gta04:left/max_brightness");
-				notifications_green_brightness[0] = "\0";
-				notifications_green_max_brightness[0] = "\0";
-                */
+				strcpy(notifications_green_brightness, "");
+				strcpy(notifications_green_max_brightness, "");
+				LOGD("PATHs (battery): %s, %s, %s, %s", battery_red_brightness, battery_red_max_brightness, battery_green_brightness, battery_green_max_brightness);
+				LOGD("PATHs (notifications): %s, %s, %s, %s", notifications_red_brightness, notifications_red_max_brightness, notifications_green_brightness, notifications_green_max_brightness);
 			}
 		} else {
 			LOGE("Error reading cmdline: %s (%d)", strerror(errno),
