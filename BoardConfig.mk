@@ -15,6 +15,7 @@
 # CPU
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
+TARGET_ARCH := arm
 TARGET_ARCH_VARIANT := armv7-a-neon
 TARGET_GLOBAL_CFLAGS += -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp
 TARGET_GLOBAL_CPPFLAGS += -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp
@@ -28,6 +29,7 @@ TARGET_BOOTLOADER_BOARD_NAME := gta04
 TARGET_NO_RADIOIMAGE := true
 TARGET_NO_BOOTLOADER := false
 TARGET_NO_KERNEL := false
+TARGET_NO_RECOVERY := true
 BOARD_USES_UBOOT := true
 BOARD_CUSTOM_BOOTIMG_MK := device/goldelico/gta04/bootimg.mk
 
@@ -43,6 +45,8 @@ TARGET_XLOADER_CONFIG := omap3530gta04_config
 # Kernel
 TARGET_KERNEL_CONFIG := gta04_defconfig
 TARGET_KERNEL_SOURCE := kernel/goldelico/gta04
+# pass LOADADDR=0x80008000 manually for kernel build.
+# This variable is not considered in Replicant 4.2
 TARGET_KERNEL_LOADADDR := 0x80008000
 
 # Hardware
@@ -64,6 +68,10 @@ BOARD_WPA_SUPPLICANT_DRIVER := AWEXT
 #FIXME: what about sd8686_helper.bin?
 #WIFI_DRIVER_FW_PATH_AP      := "/vendor/firmware/fw_bcm4329_apsta.bin"
 #WIFI_DRIVER_MODULE_ARG      :=  "iface_name=wlan0 firmware_path=/vendor/firmware/fw_bcm4329.bin nvram_path=/vendor/firmware/nvram_net.txt"
+
+# SoftwareGL
+USE_OPENGL_RENDERER := false
+TARGET_DISABLE_TRIPLE_BUFFERING := true
 
 # Audio
 BOARD_USE_TINYALSA_AUDIO := true

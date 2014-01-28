@@ -145,7 +145,7 @@ static int set_light_notifications(struct light_device_t *dev,
 	if(rc >= 0)
 		rc = sysfs_write_int(notifications_green_brightness, green);
 	pthread_mutex_unlock(&lights_mutex);
-	LOGD("set_light_notifications: %d (red), %d (green)", red, green);
+	ALOGD("set_light_notifications: %d (red), %d (green)", red, green);
 
 	return rc;
 }
@@ -182,7 +182,7 @@ static int set_light_battery(struct light_device_t *dev,
 	if(rc >= 0)
 		rc = sysfs_write_int(battery_green_brightness, green);
 	pthread_mutex_unlock(&lights_mutex);
-	LOGD("set_light_battery: %d (red), %d (green)", red, green);
+	ALOGD("set_light_battery: %d (red), %d (green)", red, green);
 
 	return rc;
 }
@@ -207,7 +207,7 @@ static int set_light_backlight(struct light_device_t *dev,
 	if(brightness_max > 0)
 		brightness = (brightness * brightness_max) / 0xff;
 
-	LOGD("Setting brightness to: %d", brightness);
+	ALOGD("Setting brightness to: %d", brightness);
 
 	pthread_mutex_lock(&lights_mutex);
 	rc = sysfs_write_int(backlight_brightness, brightness);
@@ -222,7 +222,7 @@ static int set_light_backlight(struct light_device_t *dev,
 
 static int close_lights(struct light_device_t *dev)
 {
-	LOGD("close_lights()");
+	ALOGD("close_lights()");
 
 	if(dev != NULL)
 		free(dev);
@@ -237,7 +237,7 @@ static int open_lights(const struct hw_module_t *module, char const *name,
 	int (*set_light)(struct light_device_t *dev,
 		const struct light_state_t *state);
 
-	LOGD("open_lights(): %s", name);
+	ALOGD("open_lights(): %s", name);
 
 	if(strcmp(LIGHT_ID_BACKLIGHT, name) == 0) {
 		set_light = set_light_backlight;
@@ -256,7 +256,7 @@ static int open_lights(const struct hw_module_t *module, char const *name,
 			/* check if we are on Letux3704 (GTA04B2) or Letux7004 (GTA04B3) */
 			if (strstr(cmdline, "mux=GTA04B2") != NULL ||
 				strstr(cmdline, "mux=GTA04B3") != NULL) {
-				LOGD("Detected Letux3704/Letux7004, setting LED sysfs paths.");
+				ALOGD("Detected Letux3704/Letux7004, setting LED sysfs paths.");
 				/* FIXME: make sure not to overflow the strings */
 				strcpy(battery_red_brightness, "");
 				strcpy(battery_red_max_brightness, "");
@@ -271,16 +271,16 @@ static int open_lights(const struct hw_module_t *module, char const *name,
 				"/sys/class/leds/gta04:left/max_brightness");
 				strcpy(notifications_green_brightness, "");
 				strcpy(notifications_green_max_brightness, "");
-				LOGD("PATHs (battery): %s, %s, %s, %s", battery_red_brightness, battery_red_max_brightness, battery_green_brightness, battery_green_max_brightness);
-				LOGD("PATHs (notifications): %s, %s, %s, %s", notifications_red_brightness, notifications_red_max_brightness, notifications_green_brightness, notifications_green_max_brightness);
+				ALOGD("PATHs (battery): %s, %s, %s, %s", battery_red_brightness, battery_red_max_brightness, battery_green_brightness, battery_green_max_brightness);
+				ALOGD("PATHs (notifications): %s, %s, %s, %s", notifications_red_brightness, notifications_red_max_brightness, notifications_green_brightness, notifications_green_max_brightness);
 			}
 		} else {
-			LOGE("Error reading cmdline: %s (%d)", strerror(errno),
+			ALOGE("Error reading cmdline: %s (%d)", strerror(errno),
 				errno);
 		}
 		fclose(file);
 	} else {
-		LOGE("Could not detect device variant. Error opening /proc/cmdline: %s (%d)", strerror(errno),
+		ALOGE("Could not detect device variant. Error opening /proc/cmdline: %s (%d)", strerror(errno),
 			errno);
 	}
 	fclose(file);

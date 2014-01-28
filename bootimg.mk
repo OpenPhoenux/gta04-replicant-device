@@ -4,6 +4,8 @@ LOCAL_PATH := $(call my-dir)
 # (LOCAL_TOOLCHAIN), as the Android toolchain isn't able to build newer
 # kernels (e.g. 3.12).
 # Behave normally if LOCAL_TOOLCHAIN= isn't given.
+#
+# This is not needed anymore on Replicant 4.2
 ifneq ($(LOCAL_TOOLCHAIN),)
     override ARM_CROSS_COMPILE := CROSS_COMPILE="$(LOCAL_TOOLCHAIN)"
 endif

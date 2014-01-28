@@ -14,7 +14,7 @@ $(call inherit-product, vendor/replicant/config/common_full_phone.mk)
 $(call inherit-product, device/goldelico/gta04/full_gta04.mk)
 
 # Inherit Software GL configuration.
-$(call inherit-product, vendor/replicant/config/software_gl.mk)
+#$(call inherit-product, vendor/replicant/config/software_gl.mk)
 
 PRODUCT_NAME := replicant_gta04
 PRODUCT_DEVICE := gta04

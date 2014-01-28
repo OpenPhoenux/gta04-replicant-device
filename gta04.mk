@@ -48,11 +48,11 @@ PRODUCT_COPY_FILES += \
 # Bluetooth configuration files
 PRODUCT_COPY_FILES += \
 	system/bluetooth/data/main.le.conf:system/etc/bluetooth/main.conf \
-	frameworks/base/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml
+	frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml
 
 # Wifi
 PRODUCT_COPY_FILES += \
-	frameworks/base/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml
+	frameworks/native/data/etc/android.hardware.wifi.xml:system/etc/permissions/android.hardware.wifi.xml
 
 PRODUCT_COPY_FILES += \
     device/goldelico/gta04/configs/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf
@@ -93,4 +93,4 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 PRODUCT_TAGS += dalvik.gc.type-precise
 
-include frameworks/base/build/phone-hdpi-512-dalvik-heap.mk
+include frameworks/native/build/phone-hdpi-512-dalvik-heap.mk
