@@ -29,7 +29,7 @@
  * Globals
  */
 
-pthread_mutex_t lights_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutex_t lights_mutex = PTHREAD_MUTEX_INITIALIZER;
 
 const char backlight_brightness[] =
 	"/sys/class/backlight/pwm-backlight/brightness";
@@ -233,9 +233,8 @@ static int close_lights(struct light_device_t *dev)
 static int open_lights(const struct hw_module_t *module, char const *name,
 	struct hw_device_t **device)
 {
-	struct light_device_t *dev = NULL;
 	int (*set_light)(struct light_device_t *dev,
-		const struct light_state_t *state);
+		struct light_state_t const *state);
 
 	ALOGD("open_lights(): %s", name);
 
@@ -249,45 +248,46 @@ static int open_lights(const struct hw_module_t *module, char const *name,
 		return -1;
 	}
 
-	FILE * file = fopen("/proc/cmdline", "r");
-	if (file) {
-		char cmdline[4096];
-		if (fgets(cmdline, sizeof(cmdline), file)) {
-			/* check if we are on Letux3704 (GTA04B2) or Letux7004 (GTA04B3) */
-			if (strstr(cmdline, "mux=GTA04B2") != NULL ||
-				strstr(cmdline, "mux=GTA04B3") != NULL) {
-				ALOGD("Detected Letux3704/Letux7004, setting LED sysfs paths.");
-				/* FIXME: make sure not to overflow the strings */
-				strcpy(battery_red_brightness, "");
-				strcpy(battery_red_max_brightness, "");
-				strcpy(battery_green_brightness,
-				"/sys/class/leds/gta04:right/brightness");
-				strcpy(battery_green_max_brightness,
-				"/sys/class/leds/gta04:right/max_brightness");
+	if( access( "/sys/class/leds/gta04:red:power/brightness", F_OK ) != -1 &&
+	    access( "/sys/class/leds/gta04:red:power/max_brightness", F_OK ) != -1 &&
+	    access( "/sys/class/leds/gta04:green:power/brightness", F_OK ) != -1 &&
+	    access( "/sys/class/leds/gta04:green:power/max_brightness", F_OK ) != -1 &&
+	    access( "/sys/class/leds/gta04:red:aux/brightness", F_OK ) != -1 &&
+	    access( "/sys/class/leds/gta04:red:aux/max_brightness", F_OK ) != -1 &&
+	    access( "/sys/class/leds/gta04:green:aux/brightness", F_OK ) != -1 &&
+	    access( "/sys/class/leds/gta04:green:aux/max_brightness", F_OK ) != -1) {
+		ALOGD("Detected Letux2804, keeping LED sysfs paths.");
+	} else if( access( "/sys/class/leds/gta04:left/brightness", F_OK ) != -1 &&
+	           access( "/sys/class/leds/gta04:left/max_brightness", F_OK ) != -1 &&
+	           access( "/sys/class/leds/gta04:right/brightness", F_OK ) != -1 &&
+	           access( "/sys/class/leds/gta04:right/max_brightness", F_OK ) != -1) {
+		ALOGD("Detected Letux3704/Letux7004, setting LED sysfs paths.");
+		/* FIXME: make sure not to overflow the strings */
+		strcpy(battery_red_brightness, "");
+		strcpy(battery_red_max_brightness, "");
+		strcpy(battery_green_brightness,
+		"/sys/class/leds/gta04:right/brightness");
+		strcpy(battery_green_max_brightness,
+		"/sys/class/leds/gta04:right/max_brightness");
 
-				strcpy(notifications_red_brightness,
-				"/sys/class/leds/gta04:left/brightness");
-				strcpy(notifications_red_max_brightness,
-				"/sys/class/leds/gta04:left/max_brightness");
-				strcpy(notifications_green_brightness, "");
-				strcpy(notifications_green_max_brightness, "");
-				ALOGD("PATHs (battery): %s, %s, %s, %s", battery_red_brightness, battery_red_max_brightness, battery_green_brightness, battery_green_max_brightness);
-				ALOGD("PATHs (notifications): %s, %s, %s, %s", notifications_red_brightness, notifications_red_max_brightness, notifications_green_brightness, notifications_green_max_brightness);
-			}
-		} else {
-			ALOGE("Error reading cmdline: %s (%d)", strerror(errno),
-				errno);
-		}
-		fclose(file);
-	} else {
-		ALOGE("Could not detect device variant. Error opening /proc/cmdline: %s (%d)", strerror(errno),
-			errno);
+		strcpy(notifications_red_brightness,
+		"/sys/class/leds/gta04:left/brightness");
+		strcpy(notifications_red_max_brightness,
+		"/sys/class/leds/gta04:left/max_brightness");
+		strcpy(notifications_green_brightness, "");
+		strcpy(notifications_green_max_brightness, "");
+		ALOGD("PATHs (battery): %s, %s, %s, %s", battery_red_brightness, battery_red_max_brightness, battery_green_brightness, battery_green_max_brightness);
+		ALOGD("PATHs (notifications): %s, %s, %s, %s", notifications_red_brightness, notifications_red_max_brightness, notifications_green_brightness, notifications_green_max_brightness);
 	}
-	fclose(file);
+	else {
+		ALOGE("Could not detect device variant. Assuming Letux2804");
+	}
 
 	pthread_mutex_init(&lights_mutex, NULL);
 
-	dev = calloc(1, sizeof(struct light_device_t));
+	struct light_device_t *dev = malloc(sizeof(struct light_device_t));
+	memset(dev, 0, sizeof(*dev));
+
 	dev->common.tag = HARDWARE_DEVICE_TAG;
 	dev->common.version = 0;
 	dev->common.module = (struct hw_module_t *) module;
@@ -303,7 +303,7 @@ static struct hw_module_methods_t lights_module_methods = {
 	.open =  open_lights,
 };
 
-const struct hw_module_t HAL_MODULE_INFO_SYM = {
+struct hw_module_t HAL_MODULE_INFO_SYM = {
 	.tag = HARDWARE_MODULE_TAG,
 	.version_major = 1,
 	.version_minor = 0,
