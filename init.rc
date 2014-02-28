@@ -116,6 +116,7 @@ loglevel 3
     mkdir /dev/cpuctl
     mount cgroup none /dev/cpuctl cpu
     chown system system /dev/cpuctl
+    chmod 0660 /dev/cpuctl
     chown system system /dev/cpuctl/tasks
     chmod 0660 /dev/cpuctl/tasks
     write /dev/cpuctl/cpu.shares 1024
@@ -163,6 +164,8 @@ on post-fs
     mount rootfs rootfs / shared rec
     mount tmpfs tmpfs /mnt/secure private rec
     mount debugfs /sys/kernel/debug /sys/kernel/debug
+    chmod 0755 /sys/kernel/debug
+
 
     # We chown/chmod /cache again so because mount is run as root + defaults
     chown system cache /cache
