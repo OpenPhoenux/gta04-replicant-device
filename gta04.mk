@@ -57,10 +57,6 @@ PRODUCT_COPY_FILES += \
 PRODUCT_COPY_FILES += \
     device/goldelico/gta04/configs/wpa_supplicant.conf:system/etc/wifi/wpa_supplicant.conf
 
-#PRODUCT_PROPERTY_OVERRIDES += \
-#    wifi.interface=wlan0 \
-#    wifi.supplicant_scan_interval=15
-
 # FIXME: Do we want to deploy nonfree firmware?
 PRODUCT_COPY_FILES += \
     device/goldelico/gta04/nonfree/sd8686_v8.bin:system/etc/firmware/sd8686.bin \
