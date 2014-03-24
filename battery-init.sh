@@ -10,4 +10,10 @@ case "$MUX" in
                echo "LOADING twl4030_madc_battery.ko"
                insmod /system/lib/modules/twl4030_madc_battery.ko
                ;;
+       * ) # Fallback
+               echo "Could not detect device variant."
+               echo "Check your cmdline for mux= parameter."
+               echo "Falling back to twl4030_madc_battery.ko"
+               insmod /system/lib/modules/twl4030_madc_battery.ko
+               ;;
 esac
