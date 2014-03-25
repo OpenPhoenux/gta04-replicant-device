@@ -13,7 +13,7 @@ case "$MUX" in
        * ) # Fallback
                echo "Could not detect device variant."
                echo "Check your cmdline for mux= parameter."
-               echo "Falling back to twl4030_madc_battery.ko"
-               insmod /system/lib/modules/twl4030_madc_battery.ko
+               echo "Falling back to bq27x00_battery.ko"
+               insmod /system/lib/modules/bq27x00_battery.ko
                ;;
 esac
