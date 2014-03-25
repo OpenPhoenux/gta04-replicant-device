@@ -111,5 +111,6 @@ service iprenew_wlan0 /system/bin/dhcpcd -n
 	disabled
 	oneshot
 
-service sdcard /system/bin/sdcard /data/media 1023 1023
-	class late_start
+service sdcard /system/bin/sdcard /data/media /mnt/sdcard 1023 1023
+	class main
+	oneshot
