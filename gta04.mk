@@ -76,6 +76,10 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
 	lights.gta04 \
 
+# Sensors
+PRODUCT_PACKAGES += \
+	sensors.gta04 \
+
 # APNS
 PRODUCT_COPY_FILES += \
 	vendor/replicant/prebuilt/common/etc/apns-conf.xml:system/etc/apns-conf.xml
