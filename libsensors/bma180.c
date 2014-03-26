@@ -74,7 +74,7 @@ int bma180_acceleration_init(struct gta04_sensors_handlers *handlers,
 		goto error;
 	}
 
-	snprintf(data->path_delay, PATH_MAX, "%s/poll", path);
+	snprintf(data->path_delay, PATH_MAX, "%s/acc_poll_delay", path);
 
 	handlers->poll_fd = input_fd;
 	handlers->data = (void *) data;
