@@ -29,30 +29,49 @@
  * Globals
  */
 
+#define max(a,b) ({ __typeof__ (a) _a = (a); \
+	__typeof__ (b) _b = (b); \
+	_a > _b ? _a : _b; })
+
 static pthread_mutex_t lights_mutex = PTHREAD_MUTEX_INITIALIZER;
 
-const char backlight_brightness[] =
+#define L2804_GTA04 0
+#define L3704_7004  1
+int device_type = L2804_GTA04; /* Needs to be detected, default to GTA04 */
+
+char backlight_brightness[] =
 	"/sys/class/backlight/pwm-backlight/brightness";
-const char backlight_max_brightness[] =
+char backlight_max_brightness[] =
 	"/sys/class/backlight/pwm-backlight/max_brightness";
 
-char battery_red_brightness[] =
+/* GTA04/Letux2804 */
+char pwr_red_brightness[] =
 	"/sys/class/leds/gta04:red:power/brightness";
-char battery_red_max_brightness[] =
+char pwr_red_max_brightness[] =
 	"/sys/class/leds/gta04:red:power/max_brightness";
-char battery_green_brightness[] =
+char pwr_green_brightness[] =
 	"/sys/class/leds/gta04:green:power/brightness";
-char battery_green_max_brightness[] =
+char pwr_green_max_brightness[] =
 	"/sys/class/leds/gta04:green:power/max_brightness";
 
-char notifications_red_brightness[] =
+char aux_red_brightness[] =
 	"/sys/class/leds/gta04:red:aux/brightness";
-char notifications_red_max_brightness[] =
+char aux_red_max_brightness[] =
 	"/sys/class/leds/gta04:red:aux/max_brightness";
-char notifications_green_brightness[] =
+char aux_green_brightness[] =
 	"/sys/class/leds/gta04:green:aux/brightness";
-char notifications_green_max_brightness[] =
+char aux_green_max_brightness[] =
 	"/sys/class/leds/gta04:green:aux/max_brightness";
+
+/* Letux3704/Letux7004 */
+char right_brightness[] =
+	"/sys/class/leds/gta04:right/brightness";
+char right_max_brightness[] =
+	"/sys/class/leds/gta04:right/max_brightness";
+char left_brightness[] =
+	"/sys/class/leds/gta04:left/brightness";
+char left_max_brightness[] =
+	"/sys/class/leds/gta04:left/max_brightness";
 
 /*
  * Lights utils
@@ -116,36 +135,66 @@ int sysfs_read_int(char *path)
 static int set_light_notifications(struct light_device_t *dev,
 	const struct light_state_t *state)
 {
-	int red, green;
+	int red, green, blue;
+	unsigned int colorRGB;
 	int max;
 	int rc;
 
-	// GTA04 only has red and green
-	red = state->color & 0x00ff0000;
-	green = state->color & 0x0000ff00;
+	colorRGB = state->color;
+	red   = (colorRGB >> 16) & 0xFF;
+	green = (colorRGB >> 8) & 0xFF;
+	blue  = colorRGB & 0xFF;
 
-	// Red max
-	pthread_mutex_lock(&lights_mutex);
-	max = sysfs_read_int(notifications_red_max_brightness);
-	pthread_mutex_unlock(&lights_mutex);
+	if(device_type == L2804_GTA04) {
+		// GTA04 only has red and green, so use green LED as green & blue
+		green = max(green, blue);
 
-	if(max > 0)
-		red = (red * max) / 0xff;
+		// Red max
+		pthread_mutex_lock(&lights_mutex);
+		max = sysfs_read_int(aux_red_max_brightness);
+		pthread_mutex_unlock(&lights_mutex);
 
-	// Green max
-	pthread_mutex_lock(&lights_mutex);
-	max = sysfs_read_int(notifications_green_max_brightness);
-	pthread_mutex_unlock(&lights_mutex);
+		// convert byte- VS percentage-representation
+		if(max > 0)
+			red = (red * max) / 0xff;
 
-	if(max > 0)
-		green = (green * max) / 0xff;
+		// Green max
+		pthread_mutex_lock(&lights_mutex);
+		max = sysfs_read_int(aux_green_max_brightness);
+		pthread_mutex_unlock(&lights_mutex);
 
-	pthread_mutex_lock(&lights_mutex);
-	rc = sysfs_write_int(notifications_red_brightness, red);
-	if(rc >= 0)
-		rc = sysfs_write_int(notifications_green_brightness, green);
-	pthread_mutex_unlock(&lights_mutex);
-	ALOGD("set_light_notifications: %d (red), %d (green)", red, green);
+		// convert byte- VS percentage-representation
+		if(max > 0)
+			green = (green * max) / 0xff;
+
+		pthread_mutex_lock(&lights_mutex);
+		rc = sysfs_write_int(aux_red_brightness, red);
+		if(rc >= 0)
+			rc = sysfs_write_int(aux_green_brightness, green);
+		pthread_mutex_unlock(&lights_mutex);
+		ALOGD("set_light_notifications: %d (red), %d (green)", red, green);
+	} else if(device_type == L3704_7004) {
+		// Letux3704 has only one LED
+		red = max(red, green);
+		red = max(red, blue);
+
+		// Left max
+		pthread_mutex_lock(&lights_mutex);
+		max = sysfs_read_int(left_max_brightness);
+		pthread_mutex_unlock(&lights_mutex);
+
+		// convert byte- VS percentage-representation
+		if(max > 0)
+			red = (red * max) / 0xff;
+
+		pthread_mutex_lock(&lights_mutex);
+		rc = sysfs_write_int(left_brightness, red);
+		pthread_mutex_unlock(&lights_mutex);
+		ALOGD("set_light_notifications: %d (left)", red);
+	}
+	else {
+		ALOGE("set_light_notifications: LED device nodes unknown.");
+	}
 
 	return rc;
 }
@@ -153,36 +202,68 @@ static int set_light_notifications(struct light_device_t *dev,
 static int set_light_battery(struct light_device_t *dev,
 	const struct light_state_t *state)
 {
-	int red, green;
+	int red, green, blue;
+	unsigned int colorRGB;
 	int max;
 	int rc;
 
-	// GTA04 only has red and green
-	red = state->color & 0x00ff0000;
-	green = state->color & 0x0000ff00;
+	colorRGB = state->color;
+	red   = (colorRGB >> 16) & 0xFF;
+	green = (colorRGB >> 8) & 0xFF;
+	blue  = colorRGB & 0xFF;
 
-	// Red max
-	pthread_mutex_lock(&lights_mutex);
-	max = sysfs_read_int(battery_red_max_brightness);
-	pthread_mutex_unlock(&lights_mutex);
+	ALOGD("set_light_battery: %#x (red), %#x (green), %#x (blue)", red, green, blue);
 
-	if(max > 0)
-		red = (red * max) / 0xff;
+	if(device_type == L2804_GTA04) {
+		// GTA04 only has red and green, so use green LED as green & blue
+		green = max(green, blue);
 
-	// Green max
-	pthread_mutex_lock(&lights_mutex);
-	max = sysfs_read_int(battery_green_max_brightness);
-	pthread_mutex_unlock(&lights_mutex);
+		// Red max
+		pthread_mutex_lock(&lights_mutex);
+		max = sysfs_read_int(pwr_red_max_brightness);
+		pthread_mutex_unlock(&lights_mutex);
 
-	if(max > 0)
-		green = (green * max) / 0xff;
+		// convert byte- VS percentage-representation
+		if(max > 0)
+			red = (red * max) / 0xff;
 
-	pthread_mutex_lock(&lights_mutex);
-	rc = sysfs_write_int(battery_red_brightness, red);
-	if(rc >= 0)
-		rc = sysfs_write_int(battery_green_brightness, green);
-	pthread_mutex_unlock(&lights_mutex);
-	ALOGD("set_light_battery: %d (red), %d (green)", red, green);
+		// Green max
+		pthread_mutex_lock(&lights_mutex);
+		max = sysfs_read_int(pwr_green_max_brightness);
+		pthread_mutex_unlock(&lights_mutex);
+
+		// convert byte- VS percentage-representation
+		if(max > 0)
+			green = (green * max) / 0xff;
+
+		pthread_mutex_lock(&lights_mutex);
+		rc = sysfs_write_int(pwr_red_brightness, red);
+		if(rc >= 0)
+			rc = sysfs_write_int(pwr_green_brightness, green);
+		pthread_mutex_unlock(&lights_mutex);
+		ALOGD("set_light_battery: %d (red), %d (green)", red, green);
+	} else if(device_type == L3704_7004) {
+		// Letux3704 has only one LED
+		green = max(red, green);
+		green = max(green, blue);
+
+		// Right max
+		pthread_mutex_lock(&lights_mutex);
+		max = sysfs_read_int(right_max_brightness);
+		pthread_mutex_unlock(&lights_mutex);
+
+		// convert byte- VS percentage-representation
+		if(max > 0)
+			green = (green * max) / 0xff;
+
+		pthread_mutex_lock(&lights_mutex);
+		rc = sysfs_write_int(right_brightness, green);
+		pthread_mutex_unlock(&lights_mutex);
+		ALOGD("set_light_battery: %d (right)", green);
+	}
+	else {
+		ALOGE("set_light_battery: LED device nodes unknown.");
+	}
 
 	return rc;
 }
@@ -207,7 +288,7 @@ static int set_light_backlight(struct light_device_t *dev,
 	if(brightness_max > 0)
 		brightness = (brightness * brightness_max) / 0xff;
 
-	ALOGD("Setting brightness to: %d", brightness);
+	//ALOGD("Setting brightness to: %d", brightness);
 
 	pthread_mutex_lock(&lights_mutex);
 	rc = sysfs_write_int(backlight_brightness, brightness);
@@ -215,6 +296,29 @@ static int set_light_backlight(struct light_device_t *dev,
 
 	return rc;
 }
+
+/* TODO: implement other light devices (from lights.h):
+#define LIGHT_ID_BACKLIGHT          "backlight"
+#define LIGHT_ID_KEYBOARD           "keyboard"
+#define LIGHT_ID_BUTTONS            "buttons"
+#define LIGHT_ID_BATTERY            "battery"
+#define LIGHT_ID_NOTIFICATIONS      "notifications"
+#define LIGHT_ID_ATTENTION          "attention"
+
+These lights aren't currently supported by the higher
+layers, but could be someday, so we have the constants
+here now:
+
+#define LIGHT_ID_BLUETOOTH          "bluetooth"
+#define LIGHT_ID_WIFI               "wifi"
+
+Additional hardware-specific lights:
+
+#define LIGHT_ID_CAPS "caps"
+#define LIGHT_ID_FUNC "func"
+#define LIGHT_ID_WIMAX "wimax"
+#define LIGHT_ID_FLASHLIGHT "flashlight"
+*/
 
 /*
  * Interface
@@ -248,39 +352,26 @@ static int open_lights(const struct hw_module_t *module, char const *name,
 		return -1;
 	}
 
-	if( access( "/sys/class/leds/gta04:red:power/brightness", F_OK ) != -1 &&
-	    access( "/sys/class/leds/gta04:red:power/max_brightness", F_OK ) != -1 &&
-	    access( "/sys/class/leds/gta04:green:power/brightness", F_OK ) != -1 &&
-	    access( "/sys/class/leds/gta04:green:power/max_brightness", F_OK ) != -1 &&
-	    access( "/sys/class/leds/gta04:red:aux/brightness", F_OK ) != -1 &&
-	    access( "/sys/class/leds/gta04:red:aux/max_brightness", F_OK ) != -1 &&
-	    access( "/sys/class/leds/gta04:green:aux/brightness", F_OK ) != -1 &&
-	    access( "/sys/class/leds/gta04:green:aux/max_brightness", F_OK ) != -1) {
-		ALOGD("Detected Letux2804, keeping LED sysfs paths.");
-	} else if( access( "/sys/class/leds/gta04:left/brightness", F_OK ) != -1 &&
-	           access( "/sys/class/leds/gta04:left/max_brightness", F_OK ) != -1 &&
-	           access( "/sys/class/leds/gta04:right/brightness", F_OK ) != -1 &&
-	           access( "/sys/class/leds/gta04:right/max_brightness", F_OK ) != -1) {
-		ALOGD("Detected Letux3704/Letux7004, setting LED sysfs paths.");
-		/* FIXME: make sure not to overflow the strings */
-		strcpy(battery_red_brightness, "");
-		strcpy(battery_red_max_brightness, "");
-		strcpy(battery_green_brightness,
-		"/sys/class/leds/gta04:right/brightness");
-		strcpy(battery_green_max_brightness,
-		"/sys/class/leds/gta04:right/max_brightness");
-
-		strcpy(notifications_red_brightness,
-		"/sys/class/leds/gta04:left/brightness");
-		strcpy(notifications_red_max_brightness,
-		"/sys/class/leds/gta04:left/max_brightness");
-		strcpy(notifications_green_brightness, "");
-		strcpy(notifications_green_max_brightness, "");
-		ALOGD("PATHs (battery): %s, %s, %s, %s", battery_red_brightness, battery_red_max_brightness, battery_green_brightness, battery_green_max_brightness);
-		ALOGD("PATHs (notifications): %s, %s, %s, %s", notifications_red_brightness, notifications_red_max_brightness, notifications_green_brightness, notifications_green_max_brightness);
+	if( access( pwr_red_brightness, F_OK ) != -1 &&
+		access( pwr_red_max_brightness, F_OK ) != -1 &&
+		access( pwr_green_brightness, F_OK ) != -1 &&
+		access( pwr_green_max_brightness, F_OK ) != -1 &&
+		access( aux_red_brightness, F_OK ) != -1 &&
+		access( aux_red_max_brightness, F_OK ) != -1 &&
+		access( aux_green_brightness, F_OK ) != -1 &&
+		access( aux_green_max_brightness, F_OK ) != -1) {
+		ALOGD("Detected GTA04/Letux2804.");
+		device_type = L2804_GTA04;
+	} else if( access( left_brightness, F_OK ) != -1 &&
+		access( left_max_brightness, F_OK ) != -1 &&
+		access( right_brightness, F_OK ) != -1 &&
+		access( right_max_brightness, F_OK ) != -1) {
+		ALOGD("Detected Letux3704/Letux7004.");
+		device_type = L3704_7004;
 	}
 	else {
-		ALOGE("Could not detect device variant. Assuming Letux2804");
+		ALOGE("Could not detect device variant. Assuming GTA04/Letux2804");
+		device_type = L2804_GTA04;
 	}
 
 	pthread_mutex_init(&lights_mutex, NULL);
@@ -309,6 +400,6 @@ struct hw_module_t HAL_MODULE_INFO_SYM = {
 	.version_minor = 0,
 	.id = LIGHTS_HARDWARE_MODULE_ID,
 	.name = "Goldelico GTA04 lights",
-	.author = "Paul Kocialkowski",
+	.author = "Lukas Märdian",
 	.methods = &lights_module_methods,
 };
