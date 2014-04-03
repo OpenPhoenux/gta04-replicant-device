@@ -15,6 +15,10 @@ on boot
 	chown radio radio /sys/class/gpio/gpio186/value
 	chmod 660 /sys/class/gpio/gpio186/value
 
+	# Sensors
+	chmod 666 /sys/class/input/input1/poll #bma150
+
+
 	# Lights
 	chown system system /sys/class/backlight/pwm-backlight/brightness
 	chown system system /sys/class/backlight/pwm-backlight/max_brightness

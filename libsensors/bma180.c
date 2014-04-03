@@ -74,7 +74,7 @@ int bma180_acceleration_init(struct gta04_sensors_handlers *handlers,
 		goto error;
 	}
 
-	snprintf(data->path_delay, PATH_MAX, "%s/acc_poll_delay", path);
+	snprintf(data->path_delay, PATH_MAX, "%s/poll", path);
 
 	handlers->poll_fd = input_fd;
 	handlers->data = (void *) data;
@@ -162,17 +162,20 @@ int bma180_acceleration_set_delay(struct gta04_sensors_handlers *handlers, long 
 {
 	struct bma180_acceleration_data *data;
 	int rc;
+	long int delay_ms = delay/1000000; //bma150/180 expects milliseconds, not nanoseconds
+	if(delay_ms > 200) //bma150/180 expects 200ms maximum, TODO: get this value from 'max' node in sysfs
+		delay_ms = 200;
 
-	ALOGD("%s(%p, %ld)", __func__, handlers, delay);
+	ALOGD("%s(%p, %ld)", __func__, handlers, delay_ms);
 
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
 
 	data = (struct bma180_acceleration_data *) handlers->data;
 
-	rc = sysfs_value_write(data->path_delay, (int) delay);
+	rc = sysfs_value_write(data->path_delay, (int) delay_ms);
 	if (rc < 0) {
-		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, delay, data->path_delay);
+		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, delay_ms, data->path_delay);
 		return -1;
 	}
 
@@ -219,22 +222,27 @@ int bma180_acceleration_get_data(struct gta04_sensors_handlers *handlers,
 		if (rc < (int) sizeof(input_event))
 			break;
 
-		if (input_event.type == EV_REL) {
+		if (input_event.type == EV_ABS) {
 			switch (input_event.code) {
-				case REL_X:
+				case ABS_X:
+					//ALOGD("ABS_X: %d", input_event.value);
 					event->acceleration.x = bma180_acceleration_convert(input_event.value);
 					break;
-				case REL_Y:
+				case ABS_Y:
+					//ALOGD("ABS_Y: %d", input_event.value);
 					event->acceleration.y = bma180_acceleration_convert(input_event.value);
 					break;
-				case REL_Z:
+				case ABS_Z:
+					//ALOGD("ABS_Z: %d", input_event.value);
 					event->acceleration.z = bma180_acceleration_convert(input_event.value);
 					break;
 				default:
 					continue;
 			}
 		} else if (input_event.type == EV_SYN) {
+			//ALOGD("EV_SYN");
 			if (input_event.code == SYN_REPORT)
+				//ALOGD("SYN_REPORT");
 				event->timestamp = input_timestamp(&input_event);
 		}
 	} while (input_event.type != EV_SYN);
