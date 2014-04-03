@@ -41,9 +41,10 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Input
 PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/tsc2007.idc:system/usr/idc/tsc2007.idc \
+	device/goldelico/gta04/tsc2007.idc:system/usr/idc/tsc2007.idc \ #we could name it tsc2007-gta04.idc and re-rename it in the kernel
 	device/goldelico/gta04/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
-	device/goldelico/gta04/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl
+	device/goldelico/gta04/Phone_button.kl:system/usr/keylayout/Phone_button.kl \
+	device/goldelico/gta04/gta04_Headset_Jack.kl:system/usr/keylayout/gta04_Headset_Jack.kl
 
 # Bluetooth configuration files
 PRODUCT_COPY_FILES += \
