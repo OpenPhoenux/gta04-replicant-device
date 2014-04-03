@@ -24,9 +24,9 @@ LOCAL_SRC_FILES := \
 	bma180.c \
 	$(NULL)
 
+#	itg3200.c \
 #	orientation.c \
 #	bmp180.c \
-#	lsm330dlc_gyroscope.c \
 
 LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)

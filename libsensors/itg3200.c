@@ -34,16 +34,16 @@
 #include "gta04_sensors.h"
 #include "ssp.h"
 
-struct lsm330dlc_gyroscope_data {
+struct itg3200_data {
 	char path_delay[PATH_MAX];
 
 	sensors_vec_t gyro;
 };
 
-int lsm330dlc_gyroscope_init(struct gta04_sensors_handlers *handlers,
+int itg3200_init(struct gta04_sensors_handlers *handlers,
 	struct gta04_sensors_device *device)
 {
-	struct lsm330dlc_gyroscope_data *data = NULL;
+	struct itg3200_data *data = NULL;
 	char path[PATH_MAX] = { 0 };
 	int input_fd = -1;
 	int rc;
@@ -53,21 +53,23 @@ int lsm330dlc_gyroscope_init(struct gta04_sensors_handlers *handlers,
 	if (handlers == NULL)
 		return -EINVAL;
 
-	data = (struct lsm330dlc_gyroscope_data *) calloc(1, sizeof(struct lsm330dlc_gyroscope_data));
+	data = (struct itg3200_data *) calloc(1, sizeof(struct itg3200_data));
 
+/*
 	input_fd = input_open("gyro_sensor");
 	if (input_fd < 0) {
 		ALOGE("%s: Unable to open input", __func__);
 		goto error;
 	}
+*/
 
-	rc = sysfs_path_prefix("gyro_sensor", (char *) &path);
+	rc = iio_sysfs_path_prefix("itg3200", (char *) &path);
 	if (rc < 0 || path[0] == '\0') {
 		ALOGE("%s: Unable to open sysfs", __func__);
 		goto error;
 	}
 
-	snprintf(data->path_delay, PATH_MAX, "%s/gyro_poll_delay", path);
+	snprintf(data->path_delay, PATH_MAX, "%s/sampling_frequency", path);
 
 	handlers->poll_fd = input_fd;
 	handlers->data = (void *) data;
@@ -87,7 +89,7 @@ error:
 	return -1;
 }
 
-int lsm330dlc_gyroscope_deinit(struct gta04_sensors_handlers *handlers)
+int itg3200_deinit(struct gta04_sensors_handlers *handlers)
 {
 	ALOGD("%s(%p)", __func__, handlers);
 
@@ -105,9 +107,9 @@ int lsm330dlc_gyroscope_deinit(struct gta04_sensors_handlers *handlers)
 	return 0;
 }
 
-int lsm330dlc_gyroscope_activate(struct gta04_sensors_handlers *handlers)
+int itg3200_activate(struct gta04_sensors_handlers *handlers)
 {
-	struct lsm330dlc_gyroscope_data *data;
+	struct itg3200_data *data;
 	int rc;
 
 	ALOGD("%s(%p)", __func__, handlers);
@@ -115,7 +117,7 @@ int lsm330dlc_gyroscope_activate(struct gta04_sensors_handlers *handlers)
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
 
-	data = (struct lsm330dlc_gyroscope_data *) handlers->data;
+	data = (struct itg3200_data *) handlers->data;
 
 	rc = ssp_sensor_enable(GYROSCOPE_SENSOR);
 	if (rc < 0) {
@@ -128,9 +130,9 @@ int lsm330dlc_gyroscope_activate(struct gta04_sensors_handlers *handlers)
 	return 0;
 }
 
-int lsm330dlc_gyroscope_deactivate(struct gta04_sensors_handlers *handlers)
+int itg3200_deactivate(struct gta04_sensors_handlers *handlers)
 {
-	struct lsm330dlc_gyroscope_data *data;
+	struct itg3200_data *data;
 	int rc;
 
 	ALOGD("%s(%p)", __func__, handlers);
@@ -138,7 +140,7 @@ int lsm330dlc_gyroscope_deactivate(struct gta04_sensors_handlers *handlers)
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
 
-	data = (struct lsm330dlc_gyroscope_data *) handlers->data;
+	data = (struct itg3200_data *) handlers->data;
 
 	rc = ssp_sensor_disable(GYROSCOPE_SENSOR);
 	if (rc < 0) {
@@ -151,17 +153,18 @@ int lsm330dlc_gyroscope_deactivate(struct gta04_sensors_handlers *handlers)
 	return 0;
 }
 
-int lsm330dlc_gyroscope_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
+int itg3200_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
 {
-	struct lsm330dlc_gyroscope_data *data;
+	struct itg3200_data *data;
 	int rc;
 
+	//TODO: which unit do we need? we get nanoseconds in 'long int delay'
 	ALOGD("%s(%p, %ld)", __func__, handlers, delay);
 
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
 
-	data = (struct lsm330dlc_gyroscope_data *) handlers->data;
+	data = (struct itg3200_data *) handlers->data;
 
 	rc = sysfs_value_write(data->path_delay, (int) delay);
 	if (rc < 0) {
@@ -172,15 +175,15 @@ int lsm330dlc_gyroscope_set_delay(struct gta04_sensors_handlers *handlers, long 
 	return 0;
 }
 
-float lsm330dlc_gyroscope_convert(int value)
+float itg3200_convert(int value)
 {
 	return value * (70.0f / 4000.0f) * (3.1415926535f / 180.0f);
 }
 
-int lsm330dlc_gyroscope_get_data(struct gta04_sensors_handlers *handlers,
+int itg3200_get_data(struct gta04_sensors_handlers *handlers,
 	struct sensors_event_t *event)
 {
-	struct lsm330dlc_gyroscope_data *data;
+	struct itg3200_data *data;
 	struct input_event input_event;
 	int input_fd;
 	int rc;
@@ -190,7 +193,7 @@ int lsm330dlc_gyroscope_get_data(struct gta04_sensors_handlers *handlers,
 	if (handlers == NULL || handlers->data == NULL || event == NULL)
 		return -EINVAL;
 
-	data = (struct lsm330dlc_gyroscope_data *) handlers->data;
+	data = (struct itg3200_data *) handlers->data;
 
 	input_fd = handlers->poll_fd;
 	if (input_fd < 0)
@@ -213,13 +216,13 @@ int lsm330dlc_gyroscope_get_data(struct gta04_sensors_handlers *handlers,
 		if (input_event.type == EV_REL) {
 			switch (input_event.code) {
 				case REL_RX:
-					event->gyro.x = lsm330dlc_gyroscope_convert(input_event.value);
+					event->gyro.x = itg3200_convert(input_event.value);
 					break;
 				case REL_RY:
-					event->gyro.y = lsm330dlc_gyroscope_convert(input_event.value);
+					event->gyro.y = itg3200_convert(input_event.value);
 					break;
 				case REL_RZ:
-					event->gyro.z = lsm330dlc_gyroscope_convert(input_event.value);
+					event->gyro.z = itg3200_convert(input_event.value);
 					break;
 				default:
 					continue;
@@ -237,15 +240,15 @@ int lsm330dlc_gyroscope_get_data(struct gta04_sensors_handlers *handlers,
 	return 0;
 }
 
-struct gta04_sensors_handlers lsm330dlc_gyroscope = {
-	.name = "LSM330DLC Gyroscope",
+struct gta04_sensors_handlers itg3200 = {
+	.name = "ITG3200 Gyroscope",
 	.handle = SENSOR_TYPE_GYROSCOPE,
-	.init = lsm330dlc_gyroscope_init,
-	.deinit = lsm330dlc_gyroscope_deinit,
-	.activate = lsm330dlc_gyroscope_activate,
-	.deactivate = lsm330dlc_gyroscope_deactivate,
-	.set_delay = lsm330dlc_gyroscope_set_delay,
-	.get_data = lsm330dlc_gyroscope_get_data,
+	.init = itg3200_init,
+	.deinit = itg3200_deinit,
+	.activate = itg3200_activate,
+	.deactivate = itg3200_deactivate,
+	.set_delay = itg3200_set_delay,
+	.get_data = itg3200_get_data,
 	.activated = 0,
 	.needed = 0,
 	.poll_fd = -1,
