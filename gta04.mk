@@ -39,12 +39,12 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PROPERTY_OVERRIDES += \
 	persist.sys.usb.config=mass_storage,adb
 
-# Input #we could name it tsc2007-gta04.idc and re-rename it in the kernel
 PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/tsc2007.idc:system/usr/idc/tsc2007.idc \
-	device/goldelico/gta04/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
-	device/goldelico/gta04/Phone_button.kl:system/usr/keylayout/Phone_button.kl \
-	device/goldelico/gta04/gta04_Headset_Jack.kl:system/usr/keylayout/gta04_Headset_Jack.kl
+	device/goldelico/gta04/keys/TSC2007_Touchscreen.idc:system/usr/idc/TSC2007_Touchscreen.idc \
+	device/goldelico/gta04/keys/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
+	device/goldelico/gta04/keys/Phone_button.kl:system/usr/keylayout/Phone_button.kl \
+	device/goldelico/gta04/keys/gta04_Headset_Jack.kl:system/usr/keylayout/gta04_Headset_Jack.kl \
+	device/goldelico/gta04/keys/3G_Wakeup.kl:system/usr/keylayout/3G_Wakeup.kl
 
 # Bluetooth configuration files
 PRODUCT_COPY_FILES += \
