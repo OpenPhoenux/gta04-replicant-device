@@ -73,6 +73,10 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/configs/tinyalsa-audio.xml:system/etc/tinyalsa-audio.xml
 
+# RIL
+PRODUCT_PACKAGES += \
+	libhayes-ril \
+
 # Lights
 PRODUCT_PACKAGES += \
 	lights.gta04 \

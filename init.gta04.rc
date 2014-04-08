@@ -11,7 +11,8 @@ on early-init
 	mkdir /mnt/boot 0000 system system
 
 on boot
-	# Modem GPIO
+	# Modem GPIO + RIL
+	insmod system/lib/modules/hso.ko
 	chown radio radio /sys/class/gpio/gpio186/value
 	chmod 660 /sys/class/gpio/gpio186/value
 
