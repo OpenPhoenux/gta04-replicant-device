@@ -30,6 +30,8 @@
 #include "gta04_sensors.h"
 #include "ssp.h"
 
+extern int sensor_init_failed;
+
 struct bma180_acceleration_data {
 	struct gta04_sensors_handlers *orientation_sensor;
 
@@ -90,6 +92,7 @@ error:
 
 	handlers->poll_fd = -1;
 	handlers->data = NULL;
+	sensor_init_failed = 1; //don't fail to boot if BMA180/150 is missing
 
 	return -1;
 }

@@ -30,6 +30,9 @@
 
 #include "gta04_sensors.h"
 
+/* set to true if one sensor could not be initiated, which would stop the booting process */
+int sensor_init_failed = 0; //false
+
 /*
  * Sensors list
  */
@@ -257,6 +260,10 @@ int gta04_sensors_get_sensors_list(struct sensors_module_t* module,
 	const struct sensor_t **sensors_p)
 {
 	ALOGD("%s(%p, %p)", __func__, module, sensors_p);
+	if(sensor_init_failed) {
+		ALOGE("%s: initiating one or more sensors failed", __func__);
+		return 0; //pretend to have no sensors, as init failed and we don't want to intercept the booting process
+	}
 
 	if (sensors_p == NULL)
 		return -EINVAL;
