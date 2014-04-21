@@ -69,6 +69,9 @@ BOARD_WLAN_DEVICE           := wlan0
 #WIFI_DRIVER_FW_PATH_AP      := "/vendor/firmware/fw_bcm4329_apsta.bin"
 #WIFI_DRIVER_MODULE_ARG      :=  "iface_name=wlan0 firmware_path=/vendor/firmware/fw_bcm4329.bin nvram_path=/vendor/firmware/nvram_net.txt"
 
+# Vibrator
+BOARD_HAS_VIBRATOR_IMPLEMENTATION := ../../device/goldelico/gta04/vibrator/vibrator.c
+
 # SoftwareGL
 USE_OPENGL_RENDERER := false
 TARGET_DISABLE_TRIPLE_BUFFERING := true
