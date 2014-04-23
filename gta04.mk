@@ -75,15 +75,22 @@ PRODUCT_COPY_FILES += \
 
 # RIL
 PRODUCT_PACKAGES += \
-	libhayes-ril \
+	libhayes-ril
 
 # Lights
 PRODUCT_PACKAGES += \
-	lights.gta04 \
+	lights.gta04
 
 # Sensors
 PRODUCT_PACKAGES += \
-	sensors.gta04 \
+	sensors.gta04
+
+# Permissions
+PRODUCT_COPY_FILES += \
+	frameworks/native/data/etc/android.hardware.touchscreen.xml:system/etc/permissions/android.hardware.touchscreen.xml \
+	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
+	frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
+	frameworks/native/data/etc/android.software.sip.voip.xml:system/etc/permissions/android.software.sip.voip.xml
 
 # APNS
 PRODUCT_COPY_FILES += \
