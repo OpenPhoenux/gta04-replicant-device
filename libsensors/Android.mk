@@ -20,8 +20,10 @@ include $(CLEAR_VARS)
 LOCAL_SRC_FILES := \
 	gta04_sensors.c \
 	input.c \
+	iio.c \
 	ssp.c \
 	bma180.c \
+	itg3200.c \
 	$(NULL)
 
 #	itg3200.c \

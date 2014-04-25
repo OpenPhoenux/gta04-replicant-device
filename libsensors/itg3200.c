@@ -33,6 +33,13 @@
 
 #include "gta04_sensors.h"
 #include "ssp.h"
+#include "iio/myiio.h"
+
+extern int sensor_init_failed;
+char mInputName[PATH_MAX];
+//char *mInputSysfsEnable;
+char *mInputSysfsSamplingFrequency;
+char *data_name = "itg3200";
 
 struct itg3200_data {
 	char path_delay[PATH_MAX];
@@ -55,14 +62,30 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 
 	data = (struct itg3200_data *) calloc(1, sizeof(struct itg3200_data));
 
-/*
-	input_fd = input_open("gyro_sensor");
+	input_fd = open_input(mInputName, data_name); //from iio.c
+	ALOGD("%s: mInputName: %s", __func__, mInputName);
 	if (input_fd < 0) {
 		ALOGE("%s: Unable to open input", __func__);
 		goto error;
 	}
+
+	//mInputSysfsEnable = make_sysfs_name(); //TODO: no enable node in sysfs?
+
+	mInputSysfsSamplingFrequency = make_sysfs_name(mInputName, "sampling_frequency");
+	if (mInputSysfsSamplingFrequency!=NULL) { // warning will always be true
+		ALOGE("%s: unable to allocate mem for %s:poll_delay", __func__, data_name);
+		goto error;
+	}
+
+/* TODO: check x,y,z channels
+	mIioSysfsChan = makeSysfsName(mInputName, chan_name);
+	if (!mIioSysfsChan) {
+		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data_name, chan_name);
+		goto error;
+	}
 */
 
+/*
 	rc = iio_sysfs_path_prefix("itg3200", (char *) &path);
 	if (rc < 0 || path[0] == '\0') {
 		ALOGE("%s: Unable to open sysfs", __func__);
@@ -70,6 +93,7 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 	}
 
 	snprintf(data->path_delay, PATH_MAX, "%s/sampling_frequency", path);
+*/
 
 	handlers->poll_fd = input_fd;
 	handlers->data = (void *) data;
@@ -85,6 +109,7 @@ error:
 
 	handlers->poll_fd = -1;
 	handlers->data = NULL;
+	sensor_init_failed = 1; //don't fail to boot if BMA180/150 is missing
 
 	return -1;
 }
