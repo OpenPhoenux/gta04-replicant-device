@@ -545,7 +545,11 @@ void gta04_gps_thread(void *data)
 		rc = select(fd_max + 1, &fds, NULL, NULL, timeout);
 		if (rc < 0) {
 			ALOGE("Polling failed");
-			break;
+
+			if (failures)
+				break;
+			else
+				failures++;
 		} else if (rc == 0 && gta04_gps->status.status == GPS_STATUS_ENGINE_ON) {
 			ALOGE("Not receiving anything from the GPS");
 			gta04_gps_event_write(GTA04_GPS_EVENT_RESTART);
