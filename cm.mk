@@ -18,6 +18,3 @@ $(call inherit-product, device/goldelico/gta04/full_gta04.mk)
 
 PRODUCT_NAME := replicant_gta04
 PRODUCT_DEVICE := gta04
-PRODUCT_BRAND := Goldelico
-PRODUCT_MODEL := GTA04
-PRODUCT_MANUFACTURER := goldelico
