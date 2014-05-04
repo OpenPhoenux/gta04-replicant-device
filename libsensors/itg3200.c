@@ -35,7 +35,6 @@
 #include "ssp.h"
 #include "iio/myiio.h"
 
-extern int sensor_init_failed;
 char mInputName[PATH_MAX];
 //char *mInputSysfsEnable;
 char *mInputSysfsSamplingFrequency;
@@ -109,7 +108,6 @@ error:
 
 	handlers->poll_fd = -1;
 	handlers->data = NULL;
-	sensor_init_failed = 1; //don't fail to boot if BMA180/150 is missing
 
 	return -1;
 }

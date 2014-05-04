@@ -30,13 +30,9 @@
 
 #include "gta04_sensors.h"
 
-/* set to true if one sensor could not be initiated, which would stop the booting process */
-int sensor_init_failed = 0; //false
-
 /*
  * Sensors list
  */
-
 struct sensor_t gta04_sensors[] = {
 	{ "BMA180 Acceleration Sensor", "Bosch", 1, SENSOR_TYPE_ACCELEROMETER,
 		SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000, {}, },
@@ -249,21 +245,19 @@ int gta04_sensors_open(const struct hw_module_t* module, const char *id,
 		}
 	}
 
-	gta04_sensors_device->poll_fds_count = p;
-
-	*device = &(gta04_sensors_device->device.common);
-
-	return 0;
+	if (p > 0) {
+		gta04_sensors_device->poll_fds_count = p;
+		*device = &(gta04_sensors_device->device.common);
+		return 0;
+	}
+	else ALOGE("%s: error opening sensor",__func__);
+	return -EINVAL;
 }
 
 int gta04_sensors_get_sensors_list(struct sensors_module_t* module,
 	const struct sensor_t **sensors_p)
 {
 	ALOGD("%s(%p, %p)", __func__, module, sensors_p);
-	if(sensor_init_failed) {
-		ALOGE("%s: initiating one or more sensors failed", __func__);
-		return 0; //pretend to have no sensors, as init failed and we don't want to intercept the booting process
-	}
 
 	if (sensors_p == NULL)
 		return -EINVAL;
