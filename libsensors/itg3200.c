@@ -38,6 +38,12 @@
 char mInputName[PATH_MAX];
 //char *mInputSysfsEnable;
 char *mInputSysfsSamplingFrequency;
+char *mIioSysfsXChan;
+char *mIioSysfsYChan;
+char *mIioSysfsZChan;
+FILE *mIioSysfsXChanFp;
+FILE *mIioSysfsYChanFp;
+FILE *mIioSysfsZChanFp;
 char *data_name = "itg3200";
 
 struct itg3200_data {
@@ -68,21 +74,50 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 		goto error;
 	}
 
-	//mInputSysfsEnable = make_sysfs_name(); //TODO: no enable node in sysfs?
-
 	mInputSysfsSamplingFrequency = make_sysfs_name(mInputName, "sampling_frequency");
-	if (mInputSysfsSamplingFrequency!=NULL) { // warning will always be true
+	if (mInputSysfsSamplingFrequency==NULL) {
 		ALOGE("%s: unable to allocate mem for %s:poll_delay", __func__, data_name);
 		goto error;
 	}
 
-/* TODO: check x,y,z channels
-	mIioSysfsChan = makeSysfsName(mInputName, chan_name);
-	if (!mIioSysfsChan) {
-		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data_name, chan_name);
+	mIioSysfsXChan = make_sysfs_name(mInputName, "in_anglvel_x_raw");
+	if (mIioSysfsXChan==NULL) {
+		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data_name, "in_anglvel_x_raw");
 		goto error;
 	}
-*/
+
+	mIioSysfsYChan = make_sysfs_name(mInputName, "in_anglvel_y_raw");
+	if (mIioSysfsYChan==NULL) {
+		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data_name, "in_anglvel_y_raw");
+		goto error;
+	}
+
+	mIioSysfsZChan = make_sysfs_name(mInputName, "in_anglvel_z_raw");
+	if (mIioSysfsZChan==NULL) {
+		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data_name, "in_anglvel_z_raw");
+		goto error;
+	}
+
+	mIioSysfsXChanFp = fopen(mIioSysfsXChan, "r");
+	if (mIioSysfsXChanFp == NULL) {
+		ALOGE("%s: unable to open %s", __func__, mIioSysfsXChan);
+		goto error;
+	}
+
+	mIioSysfsYChanFp = fopen(mIioSysfsYChan, "r");
+	if (mIioSysfsYChanFp == NULL) {
+		ALOGE("%s: unable to open %s", __func__, mIioSysfsYChan);
+		goto error;
+	}
+
+	mIioSysfsZChanFp = fopen(mIioSysfsZChan, "r");
+	if (mIioSysfsZChanFp == NULL) {
+		ALOGE("%s: unable to open %s", __func__, mIioSysfsZChan);
+		goto error;
+	}
+
+	int flags = fcntl(input_fd, F_GETFL, 0);
+	fcntl(input_fd, F_SETFL, flags | O_NONBLOCK);
 
 /*
 	rc = iio_sysfs_path_prefix("itg3200", (char *) &path);
@@ -114,8 +149,9 @@ error:
 
 int itg3200_deinit(struct gta04_sensors_handlers *handlers)
 {
+//TODO
 	ALOGD("%s(%p)", __func__, handlers);
-
+/*
 	if (handlers == NULL)
 		return -EINVAL;
 
@@ -126,7 +162,7 @@ int itg3200_deinit(struct gta04_sensors_handlers *handlers)
 	if (handlers->data != NULL)
 		free(handlers->data);
 	handlers->data = NULL;
-
+*/
 	return 0;
 }
 
@@ -137,8 +173,10 @@ int itg3200_activate(struct gta04_sensors_handlers *handlers)
 
 	ALOGD("%s(%p)", __func__, handlers);
 
-	if (handlers == NULL || handlers->data == NULL)
+	if (handlers == NULL || handlers->data == NULL) {
+		ALOGD("%s: handler==NULL || handlers->data==NULL", __func__);
 		return -EINVAL;
+	}
 
 	data = (struct itg3200_data *) handlers->data;
 
@@ -155,11 +193,12 @@ int itg3200_activate(struct gta04_sensors_handlers *handlers)
 
 int itg3200_deactivate(struct gta04_sensors_handlers *handlers)
 {
+//TODO
 	struct itg3200_data *data;
 	int rc;
 
 	ALOGD("%s(%p)", __func__, handlers);
-
+/*
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
 
@@ -172,18 +211,19 @@ int itg3200_deactivate(struct gta04_sensors_handlers *handlers)
 	}
 
 	handlers->activated = 1;
-
+*/
 	return 0;
 }
 
 int itg3200_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
 {
+//TODO
 	struct itg3200_data *data;
 	int rc;
 
 	//TODO: which unit do we need? we get nanoseconds in 'long int delay'
 	ALOGD("%s(%p, %ld)", __func__, handlers, delay);
-
+/*
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
 
@@ -194,7 +234,7 @@ int itg3200_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
 		ALOGE("%s: Unable to write sysfs value", __func__);
 		return -1;
 	}
-
+*/
 	return 0;
 }
 
@@ -211,7 +251,7 @@ int itg3200_get_data(struct gta04_sensors_handlers *handlers,
 	int input_fd;
 	int rc;
 
-//	ALOGD("%s(%p, %p)", __func__, handlers, event);
+	ALOGD("%s(%p, %p)", __func__, handlers, event);
 
 	if (handlers == NULL || handlers->data == NULL || event == NULL)
 		return -EINVAL;

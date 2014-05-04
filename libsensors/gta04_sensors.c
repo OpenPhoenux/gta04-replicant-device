@@ -48,6 +48,7 @@ int gta04_sensors_count = sizeof(gta04_sensors) / sizeof(struct sensor_t);
 
 struct gta04_sensors_handlers *gta04_sensors_handlers[] = {
 	&bma180,
+	&itg3200,
 	//&orientation,
 	//&lsm330dlc_gyroscope,
 	//&bmp180,

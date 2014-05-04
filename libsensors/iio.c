@@ -106,6 +106,7 @@ int open_input(char* mInputName, const char* inputName) { //data_name
     int dev_num;
 
     dev_num =  find_type_by_name(inputName, "iio:device");
+    ALOGD("%s: dev_num: %d", __func__, dev_num);
     if (dev_num >= 0) {
         int fd;
         sprintf(devname, "/dev/iio:device%d", dev_num);
@@ -115,6 +116,7 @@ int open_input(char* mInputName, const char* inputName) { //data_name
                 strcpy(mInputName, devname + 5); //e.g. iio:deviceX
             else
                 ALOGE("couldn't get a event fd from %s", devname);
+            ALOGD("%s: fd: %d", __func__, fd);
             close(fd); /* close /dev/iio:device* */
         } else {
             ALOGE("couldn't open %s (%s)", devname, strerror(errno));
@@ -122,6 +124,7 @@ int open_input(char* mInputName, const char* inputName) { //data_name
     } else {
        ALOGE("couldn't find the device %s", inputName);
     }
+    ALOGD("%s: event_fd: %d", __func__, event_fd);
 
     return event_fd;
 }
