@@ -71,7 +71,8 @@ PRODUCT_PACKAGES += \
 	audio.primary.omap3
 
 PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/configs/tinyalsa-audio.xml:system/etc/tinyalsa-audio.xml
+	device/goldelico/gta04/configs/tinyalsa-audio.xml:system/etc/tinyalsa-audio.xml \
+	device/goldelico/gta04/configs/audio_policy.conf:system/etc/audio_policy.conf
 
 # RIL
 PRODUCT_PACKAGES += \

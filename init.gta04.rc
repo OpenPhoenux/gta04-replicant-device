@@ -45,6 +45,8 @@ on boot
 	# Audio
 	chown system audio /sys/class/gpio/gpio55/value
 	chmod 0660 /sys/class/gpio/gpio55/value
+	chown system audio /sys/class/gpio/gpio23/value
+	chmod 0660 /sys/class/gpio/gpio23/value
 
 	# GPS
 	chown gps gps /sys/class/switch/gps_antenna/state
