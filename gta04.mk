@@ -37,7 +37,7 @@ PRODUCT_COPY_FILES += \
 
 # USB
 PRODUCT_PROPERTY_OVERRIDES += \
-	persist.sys.usb.config=mass_storage,adb
+	persist.sys.usb.config=mtp
 
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/keys/TSC2007_Touchscreen.idc:system/usr/idc/TSC2007_Touchscreen.idc \
