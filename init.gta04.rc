@@ -46,6 +46,10 @@ on boot
 	chown system audio /sys/class/gpio/gpio55/value
 	chmod 0660 /sys/class/gpio/gpio55/value
 
+	# GPS
+	chown gps gps /sys/class/switch/gps_antenna/state
+	chmod 0660 /sys/class/switch/gps_antenna/state
+
 	#Bluetooth
 	insmod /system/lib/modules/bluetooth.ko
 	insmod /system/lib/modules/hci_uart.ko
