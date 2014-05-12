@@ -510,8 +510,12 @@ int gta04_gps_nmea_gprmc(char *nmea)
 	gta04_gps_nmea_coordinates(nmea);
 
 	buffer = gta04_gps_nmea_parse(nmea);
-	if (buffer != NULL)
+	if (buffer != NULL) {
 		speed = gta04_gps_nmea_parse_float(buffer, 0, strlen(buffer));
+
+		// Convert knots (nautical miles per hour) to meters per second
+		speed = speed * 1.852f / 3.6f;
+	}
 
 	buffer = gta04_gps_nmea_parse(nmea);
 	if (buffer != NULL)
