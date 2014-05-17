@@ -22,7 +22,7 @@ on boot
 
 	# Sensors
 	chmod 666 /sys/class/input/input1/poll #bma150
-
+	chmod 666 /sys/bus/i2c/devices/2-0048/values #tsc2007
 
 	# Lights
 	chown system system /sys/class/backlight/pwm-backlight/brightness

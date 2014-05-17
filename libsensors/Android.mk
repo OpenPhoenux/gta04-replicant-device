@@ -24,6 +24,7 @@ LOCAL_SRC_FILES := \
 	ssp.c \
 	bma180.c \
 	itg3200.c \
+	tsc2007.c \
 	$(NULL)
 
 #	itg3200.c \
