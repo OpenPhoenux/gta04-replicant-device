@@ -98,6 +98,7 @@ int ssp_sensor_enable(int sensor_type);
 int ssp_sensor_disable(int sensor_type);
 
 extern struct gta04_sensors_handlers bma180;
+extern struct gta04_sensors_handlers lis302;
 extern struct gta04_sensors_handlers itg3200;
 extern struct gta04_sensors_handlers orientation;
 extern struct gta04_sensors_handlers tsc2007;

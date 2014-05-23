@@ -36,6 +36,8 @@
 struct sensor_t gta04_sensors[] = {
 	{ "BMA180 Acceleration Sensor", "Bosch", 1, SENSOR_TYPE_ACCELEROMETER,
 		SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000, {}, },
+	{ "LIS302 Acceleration Sensor", "STMicroelectronics", 1, SENSOR_TYPE_ACCELEROMETER,
+		SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000, {}, },
 	{ "ITG3200 Gyroscope Sensor", "InvenSense", 1, SENSOR_TYPE_GYROSCOPE,
 		SENSOR_TYPE_GYROSCOPE, 500.0f * (3.1415926535f / 180.0f), (70.0f / 4000.0f) * (3.1415926535f / 180.0f), 6.1f, 5000, {}, },
 	{ "TSC2007 Light Sensor", "Texas Instruments", 1, SENSOR_TYPE_LIGHT,
@@ -50,6 +52,7 @@ int gta04_sensors_count = sizeof(gta04_sensors) / sizeof(struct sensor_t);
 
 struct gta04_sensors_handlers *gta04_sensors_handlers[] = {
 	&bma180,
+	&lis302,
 	&itg3200,
 	&tsc2007,
 	//&orientation,

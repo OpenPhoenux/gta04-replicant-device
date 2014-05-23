@@ -23,6 +23,7 @@ LOCAL_SRC_FILES := \
 	iio.c \
 	ssp.c \
 	bma180.c \
+	lis302.c \
 	itg3200.c \
 	tsc2007.c \
 	$(NULL)
