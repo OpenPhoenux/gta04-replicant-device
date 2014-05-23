@@ -31,18 +31,17 @@
 #include "gta04_sensors.h"
 
 const char SENSOR_PATH[] = "/sys/bus/i2c/devices/2-0048/values"; //tsc2007 on i2c-2
-long int tsc2007_delay = 1000000000; //one second in ns
 
-struct tsc2007_light_data {
+struct tept4400_light_data {
 	/* light in SI lux units */
 	float light;
 };
 
-int tsc2007_init(struct gta04_sensors_handlers *handlers,
+int tept4400_init(struct gta04_sensors_handlers *handlers,
 	struct gta04_sensors_device *device)
 {
 
-	struct tsc2007_light_data *data = NULL;
+	struct tept4400_light_data *data = NULL;
 	char path[PATH_MAX] = { 0 };
 	int input_fd = -1;
 	int rc;
@@ -53,14 +52,14 @@ int tsc2007_init(struct gta04_sensors_handlers *handlers,
 	if (handlers == NULL)
 		return -EINVAL;
 
-	data = (struct tsc2007_light_data *) calloc(1, sizeof(struct tsc2007_light_data));
+	data = (struct tept4400_light_data *) calloc(1, sizeof(struct tept4400_light_data));
 
 	for (i = 0; i < device->handlers_count; i++) {
 		if (device->handlers[i] == NULL)
 			continue;
 	}
 
-	input_fd = input_open("TSC2007 Touchscreen");
+	input_fd = input_open("TSC2007 Touchscreen"); //TEPT4400 is read via TSC2007 'AUX' ADC
 	if (input_fd < 0) {
 		ALOGE("%s: Unable to open input", __func__);
 		goto error;
@@ -85,7 +84,7 @@ error:
 	return -1;
 }
 
-int tsc2007_deinit(struct gta04_sensors_handlers *handlers)
+int tept4400_deinit(struct gta04_sensors_handlers *handlers)
 {
 	ALOGD("%s(%p)", __func__, handlers);
 
@@ -103,9 +102,9 @@ int tsc2007_deinit(struct gta04_sensors_handlers *handlers)
 	return 0;
 }
 
-int tsc2007_activate(struct gta04_sensors_handlers *handlers)
+int tept4400_activate(struct gta04_sensors_handlers *handlers)
 {
-	struct tsc2007_light_data *data;
+	struct tept4400_light_data *data;
 	int rc;
 
 	ALOGD("%s(%p)", __func__, handlers);
@@ -113,16 +112,16 @@ int tsc2007_activate(struct gta04_sensors_handlers *handlers)
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
 
-	data = (struct tsc2007_light_data *) handlers->data;
+	data = (struct tept4400_light_data *) handlers->data;
 
 	handlers->activated = 1;
 
 	return 0;
 }
 
-int tsc2007_deactivate(struct gta04_sensors_handlers *handlers)
+int tept4400_deactivate(struct gta04_sensors_handlers *handlers)
 {
-	struct tsc2007_light_data *data;
+	struct tept4400_light_data *data;
 	int rc;
 
 	ALOGD("%s(%p)", __func__, handlers);
@@ -130,59 +129,75 @@ int tsc2007_deactivate(struct gta04_sensors_handlers *handlers)
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
 
-	data = (struct tsc2007_light_data *) handlers->data;
+	data = (struct tept4400_light_data *) handlers->data;
 
 	handlers->activated = 0;
 
 	return 0;
 }
 
-int tsc2007_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
-{
-	tsc2007_delay = delay; //TODO light sensor should not set delay
-	return 0;
-}
-
-float tsc2007_convert(int value)
+int tept4400_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
 {
 	return 0;
 }
 
-int tsc2007_read_sysfs()
+float tept4400_convert(int value)
+{
+	float ambient_light;
+
+	//TEPT4400 is measured via the TSC2007s "AUX" ADC, which returns values between 0 and 4095 (12 bit).
+	//We approximate/map 0 => 0V  -> 0lx
+	//                4095 => 1V8 -> 10lx
+	ambient_light = ((float)value/4095.0)*10.0;
+	//ALOGD("AUX value: %d", value);
+	//ALOGD("LUX value: %f", ambient_light);
+
+	return ambient_light;
+}
+
+/*
+float tsc2007_read_sysfs()
 {
 	char line[100];
 	int v1,v2,v3,v4,v5,v6,v7,v8,v9,v11;
-	int ambient_light;
+	int aux;
+	float ambient_light;
 
 	FILE *fd = fopen(SENSOR_PATH, "r");
 	if(fd==NULL) {
 		ALOGE("%s: Could not open sensor node", __func__); //TODO: check errno
 		return -1;
 	}
-	//e.g. "2200,3812,0,0,280,605,3191,1324,1589,2622,65535" second last (2622) is ambient light value
+	//e.g. "2200,3812,0,0,280,605,3191,1324,1589,2622,65535" second last (2622) is ambient light value (on aux ADC).
 	if(fgets(line, 100, fd) != NULL) {
-		sscanf(line, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", &v1, &v2, &v3, &v4, &v5, &v6, &v7, &v8, &v9, &ambient_light, &v11);
-		ALOGD("Ambient Light: %d", ambient_light);
+		sscanf(line, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d", &v1, &v2, &v3, &v4, &v5, &v6, &v7, &v8, &v9, &aux, &v11);
+		//TEPT4400 is measured via the TSC2007s "AUX" ADC, which returns values between 0 and 4095 (12 bit).
+		//We approximate/map 0 => 0V  -> 0lx
+		//                4095 => 1V8 -> 10lx
+		ambient_light = ((float)aux/4095.0)*10.0;
+		//ALOGD("AUX value: %d", aux);
+		//ALOGD("LUX value: %f", ambient_light);
 	}
 	fclose(fd);
 
 	return ambient_light;
 }
+*/
 
-int tsc2007_get_data(struct gta04_sensors_handlers *handlers,
+int tept4400_get_data(struct gta04_sensors_handlers *handlers,
 	struct sensors_event_t *event)
 {
-	struct tsc2007_light_data *data;
+	struct tept4400_light_data *data;
 	struct input_event input_event;
 	int input_fd;
 	int rc;
 
-	ALOGD("%s(%p, %p)", __func__, handlers, event);
+	//ALOGD("%s(%p, %p)", __func__, handlers, event);
 
 	if (handlers == NULL || handlers->data == NULL || event == NULL)
 		return -EINVAL;
 
-	data = (struct tsc2007_light_data *) handlers->data;
+	data = (struct tept4400_light_data *) handlers->data;
 
 	input_fd = handlers->poll_fd;
 	if (input_fd < 0)
@@ -197,50 +212,6 @@ int tsc2007_get_data(struct gta04_sensors_handlers *handlers,
 
 	event->magnetic.status = SENSOR_STATUS_ACCURACY_MEDIUM; //TODO: needed?
 
-
-	do {
-		rc = read(input_fd, &input_event, sizeof(input_event));
-		if (rc < (int) sizeof(input_event))
-			break;
-
-		//TODO: TSC2007 should report EV_LED (but it doesn't)
-
-		if (input_event.type == EV_SYN) {
-			if (input_event.code == SYN_REPORT) {
-				//ALOGD("SYN_REPORT");
-				event->timestamp = input_timestamp(&input_event);
-			}
-		}
-	} while (input_event.type != EV_SYN);
-
-	//for now we check the AUX/Ambient light value on touchscreen activity, as tsc2007 doesn't report EV_LED
-	data->light = (float)tsc2007_read_sysfs();
-
-/*
-	struct tsc2007_light_data *data;
-	struct input_event input_event;
-	int input_fd;
-	int rc;
-
-	ALOGD("%s(%p, %p)", __func__, handlers, event);
-
-	if (handlers == NULL || handlers->data == NULL || event == NULL)
-		return -EINVAL;
-
-	data = (struct tsc2007_light_data *) handlers->data;
-
-	input_fd = handlers->poll_fd;
-	if (input_fd < 0)
-		return -1;
-
-	memset(event, 0, sizeof(struct sensors_event_t));
-	event->version = sizeof(struct sensors_event_t);
-	event->sensor = handlers->handle;
-	event->type = handlers->handle;
-
-	event->light = data->light;
-
-	event->magnetic.status = SENSOR_STATUS_ACCURACY_MEDIUM; //TODO: needed?
 
 	do {
 		rc = read(input_fd, &input_event, sizeof(input_event));
@@ -249,46 +220,36 @@ int tsc2007_get_data(struct gta04_sensors_handlers *handlers,
 
 		if (input_event.type == EV_ABS) {
 			switch (input_event.code) {
-				case ABS_X:
-					//ALOGD("ABS_X: %d", input_event.value);
-					event->acceleration.x = bma180_acceleration_convert(input_event.value);
-					break;
-				case ABS_Y:
-					//ALOGD("ABS_Y: %d", input_event.value);
-					event->acceleration.y = bma180_acceleration_convert(input_event.value);
-					break;
-				case ABS_Z:
-					//ALOGD("ABS_Z: %d", input_event.value);
-					event->acceleration.z = bma180_acceleration_convert(input_event.value);
+				case ABS_MISC:
+					//ALOGD("ABS_MISC: %d", input_event.value);
+					event->light = tept4400_convert(input_event.value);
 					break;
 				default:
 					continue;
 			}
-		} else if (input_event.type == EV_SYN) {
-			//ALOGD("EV_SYN");
-			if (input_event.code == SYN_REPORT)
+		}
+		else if (input_event.type == EV_SYN) {
+			if (input_event.code == SYN_REPORT) {
 				//ALOGD("SYN_REPORT");
 				event->timestamp = input_timestamp(&input_event);
+			}
 		}
 	} while (input_event.type != EV_SYN);
 
-	data->acceleration.x = event->acceleration.x;
-	data->acceleration.y = event->acceleration.y;
-	data->acceleration.z = event->acceleration.z;
-*/
+	data->light = event->light;
 
 	return 0;
 }
 
-struct gta04_sensors_handlers tsc2007 = {
-	.name = "TSC2007 Ambient Light",
+struct gta04_sensors_handlers tept4400 = {
+	.name = "TEPT4400 Light",
 	.handle = SENSOR_TYPE_LIGHT,
-	.init = tsc2007_init,
-	.deinit = tsc2007_deinit,
-	.activate = tsc2007_activate,
-	.deactivate = tsc2007_deactivate,
-	.set_delay = tsc2007_set_delay,
-	.get_data = tsc2007_get_data,
+	.init = tept4400_init,
+	.deinit = tept4400_deinit,
+	.activate = tept4400_activate,
+	.deactivate = tept4400_deactivate,
+	.set_delay = tept4400_set_delay,
+	.get_data = tept4400_get_data,
 	.activated = 0,
 	.needed = 0,
 	.poll_fd = -1,

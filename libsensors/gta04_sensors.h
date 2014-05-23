@@ -87,6 +87,15 @@ int sysfs_value_write(char *path, int value);
 int sysfs_string_read(char *path, char *buffer, size_t length);
 int sysfs_string_write(char *path, char *buffer, size_t length);
 
+
+/*
+ * IIO
+ */
+
+int open_input(char* mInputName, const char* inputName);
+int find_type_by_name(const char *name, const char *type);
+char *make_sysfs_name(const char *input_name, const char *file_name);
+
 /*
  * Sensors
  */
@@ -101,7 +110,7 @@ extern struct gta04_sensors_handlers bma180;
 extern struct gta04_sensors_handlers lis302;
 extern struct gta04_sensors_handlers itg3200;
 extern struct gta04_sensors_handlers orientation;
-extern struct gta04_sensors_handlers tsc2007;
+extern struct gta04_sensors_handlers tept4400;
 //extern struct gta04_sensors_handlers lsm330dlc_gyroscope;
 //extern struct gta04_sensors_handlers bmp180;
 
