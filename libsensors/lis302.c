@@ -175,7 +175,7 @@ int lis302_acceleration_set_delay(struct gta04_sensors_handlers *handlers, long 
 
 	rc = sysfs_value_write(data->path_delay, (int) delay_ms);
 	if (rc < 0) {
-		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, delay_ms, data->path_delay);
+		ALOGE("%s: Unable to write sysfs value (%ld) to %s", __func__, delay_ms, data->path_delay);
 		return -1;
 	}
 
