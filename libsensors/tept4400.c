@@ -152,7 +152,7 @@ float tept4400_convert(int value)
 	//ALOGD("AUX value: %d", value);
 	//ALOGD("LUX value: %f", ambient_light);
 
-	return ambient_light;
+	return (ambient_light<0.4)?0.0f:ambient_light; //ignore jitter if TEP4400 is not installed
 }
 
 /*
