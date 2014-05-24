@@ -21,30 +21,30 @@ PRODUCT_COPY_FILES += \
 
 # System Root
 PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/init.rc:root/init.rc \
-	device/goldelico/gta04/ueventd.rc:root/ueventd.rc \
-	device/goldelico/gta04/init.gta04.rc:root/init.gta04.rc \
-	device/goldelico/gta04/init.gta04.usb.rc:root/init.gta04.usb.rc \
-	device/goldelico/gta04/ueventd.gta04.rc:root/ueventd.gta04.rc
+	device/goldelico/gta04/rootdir/init.rc:root/init.rc \
+	device/goldelico/gta04/rootdir/ueventd.rc:root/ueventd.rc \
+	device/goldelico/gta04/rootdir/init.gta04.rc:root/init.gta04.rc \
+	device/goldelico/gta04/rootdir/init.gta04.usb.rc:root/init.gta04.usb.rc \
+	device/goldelico/gta04/rootdir/ueventd.gta04.rc:root/ueventd.gta04.rc
 
 # Don't install kernel boot splash (initlogo.rle), as it is not universal for all Display sizes (Letux 2804/3704/7004)
 #PRODUCT_COPY_FILES += \
-#	device/goldelico/gta04/initlogo.rle:root/initlogo.rle
+#	device/goldelico/gta04/rootdir/initlogo.rle:root/initlogo.rle
 
 # Battery
 PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/battery-init.sh:system/battery-init.sh
+	device/goldelico/gta04/rootdir/battery-init.sh:system/battery-init.sh
 
 # USB
 PRODUCT_PROPERTY_OVERRIDES += \
 	persist.sys.usb.config=mtp
 
 PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/keys/TSC2007_Touchscreen.idc:system/usr/idc/TSC2007_Touchscreen.idc \
-	device/goldelico/gta04/keys/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
-	device/goldelico/gta04/keys/Phone_button.kl:system/usr/keylayout/Phone_button.kl \
-	device/goldelico/gta04/keys/gta04_Headset_Jack.kl:system/usr/keylayout/gta04_Headset_Jack.kl \
-	device/goldelico/gta04/keys/3G_Wakeup.kl:system/usr/keylayout/3G_Wakeup.kl
+	device/goldelico/gta04/usr/idc/TSC2007_Touchscreen.idc:system/usr/idc/TSC2007_Touchscreen.idc \
+	device/goldelico/gta04/usr/keylayout/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
+	device/goldelico/gta04/usr/keylayout/Phone_button.kl:system/usr/keylayout/Phone_button.kl \
+	device/goldelico/gta04/usr/keylayout/gta04_Headset_Jack.kl:system/usr/keylayout/gta04_Headset_Jack.kl \
+	device/goldelico/gta04/usr/keylayout/3G_Wakeup.kl:system/usr/keylayout/3G_Wakeup.kl
 
 # Bluetooth configuration files
 PRODUCT_COPY_FILES += \
