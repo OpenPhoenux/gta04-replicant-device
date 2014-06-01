@@ -54,6 +54,9 @@
         <item>"9,1"</item>
     </string-array>
 
+    <bool translatable="false" name="config_wifi_dual_band_support">false</bool>
+    <bool translatable="false" name="config_wifi_p2p_support">false</bool>
+
     <!-- Flag indicating whether we should enable the automatic brightness in Settings.
     config_hardware_automatic_brightness_available is not set, so we will use software implementation -->
     <bool name="config_automatic_brightness_available">true</bool>

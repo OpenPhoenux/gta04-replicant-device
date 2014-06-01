@@ -57,17 +57,13 @@ USE_CAMERA_STUB := true
 
 BOARD_HAS_NO_SELECT_BUTTON := true
 
-# Wifi
+# Wi-Fi
+WIFI_DRIVER_MODULE_PATH := "/system/lib/modules/libertas_sdio.ko"
+WIFI_DRIVER_MODULE_NAME := "libertas_sdio"
+WIFI_DRIVER_FW_PATH_STA := "/system/vendor/firmware/sd8686.bin"
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
-WPA_SUPPLICANT_VERSION      := VER_0_8_X_TI
-BOARD_WLAN_DEVICE           := wlan0
-#BOARD_WPA_SUPPLICANT_PRIVATE_LIB := lib_driver_cmd_wext
-#WIFI_DRIVER_MODULE_PATH     := "/system/lib/modules/libertas_sdio.ko"
-#WIFI_DRIVER_MODULE_NAME     := "libertas_sdio"
-#WIFI_DRIVER_FW_PATH_STA     := "/system/etc/firmware/sd8686.bin"
-#FIXME: what about sd8686_helper.bin?
-#WIFI_DRIVER_FW_PATH_AP      := "/vendor/firmware/fw_bcm4329_apsta.bin"
-#WIFI_DRIVER_MODULE_ARG      :=  "iface_name=wlan0 firmware_path=/vendor/firmware/fw_bcm4329.bin nvram_path=/vendor/firmware/nvram_net.txt"
+WPA_SUPPLICANT_VERSION := VER_0_8_X_TI
+BOARD_WLAN_DEVICE := libertas
 
 # Vibrator
 BOARD_HAS_VIBRATOR_IMPLEMENTATION := ../../device/goldelico/gta04/vibrator/vibrator.c
