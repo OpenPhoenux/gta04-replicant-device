@@ -113,6 +113,10 @@ struct ril_request_handler ril_request_handlers[] = {
 		.request = RIL_REQUEST_QUERY_FACILITY_LOCK,
 		.callback = ril_request_query_facility_lock,
 	},
+	{
+		.request = RIL_REQUEST_GET_IMSI,
+		.callback = ril_request_get_imsi,
+	},
 	// SMS
 	{
 		.request = RIL_REQUEST_SEND_SMS,
@@ -122,6 +126,10 @@ struct ril_request_handler ril_request_handlers[] = {
 	{
 		.request = RIL_REQUEST_BASEBAND_VERSION,
 		.callback = ril_request_baseband_version,
+	},
+	{
+		.request = RIL_REQUEST_GET_IMEI,
+		.callback = ril_request_get_imei,
 	},
 	// Gprs
 	{

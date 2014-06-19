@@ -118,12 +118,14 @@ void ril_request_get_sim_status(void *data, size_t length, RIL_Token token);
 void ril_request_enter_sim_pin(void *data, size_t length, RIL_Token token);
 void ril_request_sim_io(void *data, size_t length, RIL_Token token);
 void ril_request_query_facility_lock(void *data, size_t length, RIL_Token token);
+void ril_request_get_imsi(void *data, size_t length, RIL_Token token);
 
 // SMS
 void ril_request_send_sms(void *data, size_t length, RIL_Token token);
 
 // Device
 void ril_request_baseband_version(void *data, size_t length, RIL_Token token);
+void ril_request_get_imei(void *data, size_t length, RIL_Token token);
 
 // Gprs
 void ril_request_setup_data_call(void *data, size_t length, RIL_Token token);

@@ -414,3 +414,17 @@ void ril_request_query_facility_lock(void *data, size_t length, RIL_Token token)
 
 	free(string);
 }
+
+int at_cimi_callback(char *string, int error, RIL_Token token)
+{
+	char *imsi;
+	imsi = string;
+	ALOGD("IMSI: %s", imsi);
+	ril_request_complete(token, RIL_E_SUCCESS, imsi, sizeof(imsi));
+	return AT_STATUS_HANDLED;
+}
+
+void ril_request_get_imsi(void *data, size_t length, RIL_Token token)
+{
+	at_send_callback("AT+CIMI", token, at_cimi_callback);
+}

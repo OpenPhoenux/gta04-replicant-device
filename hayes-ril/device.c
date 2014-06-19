@@ -660,7 +660,6 @@ int ril_device_at_setup(struct ril_device *ril_device)
 int at_cgmr_callback(char *string, int error, RIL_Token token)
 {
 	char *version;
-	ALOGD("%s", string);
 	version = string;
 	ril_request_complete(token, RIL_E_SUCCESS, version, sizeof(version));
 	return AT_STATUS_HANDLED;
@@ -672,13 +671,18 @@ error:
 
 void ril_request_baseband_version(void *data, size_t length, RIL_Token token)
 {
-	int rc;
+	at_send_callback("AT+CGMR", token, at_cgmr_callback);
+}
 
-	ALOGD("Requesting baseband version (AT+CGMR)");
-	rc = at_send_callback("AT+CGMR", token, at_cgmr_callback);
+int at_cgsn_callback(char *string, int error, RIL_Token token)
+{
+	char *imei;
+	imei = string;
+	ril_request_complete(token, RIL_E_SUCCESS, imei, sizeof(imei));
+	return AT_STATUS_HANDLED;
+}
 
-	return;
-
-error:
-	ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+void ril_request_get_imei(void *data, size_t length, RIL_Token token)
+{
+	at_send_callback("AT+CGSN", token, at_cgsn_callback);
 }
