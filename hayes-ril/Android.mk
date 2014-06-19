@@ -24,6 +24,7 @@ hayes_ril_files := \
 	at.c \
 	call.c \
 	network.c \
+	gprs.c \
 	power.c \
 	sim.c \
 	sms.c \
