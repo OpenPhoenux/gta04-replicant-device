@@ -118,6 +118,16 @@ struct ril_request_handler ril_request_handlers[] = {
 		.request = RIL_REQUEST_SEND_SMS,
 		.callback = ril_request_send_sms,
 	},
+	// Device
+	{
+		.request = RIL_REQUEST_BASEBAND_VERSION,
+		.callback = ril_request_baseband_version,
+	},
+	// Gprs
+	{
+		.request = RIL_REQUEST_SETUP_DATA_CALL,
+		.callback = ril_request_setup_data_call,
+	},
 };
 
 void ril_on_request(int request, void *data, size_t length, RIL_Token token)

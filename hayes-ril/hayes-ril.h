@@ -122,4 +122,10 @@ void ril_request_query_facility_lock(void *data, size_t length, RIL_Token token)
 // SMS
 void ril_request_send_sms(void *data, size_t length, RIL_Token token);
 
+// Device
+void ril_request_baseband_version(void *data, size_t length, RIL_Token token);
+
+// Gprs
+void ril_request_setup_data_call(void *data, size_t length, RIL_Token token);
+
 #endif

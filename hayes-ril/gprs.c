@@ -198,7 +198,7 @@ error:
 	return AT_STATUS_HANDLED;
 }
 
-void ril_request_setup_data_call(RIL_Token token, void *data, int length)
+void ril_request_setup_data_call(void *data, size_t length, RIL_Token token)
 {
 	struct ril_gprs_connection *gprs_connection = NULL;
 

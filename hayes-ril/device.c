@@ -652,3 +652,33 @@ int ril_device_at_setup(struct ril_device *ril_device)
 	rc = ril_device->handlers->at->setup(ril_device->handlers->at->sdata);
 	return rc;
 }
+
+/*
+ * Baseband
+ */
+
+int at_cgmr_callback(char *string, int error, RIL_Token token)
+{
+	char *version;
+	ALOGD("%s", string);
+	version = string;
+	ril_request_complete(token, RIL_E_SUCCESS, version, sizeof(version));
+	return AT_STATUS_HANDLED;
+
+error:
+	ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+	return AT_STATUS_HANDLED;
+}
+
+void ril_request_baseband_version(void *data, size_t length, RIL_Token token)
+{
+	int rc;
+
+	ALOGD("Requesting baseband version (AT+CGMR)");
+	rc = at_send_callback("AT+CGMR", token, at_cgmr_callback);
+
+	return;
+
+error:
+	ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+}
