@@ -252,9 +252,21 @@ error:
 	return AT_STATUS_HANDLED;
 }
 
+/*
+ * Operator Names
+ */
+
+int at_copn_callback(char *string, int error, RIL_Token token)
+{
+	ALOGD("%s", string); //TODO: match operator name with number given in +cops
+	return AT_STATUS_HANDLED;
+}
+
 void ril_request_operator(void *data, size_t length, RIL_Token token)
 {
 	int rc;
+
+	//rc = at_send_callback("AT+COPN", token, at_copn_callback); //TODO: we somehow need a different token for this call
 
 	rc = at_send_callback("AT+COPS=3,0;+COPS?;+COPS=3,1;+COPS?;+COPS=3,2;+COPS?", token, at_cops_callback);
 	if (rc < 0)
