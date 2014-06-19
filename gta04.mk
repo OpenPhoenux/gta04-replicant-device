@@ -66,6 +66,10 @@ PRODUCT_COPY_FILES += \
 # Graphics
 PRODUCT_LOCALES := hdpi
 
+# Media
+PRODUCT_COPY_FILES += \
+	device/goldelico/gta04/configs/media_codecs.xml:system/etc/media_codecs.xml
+
 # Audio
 PRODUCT_PACKAGES += \
 	audio.primary.omap3
