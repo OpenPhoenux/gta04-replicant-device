@@ -51,7 +51,6 @@ TARGET_KERNEL_LOADADDR := 0x80008000
 
 # Hardware
 BOARD_HAVE_FM_RADIO := false
-BOARD_HAVE_BLUETOOTH := true
 BOARD_USES_GENERIC_AUDIO := false
 USE_CAMERA_STUB := true
 
@@ -64,6 +63,10 @@ WIFI_DRIVER_FW_PATH_STA := "/system/vendor/firmware/sd8686.bin"
 BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 WPA_SUPPLICANT_VERSION := VER_0_8_X_TI
 BOARD_WLAN_DEVICE := libertas
+
+# Bluetooth
+BOARD_HAVE_BLUETOOTH := true
+BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/goldelico/gta04/bluetooth
 
 # Vibrator
 BOARD_HAS_VIBRATOR_IMPLEMENTATION := ../../device/goldelico/gta04/vibrator/vibrator.c

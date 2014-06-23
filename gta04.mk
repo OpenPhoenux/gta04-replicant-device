@@ -96,6 +96,7 @@ PRODUCT_PACKAGES += \
 
 # Permissions
 PRODUCT_COPY_FILES += \
+	frameworks/native/data/etc/android.hardware.bluetooth.xml:system/etc/permissions/android.hardware.bluetooth.xml \
 	frameworks/native/data/etc/android.hardware.touchscreen.xml:system/etc/permissions/android.hardware.touchscreen.xml \
 	frameworks/native/data/etc/android.hardware.usb.accessory.xml:system/etc/permissions/android.hardware.usb.accessory.xml \
 	frameworks/native/data/etc/android.hardware.usb.host.xml:system/etc/permissions/android.hardware.usb.host.xml \
@@ -115,6 +116,10 @@ PRODUCT_COPY_FILES += \
 # APNS
 PRODUCT_COPY_FILES += \
 	vendor/replicant/prebuilt/common/etc/apns-conf.xml:system/etc/apns-conf.xml
+
+# Bluetooth
+PRODUCT_PACKAGES += \
+	libbt-vendor
 
 # Dalvik
 PRODUCT_PROPERTY_OVERRIDES += \
