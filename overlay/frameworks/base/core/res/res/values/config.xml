@@ -134,14 +134,20 @@
         <item>0</item>
     </integer-array>
 
-    <!-- Minimum screen brightness setting allowed by the power manager.
-         The user is forbidden from setting the brightness below this level. -->
-    <integer name="config_screenBrightnessSettingMinimum">25</integer>
+	<integer name="config_screenBrightnessSettingMinimum">10</integer>
+	<integer name="config_screenBrightnessDim">15</integer>
 
-    <!-- Screen brightness used to dim the screen when the user activity
-         timeout expires.  May be less than the minimum allowed brightness setting
-         that can be set by the user. -->
-    <integer name="config_screenBrightnessDim">15</integer>
+	<integer-array name="config_longPressVibePattern">
+		<item>40</item>
+	</integer-array>
+
+	<integer-array name="config_virtualKeyVibePattern">
+		<item>40</item>
+	</integer-array>
+
+	<integer-array name="config_keyboardTapVibePattern">
+		<item>35</item>
+	</integer-array>
 
     <!-- Hardware 'face' keys present on the device, stored as a bit field.
          This integer should equal the sum of the corresponding value for each

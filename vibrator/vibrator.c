@@ -24,7 +24,7 @@
 #include <sys/types.h>
 #include <linux/input.h>
 
-#define LOG_TAG "vibrator"
+#define LOG_TAG "gta04_vibrator"
 #include <cutils/log.h>
 
 /*
