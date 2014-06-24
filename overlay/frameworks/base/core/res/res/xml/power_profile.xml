@@ -1,54 +1,48 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-**
-** Copyright 2009, The Android Open Source Project
-**
-** Licensed under the Apache License, Version 2.0 (the "License")
-** you may not use this file except in compliance with the License.
-** You may obtain a copy of the License at
-**
-**     http://www.apache.org/licenses/LICENSE-2.0
-**
-** Unless required by applicable law or agreed to in writing, software
-** distributed under the License is distributed on an "AS IS" BASIS,
-** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-** See the License for the specific language governing permissions and
-** limitations under the License.
-**
-** It is dummy file to get dirty view of Battery usage. TODO: real figures should be putted into
-**
-*/
--->
+ Copyright (C) 2014 Paul Kocialkowski <contact@paulk.fr>
+
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ -->
 
 <device name="Android">
-  <item name="none">0</item>
-  <item name="screen.on">10</item>
-  <item name="bluetooth.active">10</item>
-  <item name="bluetooth.on">10</item>
-  <item name="screen.full">10</item>
-  <item name="wifi.on">10</item>
-  <item name="wifi.active">10</item>
-  <item name="wifi.scan">10</item>
-  <item name="dsp.audio">10</item>
-  <item name="dsp.video">10</item>
-  <item name="radio.active">100</item>
-  <!-- The current consumed by the radio when it is scanning for a signal -->
-  <item name="radio.scanning">50</item>
-  <item name="gps.on">100</item>
-  <!-- Current consumed by the radio at different signal strengths, when paging -->
-  <array name="radio.on"> <!-- Strength 0 to BINS-1 -->
-      <value>20</value>
-      <value>10</value>
-  </array>
-  <!-- Different CPU speeds as reported in
-       /sys/devices/system/cpu/cpu0/cpufreq/stats/time_in_state -->
-  <array name="cpu.speeds">
-      <value>400000</value> <!-- 400 MHz CPU speed -->
-  </array>
-  <!-- Power consumption when CPU is idle -->
-  <item name="cpu.idle">10</item>
-  <!-- Power consumption at different speeds -->
-  <array name="cpu.active">
-      <value>20</value>
-  </array>
+	<item name="none">0</item>
+	<item name="screen.on">55</item>
+	<item name="screen.full">155</item>
+	<item name="bluetooth.on">10</item>
+	<item name="bluetooth.active">40</item>
+	<item name="wifi.on">10</item>
+	<item name="wifi.active">180</item>
+	<item name="wifi.scan">210</item>
+	<array name="radio.on">
+		<value>5</value>
+	</array>
+	<item name="radio.active">300</item>
+	<item name="radio.scanning">10</item>
+	<item name="gps.on">50</item>
+	<item name="dsp.audio">10</item>
+	<item name="dsp.video">50</item>
+	<array name="cpu.speeds">
+		<value>800000</value>
+		<value>1000000</value>
+	</array>
+	<array name="cpu.active">
+		<value>200</value>
+		<value>250</value>
+	</array>
+	<item name="cpu.idle">30</item>
+	<item name="cpu.awake">100</item>
+
+	<item name="battery.capacity">1200</item>
 </device>
