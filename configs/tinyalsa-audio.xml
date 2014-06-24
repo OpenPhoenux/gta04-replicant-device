@@ -2,7 +2,6 @@
 	<output card="0" device="0"
 		rate="44100" channels="2" format="PCM_16"
 		period_size="1024" period_count="4">
-
 		<device type="default">
 			<path type="enable">
 				<ctrl name="Codec Operation Mode" value="Option 1 (audio)" />
@@ -33,7 +32,7 @@
 				<ctrl name="HandsfreeL Switch" value="on" />
 				<ctrl name="HandsfreeR Switch" value="on" />
 
-				<ctrl name="DAC2 Analog Playback Volume" value="16" />
+				<ctrl name="DAC2 Analog Playback Volume" value="18" />
                         </path>
                         <path type="disable">
 				<ctrl name="HandsfreeL Switch" value="off" />
@@ -46,7 +45,7 @@
 				<ctrl name="HeadsetR Mixer AudioR2" value="on" />
 				<ctrl name="HeadsetL Mixer AudioL2" value="on" />
 
-				<ctrl name="DAC2 Analog Playback Volume" value="12" />
+				<ctrl name="DAC2 Analog Playback Volume" value="14" />
 				<ctrl name="Headset Playback Volume" value="1" />
 			</path>
 			<path type="disable">
@@ -60,7 +59,7 @@
 				<ctrl name="HeadsetR Mixer AudioR2" value="on" />
 				<ctrl name="HeadsetL Mixer AudioL2" value="on" />
 
-				<ctrl name="DAC2 Analog Playback Volume" value="12" />
+				<ctrl name="DAC2 Analog Playback Volume" value="14" />
 				<ctrl name="Headset Playback Volume" value="1" />
 			</path>
 			<path type="disable">
@@ -73,7 +72,6 @@
 	<input card="0" device="0"
 		rate="44100" channels="2" format="PCM_16"
 		period_size="1024" period_count="4">
-
 		<device type="default">
 			<path type="enable">
 				<ctrl name="TX1 Capture Route" value="Analog" />
@@ -101,7 +99,6 @@
 	</input>
 
 	<modem card="0" device="0">
-
 		<device type="default">
 			<path type="enable">
 				<ctrl name="Voice route" value="Voice to twl4030" />
