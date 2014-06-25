@@ -28,8 +28,7 @@ PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/rootdir/ueventd.gta04.rc:root/ueventd.gta04.rc
 
 # Don't install kernel boot splash (initlogo.rle), as it is not universal for all Display sizes (Letux 2804/3704/7004)
-#PRODUCT_COPY_FILES += \
-#	device/goldelico/gta04/rootdir/initlogo.rle:root/initlogo.rle
+# This is now also handled via replicant_gta04_install.sh script in upstream Replicant
 
 # Battery
 PRODUCT_COPY_FILES += \

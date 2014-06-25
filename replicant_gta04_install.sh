@@ -244,6 +244,11 @@ drive_write() {
 	cp $FILES_BASE/boot.scr "$MOUNT_BASE/boot"
 	cp $FILES_BASE/boot.img "$MOUNT_BASE/boot"
 
+	if [ -f "$MOUNT_BASE/boot/splash.rgb16z" ]
+	then
+		gunzip < "$MOUNT_BASE/boot/splash.rgb16z" > "$MOUNT_BASE/boot/splash.rgb16"
+	fi
+
 	dir=$( pwd )
 	echo "Syncing boot files"
 	cd "$MOUNT_BASE/boot"
