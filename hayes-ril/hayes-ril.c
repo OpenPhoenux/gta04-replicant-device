@@ -32,12 +32,16 @@ struct ril_data *ril_data = NULL;
 
 struct ril_dispatch_handler ril_dispatch_handlers[] = {
 	{
-		.string = "+CREG",
+		.string = "+CREG", //network status
 		.callback = at_creg_unsol,
 	},
 	{
-		.string = "+CRING",
+		.string = "+CRING", //incoming call
 		.callback = at_cring_unsol,
+	},
+	{
+		.string = "+CMT", //incoming sms
+		.callback = at_cmt_unsol,
 	},
 };
 
@@ -91,6 +95,18 @@ struct ril_request_handler ril_request_handlers[] = {
 		.request = RIL_REQUEST_OPERATOR,
 		.callback = ril_request_operator,
 	},
+	{
+		.request = RIL_REQUEST_GET_PREFERRED_NETWORK_TYPE,
+		.callback = ril_request_get_preferred_network_type,
+	},
+	{
+		.request = RIL_REQUEST_SET_PREFERRED_NETWORK_TYPE,
+		.callback = ril_request_set_preferred_network_type,
+	},
+	{
+		.request = RIL_REQUEST_DATA_REGISTRATION_STATE,
+		.callback = ril_request_data_registration_state,
+	},
 	// Power
 	{
 		.request = RIL_REQUEST_RADIO_POWER,
@@ -130,6 +146,10 @@ struct ril_request_handler ril_request_handlers[] = {
 	{
 		.request = RIL_REQUEST_GET_IMEI,
 		.callback = ril_request_get_imei,
+	},
+	{
+		.request = RIL_REQUEST_SCREEN_STATE,
+		.callback = ril_request_screen_state,
 	},
 	// Gprs
 	{

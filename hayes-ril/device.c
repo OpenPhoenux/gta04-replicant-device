@@ -686,3 +686,20 @@ void ril_request_get_imei(void *data, size_t length, RIL_Token token)
 {
 	at_send_callback("AT+CGSN", token, at_cgsn_callback);
 }
+
+void ril_request_screen_state(void *data, size_t length, RIL_Token token)
+{
+	int *state_ptr = (int *)data;
+	int state = state_ptr[0]; //1 if screen is on, 0 if screen is off
+	ALOGD("Screen State changed: %d",state);
+
+	if(state == 0) { //disable network status updates
+
+	}
+	else { //re-enable network status updates
+
+	}
+
+	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
+	return AT_STATUS_HANDLED;
+}

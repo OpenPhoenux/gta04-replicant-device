@@ -220,46 +220,9 @@ void ril_request_setup_data_call(void *data, size_t length, RIL_Token token)
 	asprintf(&string, "AT+CGDCONT=1,\"IP\",\"%s\"", apn); //IPv4 context #1
 	rc = at_send_callback(string, token, at_cgdcont_callback);
 
-/*
-	gprs_connection = ril_gprs_connection_start();
-
-	if (!gprs_connection) {
-		ALOGE("Unable to create GPRS connection, aborting");
-
-		ril_request_complete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
-		return;
-	}
-
-	gprs_connection->token = t;
-
-	// Create the structs with the apn
-	ipc_gprs_define_pdp_context_setup(&(gprs_connection->define_context),
-		gprs_connection->cid, 1, apn);
-
-	// Create the structs with the username/password tuple
-	ipc_gprs_pdp_context_setup(&(gprs_connection->context),
-		gprs_connection->cid, 1, username, password);
-
-	ipc_client_gprs_get_capabilities(ipc_client, &gprs_capabilities);
-
-	// If the device has the capability, deal with port list
-	if (gprs_capabilities.port_list) {
-		ipc_gprs_port_list_setup(&port_list);
-
-		ipc_gen_phone_res_expect_to_func(ril_request_get_id(t), IPC_GPRS_PORT_LIST,
-			ipc_gprs_port_list_complete);
-
-		ipc_fmt_send(IPC_GPRS_PORT_LIST, IPC_TYPE_SET,
-			(void *) &port_list, sizeof(struct ipc_gprs_port_list), ril_request_get_id(t));
-	} else {
-		ipc_gen_phone_res_expect_to_func(ril_request_get_id(t), IPC_GPRS_DEFINE_PDP_CONTEXT,
-			ipc_gprs_define_pdp_context_complete);
-
-		ipc_fmt_send(IPC_GPRS_DEFINE_PDP_CONTEXT, IPC_TYPE_SET,
-			(void *) &(gprs_connection->define_context),
-				sizeof(struct ipc_gprs_define_pdp_context), ril_request_get_id(t));
-	}
-*/
+	//TODO: AT_OWANCALL
+	//TODO: AT_OWANDATA
+	//TODO: interface: hso0
 
 	return;
 

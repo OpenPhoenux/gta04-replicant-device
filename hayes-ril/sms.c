@@ -34,6 +34,37 @@ struct ril_outgoing_sms {
 	char *pdu;
 };
 
+int at_cmt_unsol(char *string, int error)
+{
+
+	ALOGD("NEW SMS: %s", string);
+/*
+	int state = 0;
+	char lac[10] = { 0 };
+	char cid[10] = { 0 };
+	int rc;
+
+	rc = sscanf(string, "+CREG: %d,\"%10[^\"]\",\"%10[^\"]\"", &state, (char *) &lac, (char *) &cid);
+	if (rc < 1)
+		goto complete;
+
+	asprintf(&ril_data->registration_state[0], "%d", state);
+	if (lac[0] != '\0')
+		asprintf(&ril_data->registration_state[1], "%s", lac);
+	if (cid[0] != '\0')
+		asprintf(&ril_data->registration_state[2], "%s", cid);
+
+#if RIL_VERSION >= 6
+	ril_request_unsolicited(RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED, NULL, 0);
+#else
+	ril_request_unsolicited(RIL_UNSOL_RESPONSE_NETWORK_STATE_CHANGED, NULL, 0);
+#endif
+
+complete:
+*/
+	return AT_STATUS_HANDLED;
+}
+
 int ril_outgoing_sms_register(RIL_Token token, char *smsc, char *pdu)
 {
 	struct ril_outgoing_sms *outgoing_sms;

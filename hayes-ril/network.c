@@ -272,3 +272,67 @@ void ril_request_operator(void *data, size_t length, RIL_Token token)
 	if (rc < 0)
 		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
+
+void ril_request_get_preferred_network_type(void *data, size_t length, RIL_Token token)
+{
+	int preferred_network_type[1];
+	preferred_network_type[0] = 1; //==RIL_PreferredNetworkType.PREF_NET_TYPE_GSM_ONLY;
+	ril_request_complete(token, RIL_E_SUCCESS, &preferred_network_type, sizeof(preferred_network_type));
+}
+
+void ril_request_set_preferred_network_type(void *data, size_t length, RIL_Token token)
+{
+	/* "data" is int * which is RIL_PreferredNetworkType */
+	//TODO: this is a dummy, complete it
+	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
+}
+void ril_request_data_registration_state(void *data, size_t length, RIL_Token token)
+{
+/*
+ * "response" is a "char **"
+ * ((const char **)response)[0] is registration state 0-5 from TS 27.007 10.1.20 AT+CGREG
+ * ((const char **)response)[1] is LAC if registered or NULL if not
+ * ((const char **)response)[2] is CID if registered or NULL if not
+ * ((const char **)response)[3] indicates the available data radio technology,
+ *                              valid values as defined by RIL_RadioTechnology.
+ * ((const char **)response)[4] if registration state is 3 (Registration
+ *                               denied) this is an enumerated reason why
+ *                               registration was denied.  See 3GPP TS 24.008,
+ *                               Annex G.6 "Additonal cause codes for GMM".
+ *      7 == GPRS services not allowed
+ *      8 == GPRS services and non-GPRS services not allowed
+ *      9 == MS identity cannot be derived by the network
+ *      10 == Implicitly detached
+ *      14 == GPRS services not allowed in this PLMN
+ *      16 == MSC temporarily not reachable
+ *      40 == No PDP context activated
+ * ((const char **)response)[5] The maximum number of simultaneous Data Calls that can be
+ *                              established using RIL_REQUEST_SETUP_DATA_CALL.
+ *
+ * The values at offsets 6..10 are optional LTE location information in decimal.
+ * If a value is unknown that value may be NULL. If all values are NULL,
+ * none need to be present.
+ *  ((const char **)response)[6] is TAC, a 16-bit Tracking Area Code.
+ *  ((const char **)response)[7] is CID, a 0-503 Physical Cell Identifier.
+ *  ((const char **)response)[8] is ECI, a 28-bit E-UTRAN Cell Identifier.
+ *  ((const char **)response)[9] is CSGID, a 27-bit Closed Subscriber Group Identity.
+ *  ((const char **)response)[10] is TADV, a 6-bit timing advance value.
+ *
+ * LAC and CID are in hexadecimal format.
+ * valid LAC are 0x0000 - 0xffff
+ * valid CID are 0x00000000 - 0x0fffffff
+ *
+ * Please note that registration state 4 ("unknown") is treated
+ * as "out of service" in the Android telephony system
+ */
+	//FIXME: this is a dummy, make it real
+	char *response[6] = {
+		"1", //CREG=1 (registered to home network)
+		"42",//LAC dummy
+		"42",//CID dummy
+		"3", //==RIL_RadioTechnology.RADIO_TECH_UMTS
+		NULL,//not relevant, as CREG!=3
+		"1", //limit to one pdp context for now
+		};
+	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
+}

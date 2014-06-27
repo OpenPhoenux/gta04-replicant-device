@@ -108,6 +108,9 @@ void ril_request_voice_registration_state(void *data, size_t length, RIL_Token t
 void ril_request_registration_state(void *data, size_t length, RIL_Token token);
 #endif
 void ril_request_operator(void *data, size_t length, RIL_Token token);
+void ril_request_get_preferred_network_type(void *data, size_t length, RIL_Token token);
+void ril_request_set_preferred_network_type(void *data, size_t length, RIL_Token token);
+void ril_request_data_registration_state(void *data, size_t length, RIL_Token token);
 
 // Power
 void ril_request_radio_power(void *data, size_t length, RIL_Token token);
@@ -121,11 +124,13 @@ void ril_request_query_facility_lock(void *data, size_t length, RIL_Token token)
 void ril_request_get_imsi(void *data, size_t length, RIL_Token token);
 
 // SMS
+int at_cmt_unsol(char *string, int error);
 void ril_request_send_sms(void *data, size_t length, RIL_Token token);
 
 // Device
 void ril_request_baseband_version(void *data, size_t length, RIL_Token token);
 void ril_request_get_imei(void *data, size_t length, RIL_Token token);
+void ril_request_screen_state(void *data, size_t length, RIL_Token token);
 
 // Gprs
 void ril_request_setup_data_call(void *data, size_t length, RIL_Token token);
