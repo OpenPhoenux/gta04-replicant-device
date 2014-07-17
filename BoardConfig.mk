@@ -60,8 +60,8 @@ BOARD_HAS_NO_SELECT_BUTTON := true
 WIFI_DRIVER_MODULE_PATH := "/system/lib/modules/libertas_sdio.ko"
 WIFI_DRIVER_MODULE_NAME := "libertas_sdio"
 WIFI_DRIVER_FW_PATH_STA := "/system/vendor/firmware/sd8686.bin"
-BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 WPA_SUPPLICANT_VERSION := VER_0_8_X_TI
+BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 BOARD_WLAN_DEVICE := libertas
 
 # Bluetooth
