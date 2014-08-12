@@ -26,6 +26,9 @@
 #include <telephony/ril.h>
 
 #include <hayes-ril.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 
 /*
  * Signal Strength
@@ -253,6 +256,52 @@ error:
 }
 
 /*
+ * Operator List
+ */
+
+int at_cops_list_callback(char *string, int error, RIL_Token token)
+{
+	char *status[] = {"unknown","available","current","forbidden"};
+	char delimiter[] = "()";
+	char *ptr;
+	int rc,i;
+	char longname[50];
+	char shortname[50];
+	char numeric[50]; //mccmnc
+	int st,act;
+	char *resp_buf[80] = {0}; //80=4*20
+	int counter = 0;
+
+	ptr = strtok(string, delimiter);
+	if(strncmp(ptr, "+COPS: ", 7) != 0)
+		goto error;
+
+	while(ptr != NULL) {
+		rc = sscanf(ptr, "%d,\"%50[^\"]\",\"%50[^\"]\",\"%50[^\"]\",%d", &st, longname, shortname, numeric, &act);
+		if (rc==5) {
+			asprintf(&resp_buf[counter++], "%s", longname);
+			asprintf(&resp_buf[counter++], "%s", shortname);
+			asprintf(&resp_buf[counter++], "%s", numeric);
+			asprintf(&resp_buf[counter++], "%s", status[st]);
+		}
+		ptr = strtok(NULL, delimiter);
+	}
+
+	//for(i=0; i<counter; i++) {
+	//	ALOGD("%d: %s\n", i, resp_buf[i]);
+	//}
+	//ALOGD("%s", string);
+
+complete:
+	ril_request_complete(token, RIL_E_SUCCESS, &resp_buf, counter*sizeof(char*));
+	return AT_STATUS_HANDLED;
+
+error:
+	ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+	return AT_STATUS_HANDLED;
+}
+
+/*
  * Operator Names
  */
 
@@ -335,4 +384,66 @@ void ril_request_data_registration_state(void *data, size_t length, RIL_Token to
 		"1", //limit to one pdp context for now
 		};
 	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
+}
+
+void ril_request_query_network_selection_mode(void *data, size_t length, RIL_Token token)
+{
+/**
+ * RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE
+ *
+ * Query current network selectin mode
+ *
+ * "data" is NULL
+ *
+ * "response" is int *
+ * ((const int *)response)[0] is
+ *     0 for automatic selection
+ *     1 for manual selection
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+	int *response[1] = {
+		0, //automatic selection = 0 //TODO: this is a dummy
+		};
+	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
+}
+
+void ril_request_query_available_networks(void *data, size_t length, RIL_Token token)
+{
+/**
+ * RIL_REQUEST_QUERY_AVAILABLE_NETWORKS
+ *
+ * Scans for available networks
+ *
+ * "data" is NULL
+ * "response" is const char ** that should be an array of n*4 strings, where
+ *    n is the number of available networks
+ * For each available network:
+ *
+ * ((const char **)response)[n+0] is long alpha ONS or EONS
+ * ((const char **)response)[n+1] is short alpha ONS or EONS
+ * ((const char **)response)[n+2] is 5 or 6 digit numeric code (MCC + MNC)
+ * ((const char **)response)[n+3] is a string value of the status:
+ *           "unknown"
+ *           "available"
+ *           "current"
+ *           "forbidden"
+ *
+ * This request must not respond until the new operator is selected
+ * and registered
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ *
+ */
+	int rc;
+	rc = at_send_callback("AT+COPS=?", token, at_cops_list_callback);
+	if (rc < 0)
+		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 }

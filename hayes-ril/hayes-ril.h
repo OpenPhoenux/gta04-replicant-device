@@ -111,6 +111,8 @@ void ril_request_operator(void *data, size_t length, RIL_Token token);
 void ril_request_get_preferred_network_type(void *data, size_t length, RIL_Token token);
 void ril_request_set_preferred_network_type(void *data, size_t length, RIL_Token token);
 void ril_request_data_registration_state(void *data, size_t length, RIL_Token token);
+void ril_request_query_network_selection_mode(void *data, size_t length, RIL_Token token);
+void ril_request_query_available_networks(void *data, size_t length, RIL_Token token);
 
 // Power
 void ril_request_radio_power(void *data, size_t length, RIL_Token token);

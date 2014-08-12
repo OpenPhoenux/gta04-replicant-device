@@ -80,6 +80,14 @@ struct ril_request_handler ril_request_handlers[] = {
 		.request = RIL_REQUEST_SIGNAL_STRENGTH,
 		.callback = ril_request_signal_strength,
 	},
+	{
+		.request = RIL_REQUEST_QUERY_NETWORK_SELECTION_MODE,
+		.callback = ril_request_query_network_selection_mode,
+	},
+	{
+		.request = RIL_REQUEST_QUERY_AVAILABLE_NETWORKS,
+		.callback = ril_request_query_available_networks,
+	},
 #if RIL_VERSION >= 6
 	{
 		.request = RIL_REQUEST_VOICE_REGISTRATION_STATE,
