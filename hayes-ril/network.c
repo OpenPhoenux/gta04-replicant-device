@@ -374,14 +374,36 @@ void ril_request_data_registration_state(void *data, size_t length, RIL_Token to
  * Please note that registration state 4 ("unknown") is treated
  * as "out of service" in the Android telephony system
  */
-	//FIXME: this is a dummy, make it real
+	char *state;
+	char *lac;
+	char *cid;
+
+	if(ril_data->registration_state[0] != NULL)
+		asprintf(&state, "%s", ril_data->registration_state[0]);
+	else
+		asprintf(&state, "%d", 4); //unknown
+
+	if(ril_data->registration_state[1] != NULL)
+		asprintf(&lac, "%s", ril_data->registration_state[1]);
+	else
+		asprintf(&lac, "%d", -1); //unknown
+
+	if(ril_data->registration_state[2] != NULL)
+		asprintf(&cid, "%s", ril_data->registration_state[2]);
+	else
+		asprintf(&cid, "%d", -1); //unknown
+
+	//ALOGD("================================================================");
+	//ALOGD("State: %s, LAC: %s, CID: %s", state, lac, cid);
+	//ALOGD("================================================================");
+
 	char *response[6] = {
-		"1", //CREG=1 (registered to home network)
-		"42",//LAC dummy
-		"42",//CID dummy
-		"3", //==RIL_RadioTechnology.RADIO_TECH_UMTS
-		NULL,//not relevant, as CREG!=3
-		"1", //limit to one pdp context for now
+		state,
+		lac,
+		cid,
+		"3", //FIXME: dummy: 3=RIL_RadioTechnology.RADIO_TECH_UMTS
+		NULL,//FIXME: assumes CREG!=3
+		"1", //FIXME: limit to one pdp context for now
 		};
 	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
 }

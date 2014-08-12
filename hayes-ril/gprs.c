@@ -27,170 +27,58 @@
 #include <telephony/ril.h>
 
 #include <hayes-ril.h>
-/*
-int ril_gprs_connection_register(int cid)
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+int at_owandata_callback(char *string, int error, RIL_Token token)
 {
-	struct ril_gprs_connection *gprs_connection;
-	struct list_head *list_end;
-	struct list_head *list;
+//string: _OWANDATA: 1, 10.156.71.105, 0.0.0.0, 193.189.244.206, 193.189.244.225, 0.0.0.0, 0.0.0.0,144000
+//status, ip, gw, dns1, dns2, nbns1, nbns2, speed
 
-	gprs_connection = calloc(1, sizeof(struct ril_gprs_connection));
-	if (gprs_connection == NULL)
-		return -1;
-
-	gprs_connection->cid = cid;
-
-	list_end = ril_data.gprs_connections;
-	while (list_end != NULL && list_end->next != NULL)
-		list_end = list_end->next;
-
-	list = list_head_alloc((void *) gprs_connection, list_end, NULL);
-
-	if (ril_data.gprs_connections == NULL)
-		ril_data.gprs_connections = list;
-
-	return 0;
-}
-
-void ril_gprs_connection_unregister(struct ril_gprs_connection *gprs_connection)
-{
-	struct list_head *list;
-
-	if (gprs_connection == NULL)
-		return;
-
-	list = ril_data.gprs_connections;
-	while (list != NULL) {
-		if (list->data == (void *) gprs_connection) {
-			memset(gprs_connection, 0, sizeof(struct ril_gprs_connection));
-			free(gprs_connection);
-
-			if (list == ril_data.gprs_connections)
-				ril_data.gprs_connections = list->next;
-
-			list_head_free(list);
-
-			break;
-		}
-list_continue:
-		list = list->next;
-	}
-}
-
-struct ril_gprs_connection *ril_gprs_connection_find_cid(int cid)
-{
-	struct ril_gprs_connection *gprs_connection;
-	struct list_head *list;
-
-	list = ril_data.gprs_connections;
-	while (list != NULL) {
-		gprs_connection = (struct ril_gprs_connection *) list->data;
-		if (gprs_connection == NULL)
-			goto list_continue;
-
-		if (gprs_connection->cid == cid)
-			return gprs_connection;
-
-list_continue:
-		list = list->next;
-	}
-
-	return NULL;
-}
-
-struct ril_gprs_connection *ril_gprs_connection_find_token(RIL_Token t)
-{
-	struct ril_gprs_connection *gprs_connection;
-	struct list_head *list;
-
-	list = ril_data.gprs_connections;
-	while (list != NULL) {
-		gprs_connection = (struct ril_gprs_connection *) list->data;
-		if (gprs_connection == NULL)
-			goto list_continue;
-
-		if (gprs_connection->token == t)
-			return gprs_connection;
-
-list_continue:
-		list = list->next;
-	}
-
-	return NULL;
-}
-
-struct ril_gprs_connection *ril_gprs_connection_start(void)
-{
-	//struct ipc_client_gprs_capabilities gprs_capabilities;
-	struct ril_gprs_connection *gprs_connection;
-	//struct ipc_client *ipc_client;
-	struct list_head *list;
-	int cid, cid_max;
+	RIL_Data_Call_Response_v6 response;
+	int status = 0; //FIXME: RIL_DataCallFailCause
+#ifndef HCRADIO
+	int suggestedRetryTime = -1;
+#endif
+	int cid = 1; //FIXME: static
+	int active;
+	char type[] = "IP";
+	char ifname[] = "hso0"; //FIXME: GTA04 specific
+	char address[20];
+	char gateway[20];
+	char dns1[20];
+	char dns2[20];
+	char nbns1[20];
+	char nbns2[20];
+	char speed[20];
 	int rc;
-	int i;
 
-	//if (ril_data.ipc_fmt_client == NULL || ril_data.ipc_fmt_client->data == NULL)
-	//	return NULL;
-
-	//ipc_client = (struct ipc_client *) ril_data.ipc_fmt_client->data;
-
-	//ipc_client_gprs_get_capabilities(ipc_client, &gprs_capabilities);
-	//cid_max = gprs_capabilities.cid_max;
-
-	for (i = 0 ; i < cid_max ; i++) {
-		cid = i + 1;
-		list = ril_data.gprs_connections;
-		while (list != NULL) {
-			if (list->data == NULL)
-				goto list_continue;
-
-			gprs_connection = (struct ril_gprs_connection *) list->data;
-			if (gprs_connection->cid == cid) {
-				cid = 0;
-				break;
-			}
-
-list_continue:
-			list = list->next;
-		}
-
-		if (cid > 0)
-			break;
-	}
-
-	if (cid <= 0) {
-		RIL_LOGE("Unable to find an unused cid, aborting");
-		return NULL;
-	}
-
-	ALOGD("Using GPRS connection cid: %d", cid);
-	rc = ril_gprs_connection_register(cid);
-	if (rc < 0)
-		return NULL;
-
-	gprs_connection = ril_gprs_connection_find_cid(cid);
-	return gprs_connection;
-}
-
-void ril_gprs_connection_stop(struct ril_gprs_connection *gprs_connection)
-{
-	if (gprs_connection == NULL)
-		return;
-
-	if (gprs_connection->interface != NULL)
-		free(gprs_connection->interface);
-
-	ril_gprs_connection_unregister(gprs_connection);
-}*/
-
-int at_cgdcont_callback(char *string, int error, RIL_Token token)
-{
-	if (at_error(error) == AT_ERROR_OK)
-		return AT_STATUS_UNHANDLED;
-
-	if (at_error(error) != AT_ERROR_OK)
+	if(string==NULL)
 		goto error;
 
+	rc = sscanf(string, "_OWANDATA: %d, %20[^,], %20[^,], %20[^,], %20[^,], %20[^,], %20[^,],%20[^,]", &active, address, gateway, dns1, dns2, nbns1, nbns2, speed);
+	if(rc!=8)
+		goto error;
+	//ALOGD("================================================================");
+	//ALOGD("%s", string);
+	//ALOGD("rc = %d", rc);
+	//ALOGD("%d %s %s %s %s %s %s %s", active, address, gateway, dns1, dns2, nbns1, nbns2, speed);
+	//ALOGD("================================================================");
+
+	response.status = status;
+#ifndef HCRADIO
+	response.suggestedRetryTime = suggestedRetryTime;
+#endif
+	response.cid = cid;
+	response.active = active; //TODO: active?2:0;???
+	response.type = type;
+	response.ifname = ifname;
+	response.addresses = address;
+	asprintf(&response.dnses, "%s %s", dns1, dns2);
+	response.gateways = gateway;
+
+	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
 	return AT_STATUS_HANDLED;
 
 error:
@@ -215,142 +103,14 @@ void ril_request_setup_data_call(void *data, size_t length, RIL_Token token)
 	username = ((char **) data)[3]; //e.g.: t-mobile
 	password = ((char **) data)[4]; //e.g.: tm
 
-	ALOGD("Requesting data connection to APN '%s'\n", apn);
+	//ALOGD("================================================================");
+	//ALOGD("Requesting data connection to APN '%s'\n", apn);
+	//ALOGD("================================================================");
 
 	asprintf(&string, "AT+CGDCONT=1,\"IP\",\"%s\"", apn); //IPv4 context #1
-	rc = at_send_callback(string, token, at_cgdcont_callback);
-
-	//TODO: AT_OWANCALL
-	//TODO: AT_OWANDATA
-	//TODO: interface: hso0
-
-	return;
-
-error:
-	ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+	at_send_string_locked(string);
+	at_send_string_locked("AT_OWANCALL=1,1,1"); //FIXME: GTA04/gtm601 specific, _OWANCALL=1,0,1 to disconnect
+	rc = at_send_callback("AT_OWANDATA?", token, at_owandata_callback);
+	if (rc < 0)
+error:		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
-
-/*
-void ril_request_deactivate_data_call(RIL_Token t, void *data, int length)
-{
-	struct ril_gprs_connection *gprs_connection;
-	struct ipc_gprs_pdp_context_set context;
-
-	char *cid;
-	int rc;
-
-	if (data == NULL || length < (int) sizeof(char *))
-		goto error;
-
-	if (ril_radio_state_complete(RADIO_STATE_OFF, t))
-		return;
-
-	cid = ((char **) data)[0];
-
-	gprs_connection = ril_gprs_connection_find_cid(atoi(cid));
-
-	if (!gprs_connection) {
-		RIL_LOGE("Unable to find GPRS connection, aborting");
-
-		ril_request_complete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
-		return;
-	}
-
-	gprs_connection->token = t;
-
-	ipc_gprs_pdp_context_setup(&context, gprs_connection->cid, 0, NULL, NULL);
-
-	ipc_gen_phone_res_expect_to_func(ril_request_get_id(t), IPC_GPRS_PDP_CONTEXT,
-		ipc_gprs_pdp_context_disable_complete);
-
-	ipc_fmt_send(IPC_GPRS_PDP_CONTEXT, IPC_TYPE_SET,
-		(void *) &context, sizeof(struct ipc_gprs_pdp_context_set), ril_request_get_id(t));
-
-	return;
-
-error:
-	ril_request_complete(t, RIL_E_GENERIC_FAILURE, NULL, 0);
-}
-
-#if RIL_VERSION >= 6
-void ril_data_call_response_free(RIL_Data_Call_Response_v6 *response)
-#else
-void ril_data_call_response_free(RIL_Data_Call_Response *response)
-#endif
-{
-	if (response == NULL)
-		return;
-
-	if (response->type != NULL)
-		free(response->type);
-
-#if RIL_VERSION >= 6
-	if (response->addresses)
-		free(response->addresses);
-	if (response->ifname)
-		free(response->ifname);
-	if (response->dnses)
-		free(response->dnses);
-	if (response->gateways)
-		free(response->gateways);
-#else
-	if (response->apn)
-		free(response->apn);
-	if (response->address)
-		free(response->address);
-#endif
-}
-
-void ril_request_last_data_call_fail_cause(RIL_Token t)
-{
-	struct ril_gprs_connection *gprs_connection;
-	int last_failed_cid;
-	int fail_cause;
-
-	if (ril_radio_state_complete(RADIO_STATE_OFF, t))
-		return;
-
-	last_failed_cid = ril_data.state.gprs_last_failed_cid;
-
-	if (!last_failed_cid) {
-		RIL_LOGE("No GPRS connection was reported to have failed");
-
-		goto fail_cause_unspecified;
-	}
-
-	gprs_connection = ril_gprs_connection_find_cid(last_failed_cid);
-
-	if (!gprs_connection) {
-		RIL_LOGE("Unable to find GPRS connection");
-
-		goto fail_cause_unspecified;
-	}
-
-	fail_cause = gprs_connection->fail_cause;
-
-	RIL_LOGD("Destroying GPRS connection with cid: %d", gprs_connection->cid);
-	ril_gprs_connection_stop(gprs_connection);
-
-	goto fail_cause_return;
-
-fail_cause_unspecified:
-	fail_cause = PDP_FAIL_ERROR_UNSPECIFIED;
-
-fail_cause_return:
-	ril_data.state.gprs_last_failed_cid = 0;
-
-	ril_request_complete(t, RIL_E_SUCCESS, &fail_cause, sizeof(fail_cause));
-}
-
-void ril_unsol_data_call_list_changed(void)
-{
-	ipc_fmt_send_get(IPC_GPRS_PDP_CONTEXT, 0xff);
-}
-
-void ril_request_data_call_list(RIL_Token t)
-{
-	if (ril_radio_state_complete(RADIO_STATE_OFF, t))
-		return;
-
-	ipc_fmt_send_get(IPC_GPRS_PDP_CONTEXT, ril_request_get_id(t));
-}*/

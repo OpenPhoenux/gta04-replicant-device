@@ -694,10 +694,10 @@ void ril_request_screen_state(void *data, size_t length, RIL_Token token)
 	ALOGD("Screen State changed: %d",state);
 
 	if(state == 0) { //disable network status updates
-
+		at_send_string_locked("AT_OSQI=0"); //FIXME: GTA04/gtm601 specific
 	}
 	else { //re-enable network status updates
-
+		at_send_string_locked("AT_OSQI=1"); //FIXME: GTA04/gtm601 specific
 	}
 
 	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
