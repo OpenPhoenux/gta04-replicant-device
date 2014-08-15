@@ -79,6 +79,7 @@ int at_csq_callback(char *string, int error, RIL_Token token)
 		goto error;
 
 	rc = sscanf(string, "+CSQ: %d,%d", &values[0], &values[1]);
+	//TODO: from GTA04 documentation: signal strenght = 2*n-113dBm, n = values[0]
 	if (rc < 2)
 		goto error;
 
@@ -311,6 +312,32 @@ int at_copn_callback(char *string, int error, RIL_Token token)
 	return AT_STATUS_HANDLED;
 }
 
+/*
+ * Neighboring Cells
+ */
+
+int at_onci_callback(char *string, int error, RIL_Token token)
+{
+	//TODO: implement 2G and 3G variant:
+	/* compare to GTM6xx_Nyos_AT_Command_v046ext.pdf
+	D/RIL-NET ( 1026): _ONCI: 2G
+	D/RIL-NET ( 1026): _ONCI: "C75F", "C837"
+	D/RIL-NET ( 1026): _ONCI: "26207"
+	D/RIL-NET ( 1026): _ONCI: 1
+	D/RIL-NET ( 1026): _ONCI: (639,7,2,36)
+	D/RIL-NET ( 1026): _ONCI: 2,1,(665,7,4,30),(698,7,0,),(701,7,3,27)
+	D/RIL-NET ( 1026): _ONCI: 2,2,(710,7,2,21)
+	*/
+
+	ALOGD("=== AT_ONCI ==================================================");
+	ALOGD("%s", string);
+	ALOGD("==============================================================");
+
+error:
+	ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+	return AT_STATUS_HANDLED;
+}
+
 void ril_request_operator(void *data, size_t length, RIL_Token token)
 {
 	int rc;
@@ -466,6 +493,27 @@ void ril_request_query_available_networks(void *data, size_t length, RIL_Token t
  */
 	int rc;
 	rc = at_send_callback("AT+COPS=?", token, at_cops_list_callback);
+	if (rc < 0)
+		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+}
+
+void ril_request_get_neighboring_cell_ids(void *data, size_t length, RIL_Token token)
+{
+/**
+ * RIL_REQUEST_NEIGHBORING_CELL_IDS
+ *
+ * Request neighboring cell id in GSM network
+ *
+ * "data" is NULL
+ * "response" must be a " const RIL_NeighboringCell** "
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+	int rc;
+	rc = at_send_callback("AT_ONCI?", token, at_onci_callback);
 	if (rc < 0)
 		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 }

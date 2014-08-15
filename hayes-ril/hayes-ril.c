@@ -115,6 +115,10 @@ struct ril_request_handler ril_request_handlers[] = {
 		.request = RIL_REQUEST_DATA_REGISTRATION_STATE,
 		.callback = ril_request_data_registration_state,
 	},
+	{
+		.request = RIL_REQUEST_GET_NEIGHBORING_CELL_IDS,
+		.callback = ril_request_get_neighboring_cell_ids,
+	},
 	// Power
 	{
 		.request = RIL_REQUEST_RADIO_POWER,
