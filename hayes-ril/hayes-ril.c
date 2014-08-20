@@ -168,6 +168,10 @@ struct ril_request_handler ril_request_handlers[] = {
 		.request = RIL_REQUEST_SETUP_DATA_CALL,
 		.callback = ril_request_setup_data_call,
 	},
+	{
+		.request = RIL_REQUEST_DEACTIVATE_DATA_CALL,
+		.callback = ril_request_deactivate_data_call,
+	},
 };
 
 void ril_on_request(int request, void *data, size_t length, RIL_Token token)

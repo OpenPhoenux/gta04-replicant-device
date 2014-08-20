@@ -53,6 +53,7 @@ int at_owandata_callback(char *string, int error, RIL_Token token)
 	char nbns2[20];
 	char speed[20];
 	int rc;
+	char buf[50];
 
 	if(string==NULL)
 		goto error;
@@ -71,12 +72,25 @@ int at_owandata_callback(char *string, int error, RIL_Token token)
 	response.suggestedRetryTime = suggestedRetryTime;
 #endif
 	response.cid = cid;
-	response.active = active; //TODO: active?2:0;???
+	response.active = active?2:0;
 	response.type = type;
 	response.ifname = ifname;
 	response.addresses = address;
 	asprintf(&response.dnses, "%s %s", dns1, dns2);
 	response.gateways = gateway;
+
+	sprintf(buf, "ip addr add %s/32 dev %s", address, ifname);
+	ALOGD("%s", buf);
+	rc = system(buf);
+	if(rc==-1) goto error;
+	sprintf(buf, "ip link set %s up", ifname);
+	ALOGD("%s", buf);
+	rc = system(buf);
+	if(rc==-1) goto error;
+	sprintf(buf, "ip route add default dev %s", ifname); //FIXME: We're not supposed to change the routing table
+	ALOGD("%s", buf);
+	rc = system(buf);
+	if(rc==-1) goto error;
 
 	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
 	return AT_STATUS_HANDLED;
@@ -113,4 +127,12 @@ void ril_request_setup_data_call(void *data, size_t length, RIL_Token token)
 	rc = at_send_callback("AT_OWANDATA?", token, at_owandata_callback);
 	if (rc < 0)
 error:		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+}
+
+void ril_request_deactivate_data_call(void *data, size_t length, RIL_Token token)
+{
+	at_send_string_locked("AT_OWANCALL=1,0,1"); //FIXME: GTA04/gtm601 specific, _OWANCALL=1,1,1 to connect
+	system("ip link set hso0 down"); //FIXME: GTA04 specific interface
+	system("ip addr flush dev hso0"); //FIXME: GTA04 specific interface
+	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
 }

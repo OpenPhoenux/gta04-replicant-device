@@ -137,5 +137,6 @@ void ril_request_screen_state(void *data, size_t length, RIL_Token token);
 
 // Gprs
 void ril_request_setup_data_call(void *data, size_t length, RIL_Token token);
+void ril_request_deactivate_data_call(void *data, size_t length, RIL_Token token);
 
 #endif
