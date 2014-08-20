@@ -31,6 +31,9 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <netutils/ifc.h>
+#include <arpa/inet.h>
+
 int at_owandata_callback(char *string, int error, RIL_Token token)
 {
 //string: _OWANDATA: 1, 10.156.71.105, 0.0.0.0, 193.189.244.206, 193.189.244.225, 0.0.0.0, 0.0.0.0,144000
@@ -79,18 +82,9 @@ int at_owandata_callback(char *string, int error, RIL_Token token)
 	asprintf(&response.dnses, "%s %s", dns1, dns2);
 	response.gateways = gateway;
 
-	sprintf(buf, "ip addr add %s/32 dev %s", address, ifname);
-	ALOGD("%s", buf);
-	rc = system(buf);
-	if(rc==-1) goto error;
-	sprintf(buf, "ip link set %s up", ifname);
-	ALOGD("%s", buf);
-	rc = system(buf);
-	if(rc==-1) goto error;
-	sprintf(buf, "ip route add default dev %s", ifname); //FIXME: We're not supposed to change the routing table
-	ALOGD("%s", buf);
-	rc = system(buf);
-	if(rc==-1) goto error;
+	rc = ifc_configure(ifname, inet_addr(address), 32, inet_addr(gateway), inet_addr(dns1), inet_addr(dns2));
+	if(rc<0)
+		goto error;
 
 	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
 	return AT_STATUS_HANDLED;
@@ -124,15 +118,16 @@ void ril_request_setup_data_call(void *data, size_t length, RIL_Token token)
 	asprintf(&string, "AT+CGDCONT=1,\"IP\",\"%s\"", apn); //IPv4 context #1
 	at_send_string_locked(string);
 	at_send_string_locked("AT_OWANCALL=1,1,1"); //FIXME: GTA04/gtm601 specific, _OWANCALL=1,0,1 to disconnect
-	rc = at_send_callback("AT_OWANDATA?", token, at_owandata_callback);
+	rc = at_send_callback("AT_OWANDATA=1", token, at_owandata_callback);
 	if (rc < 0)
 error:		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
 
 void ril_request_deactivate_data_call(void *data, size_t length, RIL_Token token)
 {
+	int rc;
+	rc = ifc_reset_connections("hso0", RESET_IPV4_ADDRESSES); //FIXME: gta04 specific interface
+	rc = ifc_disable("hso0"); //FIXME: gta04 specific interface
 	at_send_string_locked("AT_OWANCALL=1,0,1"); //FIXME: GTA04/gtm601 specific, _OWANCALL=1,1,1 to connect
-	system("ip link set hso0 down"); //FIXME: GTA04 specific interface
-	system("ip addr flush dev hso0"); //FIXME: GTA04 specific interface
 	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
 }

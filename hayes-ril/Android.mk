@@ -47,7 +47,7 @@ endif
 
 ifneq ($(hayes_ril_device_files),)
 	LOCAL_SRC_FILES := $(hayes_ril_files) $(hayes_ril_device_files)
-	LOCAL_SHARED_LIBRARIES += libcutils libutils libril
+	LOCAL_SHARED_LIBRARIES += libcutils libnetutils libutils libril
 	LOCAL_PRELINK_MODULE := false
 
 	LOCAL_C_INCLUDES += $(KERNEL_HEADERS) $(LOCAL_PATH)
