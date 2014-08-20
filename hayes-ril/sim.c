@@ -418,16 +418,16 @@ void ril_request_query_facility_lock(void *data, size_t length, RIL_Token token)
 int at_cimi_callback(char *string, int error, RIL_Token token)
 {
 	char *imsi = string;
+	struct at_request *request;
 
-	//if(string == NULL)
-	//	goto error;
+	//ALOGD("IMSI: %s", imsi);
 
-	//FIXME: APNs can only get loaded if IMSI is there.
-	//IMSI is only there if this function is called after the sim was unlocked by PIN
-	ALOGD("IMSI: %s", imsi);
-
-	//Try again: place this at command at the end of the AT queue
 	if(string == NULL) {
+		request = at_request_find_status(AT_STATUS_WAITING);
+		if(request == NULL) { //AT queue is empty. Wait a little bit, before issuing the new IMSI request
+			sleep(3);
+		}
+		//Try again: place this at command at the end of the AT queue
 		at_send_callback("AT+CIMI", token, at_cimi_callback); //TODO: make sure we won't run into a deadlock here!
 		return AT_STATUS_UNHANDLED;
 	}
