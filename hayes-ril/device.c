@@ -701,5 +701,5 @@ void ril_request_screen_state(void *data, size_t length, RIL_Token token)
 	}
 
 	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
-	return AT_STATUS_HANDLED;
+	return;
 }

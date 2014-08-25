@@ -57,6 +57,9 @@ int at_cfun_disable_callback(char *string, int error, RIL_Token token)
 
 void ril_request_radio_power(void *data, size_t length, RIL_Token token)
 {
+	//TODO implement modem power off (i.e. toggle GPIO for GTA04, to save power)
+	//there is no other mechanisem how the ril could know if the modem should be shutdown
+	//this function is called on reboot/poweroff of the device and we need to power off the modem, too
 	struct ril_device *ril_device;
 	int power_state;
 	int rc;

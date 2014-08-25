@@ -53,10 +53,13 @@ int gta04_power_count_nodes(void)
 
 int gta04_power_on(void *sdata)
 {
-	char gpio_sysfs_value[] = "1\n";
+	char gpio_sysfs_value_0[] = "0\n";
+	char gpio_sysfs_value_1[] = "1\n";
 	int tty_nodes_count;
 	int fd;
+	int retry = 0;
 
+retry:
 	tty_nodes_count = gta04_power_count_nodes();
 	if (tty_nodes_count < 2) {
 		ALOGD("Powering modem on");
@@ -67,8 +70,21 @@ int gta04_power_on(void *sdata)
 			return -1;
 		}
 
-		write(fd, gpio_sysfs_value, strlen(gpio_sysfs_value));
+		write(fd, gpio_sysfs_value_0, strlen(gpio_sysfs_value_0));
 		sleep(1);
+		write(fd, gpio_sysfs_value_1, strlen(gpio_sysfs_value_1));
+		sleep(3);
+
+		tty_nodes_count = gta04_power_count_nodes();
+		if(tty_nodes_count < 2 && retry < 10) {
+			retry++;
+			ALOGD("Powering modem on: retry %d", retry);
+			goto retry;
+		}
+		else if(tty_nodes_count < 2 && retry >= 10) {
+			ALOGE("Powering modem on didn't succeed");
+			return -1;
+		}
 
 		return 0;
 	}
@@ -83,7 +99,9 @@ int gta04_power_off(void *sdata)
 	char gpio_sysfs_value_1[] = "1\n";
 	int tty_nodes_count;
 	int fd;
+	int retry = 0;
 
+retry:
 	tty_nodes_count = gta04_power_count_nodes();
 	if (tty_nodes_count > 0) {
 		ALOGD("Powering modem off");
@@ -94,12 +112,21 @@ int gta04_power_off(void *sdata)
 			return -1;
 		}
 
-		write(fd, gpio_sysfs_value_0, strlen(gpio_sysfs_value_0));
-		usleep(500);
 		write(fd, gpio_sysfs_value_1, strlen(gpio_sysfs_value_1));
-		usleep(500);
-		write(fd, gpio_sysfs_value_0, strlen(gpio_sysfs_value_0));
 		sleep(1);
+		write(fd, gpio_sysfs_value_0, strlen(gpio_sysfs_value_0));
+		sleep(3);
+
+		tty_nodes_count = gta04_power_count_nodes();
+		if(tty_nodes_count > 0 && retry < 10) {
+			retry++;
+			ALOGD("Powering modem off: retry %d", retry);
+			goto retry;
+		}
+		else if(tty_nodes_count > 0 && retry >= 10) {
+			ALOGE("Powering modem off didn't succeed");
+			return -1;
+		}
 
 		return 0;
 	}
