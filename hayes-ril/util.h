@@ -32,6 +32,10 @@ struct list_head *list_head_alloc(void *data, struct list_head *prev, struct lis
 void list_head_free(struct list_head *list);
 int list_head_count(struct list_head *list);
 
+// Debug
+
+int debug_lsusb(void);
+
 // Log
 
 void hex_dump(void *data, int size);

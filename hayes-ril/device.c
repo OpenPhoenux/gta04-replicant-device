@@ -42,6 +42,12 @@ int ril_device_init(void)
 		return -1;
 	}
 
+	// power-cycle modem, to get to a clean state
+	rc = ril_device_power_off(ril_device);
+	if (rc < 0) {
+		ALOGE("Failed to power off device!");
+		return -1;
+	}
 	rc = ril_device_power_on(ril_device);
 	if (rc < 0) {
 		ALOGE("Failed to power on device!");

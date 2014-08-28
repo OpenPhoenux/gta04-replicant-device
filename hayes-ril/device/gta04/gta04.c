@@ -48,6 +48,9 @@ int gta04_power_count_nodes(void)
 		free(tty_node);
 	}
 
+	//for debugging: output of lsusb via ALOGD
+	debug_lsusb();
+
 	return tty_nodes_count;
 }
 
@@ -70,10 +73,10 @@ retry:
 			return -1;
 		}
 
-		write(fd, gpio_sysfs_value_0, strlen(gpio_sysfs_value_0));
+		write(fd, gpio_sysfs_value_0, strlen(gpio_sysfs_value_1));
 		sleep(1);
-		write(fd, gpio_sysfs_value_1, strlen(gpio_sysfs_value_1));
-		sleep(3);
+		write(fd, gpio_sysfs_value_1, strlen(gpio_sysfs_value_0));
+		sleep(5);
 
 		tty_nodes_count = gta04_power_count_nodes();
 		if(tty_nodes_count < 2 && retry < 10) {
@@ -115,7 +118,7 @@ retry:
 		write(fd, gpio_sysfs_value_1, strlen(gpio_sysfs_value_1));
 		sleep(1);
 		write(fd, gpio_sysfs_value_0, strlen(gpio_sysfs_value_0));
-		sleep(3);
+		sleep(5);
 
 		tty_nodes_count = gta04_power_count_nodes();
 		if(tty_nodes_count > 0 && retry < 10) {
@@ -419,6 +422,9 @@ int gta04_transport_recv_poll(void *sdata)
 		transport_data->modem_ac = 1;
 	} else if (FD_ISSET(transport_data->application_fd, &fds)) {
 		transport_data->application_ac = 1;
+	}
+	else {
+		return -1;
 	}
 
 	return 1;

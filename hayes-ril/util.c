@@ -80,6 +80,33 @@ int list_head_count(struct list_head *list)
 }
 
 /*
+ * Debug
+ */
+
+int debug_lsusb(void)
+{
+	FILE *fp;
+	int status;
+	char path[1035];
+	char* str = "";
+
+	fp = popen("/system/xbin/lsusb", "r");
+	if (fp == NULL) {
+		ALOGD("Failed to run lsusb" );
+		return -1;
+	}
+
+	while (fgets(path, sizeof(path)-1, fp) != NULL) {
+		asprintf(&str, "%s%s", str, path);
+	}
+
+	ALOGD("/system/xbin/lsusb:");
+	ALOGD("%s", str);
+	pclose(fp);
+	return 0;
+}
+
+/*
  * Log
  */
 
