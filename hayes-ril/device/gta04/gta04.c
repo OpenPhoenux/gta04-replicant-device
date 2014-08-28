@@ -62,6 +62,11 @@ int gta04_power_on(void *sdata)
 	int fd;
 	int retry = 0;
 
+	if(access(GPIO_SYSFS, F_OK) < 0) {
+		ALOGD("GPIO-186 not available, assuming GTA04a3: Modem is on");
+		return 0;
+	}
+
 retry:
 	tty_nodes_count = gta04_power_count_nodes();
 	if (tty_nodes_count < 2) {
@@ -103,6 +108,11 @@ int gta04_power_off(void *sdata)
 	int tty_nodes_count;
 	int fd;
 	int retry = 0;
+
+	if(access(GPIO_SYSFS, F_OK) < 0) {
+		ALOGW("GPIO-186 not available, assuming GTA04a3: Modem stays on");
+		return 0;
+	}
 
 retry:
 	tty_nodes_count = gta04_power_count_nodes();
