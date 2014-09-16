@@ -627,8 +627,8 @@ int ril_device_at_setup(struct ril_device *ril_device)
 	// Detailed rings, service reporting
 	at_send_locked("AT+CRC=1;+CR=1", AT_FLAG_URGENT);
 
-	// SMS PDU mode
-	at_send_locked("AT+CMGF=0", AT_FLAG_URGENT);
+	//TODO: FIXME: call this only after the SIM is ready!
+	ril_device_sim_ready_setup();
 
 	// Network registration notifications
 	rc = at_send_locked("AT+CREG=2", AT_FLAG_URGENT);
@@ -657,6 +657,27 @@ int ril_device_at_setup(struct ril_device *ril_device)
 
 	rc = ril_device->handlers->at->setup(ril_device->handlers->at->sdata);
 	return rc;
+}
+
+void ril_device_sim_ready_setup(void)
+{
+	// SMS check support
+	at_send_string_locked("AT+CSMS?"); // all supported: GTA04: AT RECV [+CSMS: 0,1,1,1]
+
+	// SMS indication
+	at_send_string_locked("AT+CNMI=2,2,2,1,1");
+
+	// SMS PDU mode
+	at_send_string_locked("AT+CMGF=0");
+
+	// SMS store on SIM
+	at_send_string_locked("AT+CPMS=\"SM\",\"SM\",\"SM\"");
+
+	// SMS SIM storage status
+	at_send_string_locked("AT+CPMS?");
+
+	// SMS delete all msgs
+	//at_send_callback("AT+CMGD=0,4", RIL_TOKEN_NULL, NULL); //FIXME: deletes all msgs, only for testing!
 }
 
 /*

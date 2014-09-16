@@ -43,6 +43,10 @@ struct ril_dispatch_handler ril_dispatch_handlers[] = {
 		.string = "+CMT", //incoming sms
 		.callback = at_cmt_unsol,
 	},
+	{
+		.string = "+CMTI", //incoming sms
+		.callback = at_cmti_unsol,
+	},
 };
 
 struct ril_request_handler ril_request_handlers[] = {
@@ -149,6 +153,14 @@ struct ril_request_handler ril_request_handlers[] = {
 	{
 		.request = RIL_REQUEST_SEND_SMS,
 		.callback = ril_request_send_sms,
+	},
+	{
+		.request = RIL_REQUEST_REPORT_SMS_MEMORY_STATUS,
+		.callback = ril_request_report_sms_memory_status,
+	},
+	{
+		.request = RIL_REQUEST_DELETE_SMS_ON_SIM,
+		.callback = ril_request_delete_sms_on_sim,
 	},
 	// Device
 	{

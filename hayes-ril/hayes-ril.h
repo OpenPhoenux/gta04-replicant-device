@@ -128,12 +128,21 @@ void ril_request_get_imsi(void *data, size_t length, RIL_Token token);
 
 // SMS
 int at_cmt_unsol(char *string, int error);
+int at_cmti_unsol(char *string, int error);
 void ril_request_send_sms(void *data, size_t length, RIL_Token token);
+void ril_request_report_sms_memory_status(void *data, size_t length, RIL_Token token);
+void ril_request_delete_sms_on_sim(void *data, size_t length, RIL_Token token);
+
+// SMS extra
+int ril_outgoing_sms_send_next(void);
 
 // Device
 void ril_request_baseband_version(void *data, size_t length, RIL_Token token);
 void ril_request_get_imei(void *data, size_t length, RIL_Token token);
 void ril_request_screen_state(void *data, size_t length, RIL_Token token);
+
+// Device extra
+void ril_device_sim_ready_setup(void);
 
 // Gprs
 void ril_request_setup_data_call(void *data, size_t length, RIL_Token token);

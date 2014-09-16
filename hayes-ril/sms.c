@@ -37,31 +37,17 @@ struct ril_outgoing_sms {
 int at_cmt_unsol(char *string, int error)
 {
 
-	ALOGD("NEW SMS: %s", string);
-/*
-	int state = 0;
-	char lac[10] = { 0 };
-	char cid[10] = { 0 };
-	int rc;
+	ALOGD("NEW SMS (+CMT): %s", string);
+	//TODO: Send RIL_REQUEST_SMS_ACKNOWLEDGE
+	return AT_STATUS_HANDLED;
+}
 
-	rc = sscanf(string, "+CREG: %d,\"%10[^\"]\",\"%10[^\"]\"", &state, (char *) &lac, (char *) &cid);
-	if (rc < 1)
-		goto complete;
+int at_cmti_unsol(char *string, int error)
+{
 
-	asprintf(&ril_data->registration_state[0], "%d", state);
-	if (lac[0] != '\0')
-		asprintf(&ril_data->registration_state[1], "%s", lac);
-	if (cid[0] != '\0')
-		asprintf(&ril_data->registration_state[2], "%s", cid);
-
-#if RIL_VERSION >= 6
-	ril_request_unsolicited(RIL_UNSOL_RESPONSE_VOICE_NETWORK_STATE_CHANGED, NULL, 0);
-#else
-	ril_request_unsolicited(RIL_UNSOL_RESPONSE_NETWORK_STATE_CHANGED, NULL, 0);
-#endif
-
-complete:
-*/
+	ALOGD("NEW SMS (+CMTI): %s", string);
+	//TODO: Send RIL_REQUEST_SMS_ACKNOWLEDGE
+	//TODO: Send RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM
 	return AT_STATUS_HANDLED;
 }
 
@@ -408,4 +394,27 @@ void ril_request_send_sms(void *data, size_t length, RIL_Token token)
 		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 
 	ril_outgoing_sms_send_next();
+}
+
+void ril_request_report_sms_memory_status(void *data, size_t length, RIL_Token token)
+{
+	int status = ((int *)data)[0];
+	if(status == 1)
+		ALOGD("SMS memory available on phone");
+	else if(status == 0)
+		ALOGD("SMS memory capacity is exceeded on phone");
+
+	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
+}
+
+void ril_request_delete_sms_on_sim(void *data, size_t length, RIL_Token token)
+{
+	int idx = ((int *)data)[0];
+	char *string = NULL;
+
+	asprintf(&string, "AT+CMGD=%d,0", idx); // delete only msg IDX
+	//asprintf(&string, "AT+CMGD=%d,4", idx); // delete all msgs
+	at_send_string_locked(string);
+
+	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
 }
