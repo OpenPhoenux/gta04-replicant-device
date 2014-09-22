@@ -414,7 +414,5 @@ void ril_request_delete_sms_on_sim(void *data, size_t length, RIL_Token token)
 
 	asprintf(&string, "AT+CMGD=%d,0", idx); // delete only msg IDX
 	//asprintf(&string, "AT+CMGD=%d,4", idx); // delete all msgs
-	at_send_string_locked(string);
-
-	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
+	at_send_callback(string, token, at_generic_callback);
 }

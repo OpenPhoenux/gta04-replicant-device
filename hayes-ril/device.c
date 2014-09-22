@@ -627,8 +627,11 @@ int ril_device_at_setup(struct ril_device *ril_device)
 	// Detailed rings, service reporting
 	at_send_locked("AT+CRC=1;+CR=1", AT_FLAG_URGENT);
 
+	// SMS PDU mode
+	at_send_string_locked("AT+CMGF=0");
+
 	//TODO: FIXME: call this only after the SIM is ready!
-	ril_device_sim_ready_setup();
+	//ril_device_sim_ready_setup();
 
 	// Network registration notifications
 	rc = at_send_locked("AT+CREG=2", AT_FLAG_URGENT);
@@ -666,9 +669,6 @@ void ril_device_sim_ready_setup(void)
 
 	// SMS indication
 	at_send_string_locked("AT+CNMI=2,2,2,1,1");
-
-	// SMS PDU mode
-	at_send_string_locked("AT+CMGF=0");
 
 	// SMS store on SIM
 	at_send_string_locked("AT+CPMS=\"SM\",\"SM\",\"SM\"");
@@ -721,12 +721,9 @@ void ril_request_screen_state(void *data, size_t length, RIL_Token token)
 	ALOGD("Screen State changed: %d",state);
 
 	if(state == 0) { //disable network status updates
-		at_send_string_locked("AT_OSQI=0"); //FIXME: GTA04/gtm601 specific
+		at_send_callback("AT_OSQI=0", token, at_generic_callback); //FIXME: GTA04/gtm601 specific
 	}
 	else { //re-enable network status updates
-		at_send_string_locked("AT_OSQI=1"); //FIXME: GTA04/gtm601 specific
+		at_send_callback("AT_OSQI=1", token, at_generic_callback); //FIXME: GTA04/gtm601 specific
 	}
-
-	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
-	return;
 }

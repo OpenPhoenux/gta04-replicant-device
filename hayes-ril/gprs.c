@@ -116,8 +116,8 @@ void ril_request_setup_data_call(void *data, size_t length, RIL_Token token)
 	//ALOGD("================================================================");
 
 	asprintf(&string, "AT+CGDCONT=1,\"IP\",\"%s\"", apn); //IPv4 context #1
-	at_send_string_locked(string);
-	at_send_string_locked("AT_OWANCALL=1,1,1"); //FIXME: GTA04/gtm601 specific, _OWANCALL=1,0,1 to disconnect
+	at_send_callback(string, RIL_TOKEN_NULL, at_generic_callback);
+	at_send_callback("AT_OWANCALL=1,1,1", RIL_TOKEN_NULL, at_generic_callback); //FIXME: GTA04/gtm601 specific, _OWANCALL=1,0,1 to disconnect
 	rc = at_send_callback("AT_OWANDATA=1", token, at_owandata_callback);
 	if (rc < 0)
 error:		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
@@ -128,6 +128,5 @@ void ril_request_deactivate_data_call(void *data, size_t length, RIL_Token token
 	int rc;
 	rc = ifc_reset_connections("hso0", RESET_IPV4_ADDRESSES); //FIXME: gta04 specific interface
 	rc = ifc_disable("hso0"); //FIXME: gta04 specific interface
-	at_send_string_locked("AT_OWANCALL=1,0,1"); //FIXME: GTA04/gtm601 specific, _OWANCALL=1,1,1 to connect
-	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
+	at_send_callback("AT_OWANCALL=1,0,1", token, at_generic_callback);
 }
