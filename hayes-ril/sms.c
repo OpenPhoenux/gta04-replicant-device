@@ -36,18 +36,28 @@ struct ril_outgoing_sms {
 
 int at_cmt_unsol(char *string, int error)
 {
-
 	ALOGD("NEW SMS (+CMT): %s", string);
-	//TODO: Send RIL_REQUEST_SMS_ACKNOWLEDGE
+	//TODO: RIL_REQUEST_SMS_ACKNOWLEDGE
 	return AT_STATUS_HANDLED;
 }
 
 int at_cmti_unsol(char *string, int error)
 {
-
+/**
+ * RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM
+ *
+ * Called when new SMS has been stored on SIM card
+ *
+ * "data" is const int *
+ * ((const int *)data)[0] contains the slot index on the SIM that contains
+ * the new message
+ */
+	//TODO: RIL_REQUEST_SMS_ACKNOWLEDGE
+	//NEW SMS (+CMTI): +CMTI: "SM",0
+	int idx;
 	ALOGD("NEW SMS (+CMTI): %s", string);
-	//TODO: Send RIL_REQUEST_SMS_ACKNOWLEDGE
-	//TODO: Send RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM
+	sscanf(string, "+CMTI: \"SM\",%d", &idx);
+	ril_request_unsolicited(RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM, &idx, sizeof(idx));
 	return AT_STATUS_HANDLED;
 }
 

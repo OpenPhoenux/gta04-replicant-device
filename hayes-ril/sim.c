@@ -65,8 +65,11 @@ RIL_RadioState at2ril_sim_status(char *string, int error)
 			return RADIO_STATE_SIM_LOCKED_OR_ABSENT;
 		else if (at_strings_compare("SIM PUK", buffer))
 			return RADIO_STATE_SIM_LOCKED_OR_ABSENT;
-		else if (at_strings_compare("READY", buffer))
+		else if (at_strings_compare("READY", buffer)) {
+			//ALOGD("========== SIM READY ==========");
+			ril_device_sim_ready_setup();
 			return RADIO_STATE_SIM_READY;
+		}
 	}
 
 complete:
@@ -291,6 +294,9 @@ void ril_request_enter_sim_pin(void *data, size_t length, RIL_Token token)
 
 	if (rc < 0)
 		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+
+	// Ask for PIN status
+	at_send_callback("AT+CPIN?", RIL_TOKEN_UNSOL, at_cpin_callback);
 }
 
 int at_crsm_callback(char *string, int error, RIL_Token token)

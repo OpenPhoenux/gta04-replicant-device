@@ -40,12 +40,12 @@ struct ril_dispatch_handler ril_dispatch_handlers[] = {
 		.callback = at_cring_unsol,
 	},
 	{
-		.string = "+CMT", //incoming sms
-		.callback = at_cmt_unsol,
-	},
-	{
 		.string = "+CMTI", //incoming sms
 		.callback = at_cmti_unsol,
+	},
+	{
+		.string = "+CMT", //incoming sms
+		.callback = at_cmt_unsol,
 	},
 };
 

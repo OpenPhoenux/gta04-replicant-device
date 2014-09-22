@@ -664,20 +664,34 @@ int ril_device_at_setup(struct ril_device *ril_device)
 
 void ril_device_sim_ready_setup(void)
 {
-	// SMS check support
-	at_send_string_locked("AT+CSMS?"); // all supported: GTA04: AT RECV [+CSMS: 0,1,1,1]
+	ALOGD("========== RIL_DEVICE_SIM_READY_SETUP ==========");
 
-	// SMS indication
-	at_send_string_locked("AT+CNMI=2,2,2,1,1");
+	// Update Network status
+	//at_send_callback("AT+CREG?", RIL_TOKEN_UNSOL, at_generic_callback);
+
+	// SMS enable GSM phase 2+ commands (SMS acknowledgement support)
+	at_send_callback("AT+CSMS=1", RIL_TOKEN_NULL, at_generic_callback);
+
+	// SMS format (PDU mode)
+	at_send_callback("AT+CMGF=0", RIL_TOKEN_NULL, at_generic_callback);
+
+	// SMS indication (SIM buffers SMS)
+	at_send_callback("AT+CNMI=2,1,2,1,1", RIL_TOKEN_NULL, at_generic_callback);
 
 	// SMS store on SIM
-	at_send_string_locked("AT+CPMS=\"SM\",\"SM\",\"SM\"");
+	at_send_callback("AT+CPMS=\"SM\",\"SM\",\"SM\"", RIL_TOKEN_NULL, at_generic_callback);
 
-	// SMS SIM storage status
-	at_send_string_locked("AT+CPMS?");
+	// SMS check support
+	at_send_callback("AT+CSMS?", RIL_TOKEN_NULL, at_generic_callback); // all supported: GTA04: AT RECV [+CSMS: 1,1,1,1]
+
+	// SMS check SIM storage status
+	at_send_callback("AT+CPMS?", RIL_TOKEN_NULL, at_generic_callback);
+
+	//int idx=0; //for testing only
+	//ril_request_unsolicited(RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM, &idx, sizeof(idx));
 
 	// SMS delete all msgs
-	//at_send_callback("AT+CMGD=0,4", RIL_TOKEN_NULL, NULL); //FIXME: deletes all msgs, only for testing!
+	//at_send_callback("AT+CMGD=0,4", RIL_TOKEN_NULL, at_generic_callback); //FIXME: deletes all msgs, only for testing!
 }
 
 /*
