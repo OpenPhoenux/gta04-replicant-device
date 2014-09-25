@@ -162,6 +162,10 @@ struct ril_request_handler ril_request_handlers[] = {
 		.request = RIL_REQUEST_DELETE_SMS_ON_SIM,
 		.callback = ril_request_delete_sms_on_sim,
 	},
+	{
+		.request = RIL_REQUEST_SMS_ACKNOWLEDGE,
+		.callback = ril_request_sms_acknowledge,
+	},
 	// Device
 	{
 		.request = RIL_REQUEST_BASEBAND_VERSION,
@@ -318,6 +322,7 @@ int ril_dispatch_thread_start(void)
 
 int ril_data_init(void)
 {
+	ALOGD("ril_data_init");
 	if (ril_data != NULL)
 		return -EINVAL;
 
@@ -326,6 +331,7 @@ int ril_data_init(void)
 		return -ENOMEM;
 
 	ril_data->radio_state = RADIO_STATE_OFF;
+	ril_data->sim_ready_initialized = 0;
 
 	pthread_mutex_init(&ril_data->log_mutex, NULL);
 	pthread_mutex_init(&ril_data->at_data.requests_mutex, NULL);

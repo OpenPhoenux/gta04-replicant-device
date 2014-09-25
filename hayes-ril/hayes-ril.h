@@ -76,6 +76,8 @@ struct ril_data {
 
 	pthread_mutex_t mutex;
 
+	int sim_ready_initialized;
+
 	struct list_head *outgoing_sms;
 };
 
@@ -129,9 +131,11 @@ void ril_request_get_imsi(void *data, size_t length, RIL_Token token);
 // SMS
 int at_cmt_unsol(char *string, int error);
 int at_cmti_unsol(char *string, int error);
+int at_cmgr_callback(char *string, int error, RIL_Token token);
 void ril_request_send_sms(void *data, size_t length, RIL_Token token);
 void ril_request_report_sms_memory_status(void *data, size_t length, RIL_Token token);
 void ril_request_delete_sms_on_sim(void *data, size_t length, RIL_Token token);
+void ril_request_sms_acknowledge(void *data, size_t length, RIL_Token token);
 
 // SMS extra
 int ril_outgoing_sms_send_next(void);

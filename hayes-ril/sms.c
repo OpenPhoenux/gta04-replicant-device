@@ -34,6 +34,43 @@ struct ril_outgoing_sms {
 	char *pdu;
 };
 
+/* Read SMS from SIM */
+int at_cmgr_callback(char *string, int error, RIL_Token token)
+{
+/**
+ * RIL_UNSOL_RESPONSE_NEW_SMS
+ *
+ * Called when new SMS is received.
+ *
+ * "data" is const char *
+ * This is a pointer to a string containing the PDU of an SMS-DELIVER
+ * as an ascii string of hex digits. The PDU starts with the SMSC address
+ * per TS 27.005 (+CMT:)
+ *
+ * Callee will subsequently confirm the receipt of thei SMS with a
+ * RIL_REQUEST_SMS_ACKNOWLEDGE
+ *
+ * No new RIL_UNSOL_RESPONSE_NEW_SMS
+ * or RIL_UNSOL_RESPONSE_NEW_SMS_STATUS_REPORT messages should be sent until a
+ * RIL_REQUEST_SMS_ACKNOWLEDGE has been received
+ */
+	if(string==NULL)
+		goto error;
+
+	ALOGD("NEW-SMS: %s", string);
+
+	char pdu[700];
+	char line1[20];
+
+	sscanf(string, "+CMGR: %20[^\n]\n%700[^\n]", line1, pdu);
+	//ALOGD("LINE1: %s", line1);
+	//ALOGD("PDU: %s", pdu);
+	ril_request_unsolicited(RIL_UNSOL_RESPONSE_NEW_SMS, &pdu, sizeof(pdu));
+
+error:
+	return AT_STATUS_HANDLED;
+}
+
 int at_cmt_unsol(char *string, int error)
 {
 	ALOGD("NEW SMS (+CMT): %s", string);
@@ -55,9 +92,20 @@ int at_cmti_unsol(char *string, int error)
 	//TODO: RIL_REQUEST_SMS_ACKNOWLEDGE
 	//NEW SMS (+CMTI): +CMTI: "SM",0
 	int idx;
+	char *str = NULL;
 	ALOGD("NEW SMS (+CMTI): %s", string);
 	sscanf(string, "+CMTI: \"SM\",%d", &idx);
-	ril_request_unsolicited(RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM, &idx, sizeof(idx));
+	//ril_request_unsolicited(RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM, &idx, sizeof(idx)); //TODO: Do we need this? -> uicc does not work!
+
+	// Read SMS and send to Android UI
+	asprintf(&str, "AT+CMGR=%d", idx);
+	at_send_callback(str, RIL_TOKEN_NULL, at_cmgr_callback);
+
+	// Delete SMS to free space on SIM
+	asprintf(&str, "AT+CMGD=%d,0", idx);
+	at_send_callback(str, RIL_TOKEN_NULL, at_generic_callback);
+	free(str);
+
 	return AT_STATUS_HANDLED;
 }
 
@@ -425,4 +473,42 @@ void ril_request_delete_sms_on_sim(void *data, size_t length, RIL_Token token)
 	asprintf(&string, "AT+CMGD=%d,0", idx); // delete only msg IDX
 	//asprintf(&string, "AT+CMGD=%d,4", idx); // delete all msgs
 	at_send_callback(string, token, at_generic_callback);
+}
+
+void ril_request_sms_acknowledge(void *data, size_t length, RIL_Token token)
+{
+/**
+ * RIL_REQUEST_SMS_ACKNOWLEDGE
+ *
+ * Acknowledge successful or failed receipt of SMS previously indicated
+ * via RIL_UNSOL_RESPONSE_NEW_SMS
+ *
+ * "data" is int *
+ * ((int *)data)[0] is 1 on successful receipt
+ *                  (basically, AT+CNMA=1 from TS 27.005
+ *                  is 0 on failed receipt
+ *                  (basically, AT+CNMA=2 from TS 27.005)
+ * ((int *)data)[1] if data[0] is 0, this contains the failure cause as defined
+ *                  in TS 23.040, 9.2.3.22. Currently only 0xD3 (memory
+ *                  capacity exceeded) and 0xFF (unspecified error) are
+ *                  reported.
+ *
+ * "response" is NULL
+ *
+ * FIXME would like request that specified RP-ACK/RP-ERROR PDU
+ *
+ * Valid errors:
+ *  SUCCESS
+ *  RADIO_NOT_AVAILABLE
+ *  GENERIC_FAILURE
+ */
+	int status = ((int *)data)[0];
+	char *str;
+
+	if(status == 1) //success
+		str = "AT+CNMA=1";
+	else //failure
+		str = "AT+CNMA=2";
+
+	at_send_callback(str, token, at_generic_callback);
 }

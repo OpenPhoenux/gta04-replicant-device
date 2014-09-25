@@ -664,7 +664,20 @@ int ril_device_at_setup(struct ril_device *ril_device)
 
 void ril_device_sim_ready_setup(void)
 {
-	ALOGD("========== RIL_DEVICE_SIM_READY_SETUP ==========");
+	RIL_DATA_LOCK();
+	if(ril_data->sim_ready_initialized == 1) {
+		ALOGD("RIL_DEVICE_SIM_READY_SETUP: already initialized");
+		RIL_DATA_UNLOCK();
+		return;
+	}
+	else {
+		ALOGD("RIL_DEVICE_SIM_READY_SETUP");
+		ril_data->sim_ready_initialized = 1;
+	}
+	RIL_DATA_UNLOCK();
+
+	char *str;
+	int i;
 
 	// Update Network status
 	//at_send_callback("AT+CREG?", RIL_TOKEN_UNSOL, at_generic_callback);
@@ -686,6 +699,17 @@ void ril_device_sim_ready_setup(void)
 
 	// SMS check SIM storage status
 	at_send_callback("AT+CPMS?", RIL_TOKEN_NULL, at_generic_callback);
+
+	// Read and delete SMS on SIM, at startup
+	for(i=0; i<10; i++) {
+		asprintf(&str, "AT+CMGR=%d", i);
+		at_send_callback(str, RIL_TOKEN_NULL, at_cmgr_callback);
+
+		asprintf(&str, "AT+CMGD=%d,0", i);
+		at_send_callback(str, RIL_TOKEN_NULL, at_generic_callback);
+	}
+
+	free(str);
 
 	//int idx=0; //for testing only
 	//ril_request_unsolicited(RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM, &idx, sizeof(idx));
