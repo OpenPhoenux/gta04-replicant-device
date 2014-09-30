@@ -65,11 +65,8 @@ RIL_RadioState at2ril_sim_status(char *string, int error)
 			return RADIO_STATE_SIM_LOCKED_OR_ABSENT;
 		else if (at_strings_compare("SIM PUK", buffer))
 			return RADIO_STATE_SIM_LOCKED_OR_ABSENT;
-		else if (at_strings_compare("READY", buffer)) {
-			//ALOGD("========== SIM READY ==========");
-			ril_device_sim_ready_setup();
+		else if (at_strings_compare("READY", buffer))
 			return RADIO_STATE_SIM_READY;
-		}
 	}
 
 complete:
@@ -425,29 +422,27 @@ int at_cimi_callback(char *string, int error, RIL_Token token)
 {
 	char *imsi = string;
 	struct at_request *request;
-
-	//ALOGD("IMSI: %s", imsi);
+	struct timeval interval = { 3, 0 };
 
 	if(string == NULL) {
-		request = at_request_find_status(AT_STATUS_WAITING);
-		if(request == NULL) { //AT queue is empty. Wait a little bit, before issuing the new IMSI request
-			sleep(3);
-		}
-		//Try again: place this at command at the end of the AT queue
-		at_send_callback("AT+CIMI", token, at_cimi_callback); //TODO: make sure we won't run into a deadlock here!
+		ALOGD("IMSI ERROR: %d", error);
+		//SIM is not yet ready (still locked), retry in 3sec.
+		ril_request_timed_callback((RIL_TimedCallback) ril_request_get_imsi, NULL, &interval);
+
 		return AT_STATUS_UNHANDLED;
 	}
 	else {
-		ril_request_complete(token, RIL_E_SUCCESS, imsi, sizeof(imsi));
+		ALOGD("IMSI: %s", imsi);
+		ril_request_complete(ril_data->imsi_token, RIL_E_SUCCESS, imsi, sizeof(imsi));
+		ALOGD("Resetting IMSI_TOKEN");
+		ril_data->imsi_token = NULL;
 		return AT_STATUS_HANDLED;
 	}
-
-error:
-	ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
-	return AT_STATUS_HANDLED;
 }
 
 void ril_request_get_imsi(void *data, size_t length, RIL_Token token)
 {
+	if(ril_data->imsi_token == NULL)
+		ril_data->imsi_token = token;
 	at_send_callback("AT+CIMI", token, at_cimi_callback);
 }

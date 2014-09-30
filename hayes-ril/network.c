@@ -135,6 +135,9 @@ int at_creg_unsol(char *string, int error)
 	ril_request_unsolicited(RIL_UNSOL_RESPONSE_NETWORK_STATE_CHANGED, NULL, 0);
 #endif
 
+	if(state == 1 || state == 5) //1=registered, home; 5=registered, roaming
+		ril_device_sim_ready_setup();
+
 complete:
 	return AT_STATUS_HANDLED;
 }
@@ -169,6 +172,9 @@ int at_creg_callback(char *string, int error, RIL_Token token)
 	for (i = 0 ; i < 3 ; i++)
 		if (registration_state[i] != NULL)
 			free(registration_state[i]);
+
+	if(state == 1 || state == 5) //1=registered, home; 5=registered, roaming
+		ril_device_sim_ready_setup();
 
 complete:
 	return AT_STATUS_HANDLED;

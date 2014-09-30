@@ -630,8 +630,7 @@ int ril_device_at_setup(struct ril_device *ril_device)
 	// SMS PDU mode
 	at_send_string_locked("AT+CMGF=0");
 
-	//TODO: FIXME: call this only after the SIM is ready!
-	//ril_device_sim_ready_setup();
+	//ril_device_sim_ready_setup(); //called after +CREG state is 1 or 5
 
 	// Network registration notifications
 	rc = at_send_locked("AT+CREG=2", AT_FLAG_URGENT);
@@ -666,7 +665,7 @@ void ril_device_sim_ready_setup(void)
 {
 	RIL_DATA_LOCK();
 	if(ril_data->sim_ready_initialized == 1) {
-		ALOGD("RIL_DEVICE_SIM_READY_SETUP: already initialized");
+		//ALOGD("RIL_DEVICE_SIM_READY_SETUP: already initialized");
 		RIL_DATA_UNLOCK();
 		return;
 	}

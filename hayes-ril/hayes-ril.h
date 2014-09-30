@@ -77,6 +77,7 @@ struct ril_data {
 	pthread_mutex_t mutex;
 
 	int sim_ready_initialized;
+	RIL_Token imsi_token;
 
 	struct list_head *outgoing_sms;
 };
