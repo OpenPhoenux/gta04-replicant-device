@@ -148,6 +148,38 @@ retry:
 	return 0;
 }
 
+int gta04_power_suspend(void *sdata)
+{
+	ALOGD("GTA04 SUSPENDING...");
+
+	//disable network status updates
+	at_send_callback("AT_OSQI=0", RIL_TOKEN_NULL, at_generic_callback); //TODO: handler
+
+	return 0;
+}
+
+int gta04_power_resume(void *sdata)
+{
+	//SIM is not yet ready => skip this function call
+	if(ril_data->sim_ready_initialized != 1) {
+		ALOGD("Modem resume skipped, SIM not ready.");
+		return 0;
+	}
+
+	ALOGD("GTA04 RESUMING...");
+
+	// Update Signal Strength
+	at_send_callback("AT+CSQ", RIL_TOKEN_NULL, at_csq_callback);
+
+	//re-enable network status updates
+	at_send_callback("AT_OSQI=1", RIL_TOKEN_NULL, at_generic_callback); //TODO: handler
+
+	//Check if there are new SMS on the SIM
+	check_sms_on_sim();
+
+	return 0;
+}
+
 int gta04_power_boot(void *sdata)
 {
 	int tty_nodes_count;
@@ -456,8 +488,8 @@ struct ril_device_power_handlers gta04_power_handlers = {
 	.sdata_destroy = gta04_dummy,
 	.power_on = gta04_power_on,
 	.power_off = gta04_power_off,
-	.suspend = gta04_dummy,
-	.resume = gta04_dummy,
+	.suspend = gta04_power_suspend,
+	.resume = gta04_power_resume,
 	.boot = gta04_power_boot,
 };
 

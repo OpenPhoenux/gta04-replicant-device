@@ -34,6 +34,26 @@ struct ril_outgoing_sms {
 	char *pdu;
 };
 
+void check_sms_on_sim()
+{
+	char *str = NULL;
+	int i;
+
+	// SMS check SIM storage status
+	at_send_callback("AT+CPMS?", RIL_TOKEN_NULL, at_generic_callback);
+
+	// Read and delete SMS on SIM, at startup
+	for(i=0; i<10; i++) {
+		asprintf(&str, "AT+CMGR=%d", i);
+		at_send_callback(str, RIL_TOKEN_NULL, at_cmgr_callback);
+		free(str);
+
+		asprintf(&str, "AT+CMGD=%d,0", i);
+		at_send_callback(str, RIL_TOKEN_NULL, at_generic_callback);
+		free(str);
+	}
+}
+
 /* Read SMS from SIM */
 int at_cmgr_callback(char *string, int error, RIL_Token token)
 {

@@ -112,6 +112,8 @@ int ril_device_data_destroy(struct ril_device *ril_device);
 
 int ril_device_power_on(struct ril_device *ril_device);
 int ril_device_power_off(struct ril_device *ril_device);
+int ril_device_power_suspend(struct ril_device *ril_device);
+int ril_device_power_resume(struct ril_device *ril_device);
 int ril_device_power_boot(struct ril_device *ril_device);
 
 int ril_device_transport_open(struct ril_device *ril_device);

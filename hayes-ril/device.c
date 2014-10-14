@@ -292,6 +292,56 @@ int ril_device_power_off(struct ril_device *ril_device)
 	return rc;
 }
 
+int ril_device_power_suspend(struct ril_device *ril_device)
+{
+	int rc;
+
+	if (ril_device->handlers == NULL) {
+		ALOGE("Missing device handlers!");
+		return -1;
+	}
+
+	if (ril_device->handlers->power == NULL) {
+		ALOGE("Missing device power handlers!");
+		return -1;
+	}
+
+	if (ril_device->handlers->power->suspend == NULL) {
+		ALOGE("Missing device suspend handler!");
+		return -1;
+	}
+
+	ALOGD("Suspending modem...");
+
+	rc = ril_device->handlers->power->suspend(ril_device->handlers->power->sdata);
+	return rc;
+}
+
+int ril_device_power_resume(struct ril_device *ril_device)
+{
+	int rc;
+
+	if (ril_device->handlers == NULL) {
+		ALOGE("Missing device handlers!");
+		return -1;
+	}
+
+	if (ril_device->handlers->power == NULL) {
+		ALOGE("Missing device power handlers!");
+		return -1;
+	}
+
+	if (ril_device->handlers->power->resume == NULL) {
+		ALOGE("Missing device resume handler!");
+		return -1;
+	}
+
+	ALOGD("Resuming modem...");
+
+	rc = ril_device->handlers->power->resume(ril_device->handlers->power->sdata);
+	return rc;
+}
+
 int ril_device_power_boot(struct ril_device *ril_device)
 {
 	int rc;
@@ -675,9 +725,6 @@ void ril_device_sim_ready_setup(void)
 	}
 	RIL_DATA_UNLOCK();
 
-	char *str;
-	int i;
-
 	// Update Network status
 	//at_send_callback("AT+CREG?", RIL_TOKEN_UNSOL, at_generic_callback);
 
@@ -696,25 +743,11 @@ void ril_device_sim_ready_setup(void)
 	// SMS check support
 	at_send_callback("AT+CSMS?", RIL_TOKEN_NULL, at_generic_callback); // all supported: GTA04: AT RECV [+CSMS: 1,1,1,1]
 
-	// SMS check SIM storage status
-	at_send_callback("AT+CPMS?", RIL_TOKEN_NULL, at_generic_callback);
+	// Check if there are new SMS on SIM
+	check_sms_on_sim();
 
-	// Read and delete SMS on SIM, at startup
-	for(i=0; i<10; i++) {
-		asprintf(&str, "AT+CMGR=%d", i);
-		at_send_callback(str, RIL_TOKEN_NULL, at_cmgr_callback);
-
-		asprintf(&str, "AT+CMGD=%d,0", i);
-		at_send_callback(str, RIL_TOKEN_NULL, at_generic_callback);
-	}
-
-	free(str);
-
-	//int idx=0; //for testing only
-	//ril_request_unsolicited(RIL_UNSOL_RESPONSE_NEW_SMS_ON_SIM, &idx, sizeof(idx));
-
-	// SMS delete all msgs
-	//at_send_callback("AT+CMGD=0,4", RIL_TOKEN_NULL, at_generic_callback); //FIXME: deletes all msgs, only for testing!
+	// Update Signal Strength
+	at_send_callback("AT+CSQ", RIL_TOKEN_NULL, at_csq_callback);
 }
 
 /*
@@ -753,14 +786,21 @@ void ril_request_get_imei(void *data, size_t length, RIL_Token token)
 
 void ril_request_screen_state(void *data, size_t length, RIL_Token token)
 {
+	struct ril_device *ril_device;
 	int *state_ptr = (int *)data;
 	int state = state_ptr[0]; //1 if screen is on, 0 if screen is off
-	ALOGD("Screen State changed: %d",state);
 
-	if(state == 0) { //disable network status updates
-		at_send_callback("AT_OSQI=0", token, at_generic_callback); //FIXME: GTA04/gtm601 specific
+	ALOGD("Screen State changed: %d",state);
+	ril_device = ril_data->device;
+
+	/* Suspend */
+	if(state == 0) {
+		ril_device_power_suspend(ril_device);
 	}
-	else { //re-enable network status updates
-		at_send_callback("AT_OSQI=1", token, at_generic_callback); //FIXME: GTA04/gtm601 specific
+	/* Resume */
+	else {
+		ril_device_power_resume(ril_device);
 	}
+
+	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
 }

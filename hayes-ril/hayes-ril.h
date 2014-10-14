@@ -103,6 +103,7 @@ void ril_request_hangup_foreground_resume_background(void *data, size_t length, 
 void ril_request_switch_waiting_or_holding_and_active(void *data, size_t length, RIL_Token token);
 
 // Network 
+int at_csq_callback(char *string, int error, RIL_Token token);
 void ril_request_signal_strength(void *data, size_t length, RIL_Token token);
 int at_creg_unsol(char *string, int error);
 #if RIL_VERSION >= 6
@@ -130,6 +131,7 @@ void ril_request_query_facility_lock(void *data, size_t length, RIL_Token token)
 void ril_request_get_imsi(void *data, size_t length, RIL_Token token);
 
 // SMS
+void check_sms_on_sim();
 int at_cmt_unsol(char *string, int error);
 int at_cmti_unsol(char *string, int error);
 int at_cmgr_callback(char *string, int error, RIL_Token token);
