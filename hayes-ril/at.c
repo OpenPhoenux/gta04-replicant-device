@@ -570,6 +570,7 @@ int at_request_send(struct at_request *request)
 	ril_send_log(request->string);
 
 	rc = ril_device_transport_send(ril_device, data, length);
+	free(data);
 	if (rc <= 0) {
 		ALOGE("Sending data failed!");
 		return -1;

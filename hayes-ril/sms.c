@@ -120,6 +120,7 @@ int at_cmti_unsol(char *string, int error)
 	// Read SMS and send to Android UI
 	asprintf(&str, "AT+CMGR=%d", idx);
 	at_send_callback(str, RIL_TOKEN_NULL, at_cmgr_callback);
+	free(str);
 
 	// Delete SMS to free space on SIM
 	asprintf(&str, "AT+CMGD=%d,0", idx);
