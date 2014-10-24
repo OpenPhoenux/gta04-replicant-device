@@ -322,6 +322,9 @@ int ril_dispatch_thread_start(void)
 
 int ril_data_init(void)
 {
+	//ALOGD("Setting up voice routing..."); //TODO: only for testing, remove this later
+	//gta04_start_voice_routing(); //TODO: only for testing, remove this later
+
 	ALOGD("ril_data_init");
 	if (ril_data != NULL)
 		return -EINVAL;

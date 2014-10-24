@@ -27,6 +27,10 @@
 
 #include <hayes-ril.h>
 
+//TODO: FIXME: only on GTA04!
+#include "device/gta04/gsm-voice-route.h"
+pthread_t gta04_voice_routing;
+
 /*
  * Calls list
  */
@@ -35,18 +39,28 @@ RIL_CallState at2ril_call_state(int state)
 {
 	switch(state) {
 		case 0:
+			ALOGD("RIL_CALL_ACTIVE");
+			//TODO: FIXME: start only once per call!
+			//pthread_create(&gta04_voice_routing, NULL, gta04_start_voice_routing, NULL);
+			//TODO: stop the thread later on
 			return RIL_CALL_ACTIVE;
 		case 1:
+			ALOGD("RIL_CALL_HOLDING");
 			return RIL_CALL_HOLDING;
 		case 2:
+			ALOGD("RIL_CALL_DIALING");
 			return RIL_CALL_DIALING;
 		case 3:
+			ALOGD("RIL_CALL_ALERTING");
 			return RIL_CALL_ALERTING;
 		case 4:
+			ALOGD("RIL_CALL_INCOMING");
 			return RIL_CALL_INCOMING;
 		case 5:
+			ALOGD("RIL_CALL_WAITING");
 			return RIL_CALL_WAITING;
 		default:
+			ALOGD("RIL_CALL_default");
 			return -1;
 	}
 }
