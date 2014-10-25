@@ -104,6 +104,7 @@ void* gta04_start_voice_routing(void* data)
 
 	//Disable for now
 	capturing = 0; //TODO: testing only, remove later
+	sleep(15); //TODO: testing only, remove later
 	while (capturing && !pcm_read(modem_pcm, buffer, size)) {
 		bytes_read += size;
 		//TODO: we need to resample the data here! Compare to https://gitorious.org/replicant/hardware_tinyalsa-audio
@@ -112,6 +113,7 @@ void* gta04_start_voice_routing(void* data)
 			break;
 		}
 	}
+	//TODO: make sure the thread exits after the call has ended
 
 	//reset capturing for next call
 	capturing = 1;

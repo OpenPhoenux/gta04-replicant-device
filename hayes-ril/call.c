@@ -29,7 +29,7 @@
 
 //TODO: FIXME: only on GTA04!
 #include "device/gta04/gsm-voice-route.h"
-pthread_t gta04_voice_routing;
+pthread_t gta04_voice_routing = NULL;
 
 /*
  * Calls list
@@ -40,9 +40,14 @@ RIL_CallState at2ril_call_state(int state)
 	switch(state) {
 		case 0:
 			ALOGD("RIL_CALL_ACTIVE");
-			//TODO: FIXME: start only once per call!
-			//pthread_create(&gta04_voice_routing, NULL, gta04_start_voice_routing, NULL);
-			//TODO: stop the thread later on
+
+			//TODO: only on GTA04!
+			/* If gta04_voice_routing thread is not yet running, let's start it */
+			if (gta04_voice_routing == NULL || pthread_kill(gta04_voice_routing, 0) != 0) {
+				ALOGD("Starting gta04_voice_routing");
+				pthread_create(&gta04_voice_routing, NULL, gta04_start_voice_routing, NULL);
+			}
+
 			return RIL_CALL_ACTIVE;
 		case 1:
 			ALOGD("RIL_CALL_HOLDING");
