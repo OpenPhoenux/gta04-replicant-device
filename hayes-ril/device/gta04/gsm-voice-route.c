@@ -19,6 +19,7 @@
  */
 
 #include <tinyalsa/asoundlib.h>
+#include <audio_utils/resampler.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -30,6 +31,17 @@
 
 /* Set to 0 to stop capturing */
 int capturing = 1;
+
+void gta04_mono2stereo(unsigned int frames, int16_t *mono_in_buf, int16_t *stereo_out_buf) {
+	int i;
+	//The size of stereo_out_buf has to be twice the size of mono_in_buf!
+	for (i = 0; i < frames; ++i)
+	{
+		stereo_out_buf[i * 2]     = mono_in_buf[i];
+		stereo_out_buf[i * 2 + 1] = mono_in_buf[i];
+	}
+	return;
+}
 
 /*
  * This function is meant to be called in a new thread, whenever an incoming or
@@ -44,15 +56,16 @@ int capturing = 1;
 void* gta04_start_voice_routing(void* data)
 {
 	ALOGD("gta04_start_voice_routing() called");
-	unsigned int frames;
 	struct pcm_config modem_config;
 	struct pcm_config gta04_config;
 	struct pcm *modem_pcm;
 	struct pcm *gta04_pcm;
-	char *buffer;
-	unsigned int size;
-	unsigned int bytes_read = 0;
-	int num_read;
+	int16_t *modem_rec;
+	int16_t *gta04_ply;
+	int16_t *gta04_final_playback;
+	unsigned int frames_in, frames_out;
+
+	struct resampler_itfe *modem_resampler;
 
 	modem_config.channels = 1;
 	modem_config.rate = 8000;
@@ -84,44 +97,48 @@ void* gta04_start_voice_routing(void* data)
 		return NULL;
 	}
 
-	size = pcm_frames_to_bytes(gta04_pcm, pcm_get_buffer_size(gta04_pcm));
-	ALOGD("gta04 size: %d (f2b)", size);
-	size = pcm_get_buffer_size(gta04_pcm);
-	ALOGD("gta04 size: %d", size);
-	size = pcm_get_buffer_size(modem_pcm);
-	ALOGD("modem size: %d", size);
-	buffer = malloc(size);
-	if (!buffer) {
-		ALOGE("Unable to allocate %d bytes", size);
-		free(buffer);
+	frames_out = pcm_get_buffer_size(gta04_pcm);
+	frames_in = pcm_get_buffer_size(modem_pcm);
+	modem_rec = malloc(frames_in);
+	gta04_ply = malloc(pcm_frames_to_bytes(gta04_pcm, frames_out));
+	if (!modem_rec || !gta04_ply) {
+		ALOGE("Unable to allocate memory");
+		free(modem_rec);
+		free(gta04_ply);
 		pcm_close(modem_pcm);
 		pcm_close(gta04_pcm);
 		return NULL;
 	}
 
-	ALOGD("Capturing sample: %u ch, %u hz, %u bit", modem_config.channels, modem_config.rate, 16);
-	ALOGD("Playing sample: %u ch, %u hz, %u bit", gta04_config.channels, gta04_config.rate, 16);
+	create_resampler(8000, 44100, 1, RESAMPLER_QUALITY_DEFAULT, NULL, &modem_resampler);
+	//ALOGD("Capturing sample: %u ch, %u hz, %u bit", modem_config.channels, modem_config.rate, 16);
+	//ALOGD("Playing sample: %u ch, %u hz, %u bit", gta04_config.channels, gta04_config.rate, 16);
 
-	//Disable for now
-	capturing = 0; //TODO: testing only, remove later
-	sleep(15); //TODO: testing only, remove later
-	while (capturing && !pcm_read(modem_pcm, buffer, size)) {
-		bytes_read += size;
-		//TODO: we need to resample the data here! Compare to https://gitorious.org/replicant/hardware_tinyalsa-audio
-		if (pcm_write(gta04_pcm, buffer, size)) {
+	while (capturing && !pcm_read(modem_pcm, modem_rec, frames_in)) {
+		//Resample from 8000 Hz Mono (from modem) to 44100 Hz Mono (for gta04)
+		modem_resampler->resample_from_input(modem_resampler, modem_rec, &frames_in, gta04_ply, &frames_out);
+		//Convert 44100 Hz Mono to 44100 Hz Stereo (for gta04)
+		gta04_final_playback = malloc(pcm_frames_to_bytes(gta04_pcm, frames_out));
+		if(!gta04_final_playback) {
+			ALOGE("Unable to allocate playback buffer!");
+			free(gta04_final_playback);
+			return NULL;
+		}
+		gta04_mono2stereo(frames_out, gta04_ply, gta04_final_playback);
+		if (pcm_write(gta04_pcm, gta04_final_playback, frames_out)) { //TODO: change buffer to gta04_out
 			ALOGE("Error playing sample");
 			break;
 		}
+		free(gta04_final_playback);
 	}
-	//TODO: make sure the thread exits after the call has ended
 
 	//reset capturing for next call
 	capturing = 1;
 
-	free(buffer);
+	free(modem_rec);
+	free(gta04_ply);
 	pcm_close(modem_pcm);
 	pcm_close(gta04_pcm);
-	frames = bytes_read / ((16 / 8) * modem_config.channels);
-	ALOGD("Captured %d frames", frames);
+	ALOGD("gta04_start_voice_routing() finished");
 	return NULL;
 }
