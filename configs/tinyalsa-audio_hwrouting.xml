@@ -101,7 +101,7 @@
 	<modem card="0" device="0">
 		<device type="default">
 			<path type="enable">
-				<ctrl name="Voice route" value="Voice to SoC" />
+				<ctrl name="Voice route" value="Voice to twl4030" />
 				<ctrl name="DAC Voice Analog Downlink Switch" value="on" />
 			</path>
 			<path type="disable">
