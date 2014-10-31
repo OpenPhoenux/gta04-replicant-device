@@ -39,33 +39,24 @@ RIL_CallState at2ril_call_state(int state)
 {
 	switch(state) {
 		case 0:
-			ALOGD("RIL_CALL_ACTIVE");
-
 			//TODO: only on GTA04!
 			/* If gta04_voice_routing thread is not yet running, let's start it */
 			if (gta04_voice_routing == NULL || pthread_kill(gta04_voice_routing, 0) != 0) {
 				ALOGD("Starting gta04_voice_routing");
 				pthread_create(&gta04_voice_routing, NULL, gta04_start_voice_routing, NULL);
 			}
-
 			return RIL_CALL_ACTIVE;
 		case 1:
-			ALOGD("RIL_CALL_HOLDING");
 			return RIL_CALL_HOLDING;
 		case 2:
-			ALOGD("RIL_CALL_DIALING");
 			return RIL_CALL_DIALING;
 		case 3:
-			ALOGD("RIL_CALL_ALERTING");
 			return RIL_CALL_ALERTING;
 		case 4:
-			ALOGD("RIL_CALL_INCOMING");
 			return RIL_CALL_INCOMING;
 		case 5:
-			ALOGD("RIL_CALL_WAITING");
 			return RIL_CALL_WAITING;
 		default:
-			ALOGD("RIL_CALL_default");
 			return -1;
 	}
 }

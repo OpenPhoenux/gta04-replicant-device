@@ -34,7 +34,8 @@
  * Upmix a mono audio buffer to an interleaved stereo buffer of twice the size.
  * Both buffers contain the same amount of frames.
  */
-void gta04_mono2stereo(unsigned int frames, int16_t *mono_in_buf, int16_t *stereo_out_buf) {
+void gta04_mono2stereo(unsigned int frames, int16_t *mono_in_buf, int16_t *stereo_out_buf)
+{
 	unsigned int i;
 	for (i = 0; i < frames; ++i)
 	{
@@ -48,13 +49,52 @@ void gta04_mono2stereo(unsigned int frames, int16_t *mono_in_buf, int16_t *stere
  * Downmix a stereo audio buffer to an averaged mono buffer of half the size.
  * Both buffers contain the same amount of frames.
  */
-void gta04_stereo2mono(unsigned int frames, int16_t *stereo_in_buf, int16_t *mono_out_buf) {
+void gta04_stereo2mono(unsigned int frames, int16_t *stereo_in_buf, int16_t *mono_out_buf)
+{
 	unsigned int i;
 	for (i = 0; i < frames; ++i)
 	{
 		mono_out_buf[i] = round((stereo_in_buf[i*2]*0.5)+(stereo_in_buf[i*2+1]*0.5));
 	}
 	return;
+}
+
+/**
+ * Return 1 if hardware routing is enabled (i.e. "Voice route" ctl -> "Voice to twl4030")
+ * Return 0 if software routing is enabled (i.e. "Voice route" ctl -> "Voice to SoC")
+ * Return -1 otherwise -> ERROR
+ */
+int gta04_check_hwrouting() {
+	struct mixer *mixer;
+	struct mixer_ctl *ctl;
+	const char *active_value;
+	int active_id;
+
+	mixer = mixer_open(0); //open card 0 (gta04 internal)
+	if (!mixer) {
+		ALOGE("Failed to open mixer");
+		return -1;
+	}
+
+	ctl = mixer_get_ctl_by_name(mixer, "Voice route"); //open "Voice route" ctl
+	active_id = mixer_ctl_get_value(ctl, 0);
+	active_value = mixer_ctl_get_enum_string(ctl, active_id);
+	if (strncmp(active_value, "Voice to twl4030", 16) == 0) {
+		ALOGD("HW routing detected"); //don't start the SW router in this case
+		sleep(5); //sleep a little, so we won't be called every sec (in each AT+CLCC request)
+		mixer_close(mixer);
+		return 1;
+	}
+	else if(strncmp(active_value, "Voice to SoC", 12) == 0) {
+		ALOGD("SW routing detected");
+		mixer_close(mixer);
+		return 0;
+	}
+	else {
+		ALOGE("Unable to detect HW/SW routing state");
+		mixer_close(mixer);
+		return -1;
+	}
 }
 
 /**
@@ -71,6 +111,10 @@ void gta04_stereo2mono(unsigned int frames, int16_t *stereo_in_buf, int16_t *mon
 void* gta04_start_voice_routing(void* data)
 {
 	ALOGD("gta04_start_voice_routing() called");
+	if(gta04_check_hwrouting() == 1) {
+		ALOGD("Not starting the SW router"); //because HW routing is to be used
+		return NULL;
+	}
 	struct pcm_config modem_config;
 	struct pcm_config gta04_config;
 	struct pcm *modem_record;
