@@ -24,12 +24,14 @@
 #define LOG_TAG "RIL-CALL"
 #include <utils/Log.h>
 #include <telephony/ril.h>
+#include <string.h>
+#include <errno.h>
 
 #include <hayes-ril.h>
 
 //TODO: FIXME: only on GTA04!
 #include "device/gta04/gsm-voice-route.h"
-pthread_t gta04_voice_routing = NULL;
+pthread_t gta04_voice_routing = 0;
 
 /*
  * Calls list
@@ -41,7 +43,7 @@ RIL_CallState at2ril_call_state(int state)
 		case 0:
 			//TODO: only on GTA04!
 			/* If gta04_voice_routing thread is not yet running, let's start it */
-			if (gta04_voice_routing == NULL || pthread_kill(gta04_voice_routing, 0) != 0) {
+			if (gta04_voice_routing == 0 || pthread_kill(gta04_voice_routing, 0) != 0) {
 				ALOGD("Starting gta04_voice_routing");
 				pthread_create(&gta04_voice_routing, NULL, gta04_start_voice_routing, NULL);
 			}
@@ -269,6 +271,130 @@ void ril_request_switch_waiting_or_holding_and_active(void *data, size_t length,
 	int rc;
 
 	rc = at_send_callback("AT+CHLD=2", token, at_generic_callback);
+	if (rc < 0)
+		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+}
+
+/*
+ * USSD
+ */
+/*
+ * Create a dynamically allocated copy of string,
+* changing the encoding from ISO-8859-15 to UTF-8.
+ */
+char *latin9_to_utf8(char *string)
+{
+    char   *result;
+    size_t  n = 0;
+
+    if (string) {
+        const unsigned char  *s = (const unsigned char *)string;
+
+        while (*s)
+            if (*s < 128) {
+                s++;
+                n += 1;
+            } else
+            if (*s == 164) {
+                s++;
+                n += 3;
+            } else {
+                s++;
+                n += 2;
+            }
+    }
+
+    /* Allocate n+1 (to n+7) bytes for the converted string. */
+    result = malloc((n | 7) + 1);
+    if (!result) {
+        errno = ENOMEM;
+        return NULL;
+    }
+
+    /* Clear the tail of the string, setting the trailing NUL. */
+    memset(result + (n | 7) - 7, 0, 8);
+
+    if (n) {
+        const unsigned char  *s = (const unsigned char *)string;
+        unsigned char        *d = (unsigned char *)result;
+
+        while (*s)
+            if (*s < 128) {
+                *(d++) = *(s++);
+            } else
+            if (*s < 192) switch (*s) {
+                case 164: *(d++) = 226; *(d++) = 130; *(d++) = 172; s++; break;
+                case 166: *(d++) = 197; *(d++) = 160; s++; break;
+                case 168: *(d++) = 197; *(d++) = 161; s++; break;
+                case 180: *(d++) = 197; *(d++) = 189; s++; break;
+                case 184: *(d++) = 197; *(d++) = 190; s++; break;
+                case 188: *(d++) = 197; *(d++) = 146; s++; break;
+                case 189: *(d++) = 197; *(d++) = 147; s++; break;
+                case 190: *(d++) = 197; *(d++) = 184; s++; break;
+                default:  *(d++) = 194; *(d++) = *(s++); break;
+            } else {
+                *(d++) = 195;
+                *(d++) = *(s++) - 64;
+            }
+    }
+
+    /* Done. Remember to free() the resulting string when no longer needed. */
+    return result;
+}
+
+int at_cusd_unsol(char *string, int error)
+{
+	int mode = 2;
+	int code = -1;
+	char tmp[200] = { 0 };
+	char *result[2];
+	char *mode_str;
+	char *utf8_res;
+	//TODO: FIXME: Read multiline strings!!!
+	sscanf(string, "+CUSD: %d,\"%200[^\"]\",%d", &mode, (char *) &tmp, &code);
+	utf8_res = latin9_to_utf8((char *) &tmp);
+	asprintf(&mode_str, "%d", mode);
+	result[0] = mode_str;
+	result[1] = utf8_res;
+
+	ALOGD("USSD: %d,\"%s\",%d", mode, utf8_res, code);
+
+	switch(mode) {
+		case 0:
+			ril_request_unsolicited(RIL_UNSOL_ON_USSD, result, sizeof(result));
+			at_send_callback("AT+CUSD=0", RIL_TOKEN_NULL, at_generic_callback);
+			break;
+		case 1:
+			ril_request_unsolicited(RIL_UNSOL_ON_USSD, result, sizeof(result));
+			break;
+		case 2:
+		case 3:
+		case 4:
+		case 5:
+		default:
+			at_send_callback("AT+CUSD=0", RIL_TOKEN_NULL, at_generic_callback);
+			break;
+	}
+	free(utf8_res);
+	return AT_STATUS_HANDLED;
+}
+
+void ril_request_send_ussd(void *data, size_t length, RIL_Token token)
+{
+	char* string;
+	int rc;
+	//code/rcs = 15 -> Use ISO8859-15 (Latin9)
+	asprintf(&string, "AT+CUSD=1,\"%s\",15", (char *)data);
+	rc = at_send_callback(string, token, at_generic_callback);
+	free(string);
+	if (rc < 0)
+		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+}
+
+void ril_request_cancel_ussd(void *data, size_t length, RIL_Token token)
+{
+	int rc;
+	rc = at_send_callback("AT+CUSD=0", token, at_generic_callback);
 	if (rc < 0)
 		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 }

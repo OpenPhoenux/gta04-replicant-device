@@ -47,10 +47,22 @@ struct ril_dispatch_handler ril_dispatch_handlers[] = {
 		.string = "+CMT", //incoming sms
 		.callback = at_cmt_unsol,
 	},
+	{
+		.string = "+CUSD", //incoming USSD
+		.callback = at_cusd_unsol,
+	},
 };
 
 struct ril_request_handler ril_request_handlers[] = {
 	// Call
+	{
+		.request = RIL_REQUEST_SEND_USSD,
+		.callback = ril_request_send_ussd,
+	},
+	{
+		.request = RIL_REQUEST_CANCEL_USSD,
+		.callback = ril_request_cancel_ussd,
+	},
 	{
 		.request = RIL_REQUEST_GET_CURRENT_CALLS,
 		.callback = ril_request_get_current_calls,

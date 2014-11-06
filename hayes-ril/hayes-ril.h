@@ -94,6 +94,9 @@ extern struct ril_data *ril_data;
 
 // Call
 int at_cring_unsol(char *string, int error);
+int at_cusd_unsol(char *string, int error);
+void ril_request_send_ussd(void *data, size_t length, RIL_Token token);
+void ril_request_cancel_ussd(void *data, size_t length, RIL_Token token);
 void ril_request_get_current_calls(void *data, size_t length, RIL_Token token);
 void ril_request_answer(void *data, size_t length, RIL_Token token);
 void ril_request_dial(void *data, size_t length, RIL_Token token);
