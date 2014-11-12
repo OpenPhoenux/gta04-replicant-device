@@ -115,6 +115,10 @@ void* gta04_start_voice_routing(void* data)
 		ALOGD("Not starting the SW router"); //because HW routing is to be used
 		return NULL;
 	}
+
+	/*
+	 * Data
+	 */
 	struct pcm_config modem_config;
 	struct pcm_config gta04_config;
 	struct pcm *modem_record;
@@ -129,6 +133,10 @@ void* gta04_start_voice_routing(void* data)
 	int16_t *gta04_final_playback;
 	unsigned int frames_modem_in, frames_gta04_out;
 	unsigned int frames_gta04_in, frames_modem_out;
+	int rc;
+
+	unsigned int frames_avail1, frames_avail2;
+	struct timespec timespec_dummy;
 
 	struct resampler_itfe *modem_resampler;
 	struct resampler_itfe *gta04_resampler;
@@ -151,10 +159,13 @@ void* gta04_start_voice_routing(void* data)
 	gta04_config.stop_threshold = 0;
 	gta04_config.silence_threshold = 0;
 
+	/*
+	 * Setup
+	 */
 	modem_record = pcm_open(1, 0, PCM_IN, &modem_config);
-	modem_play = pcm_open(1, 0, PCM_OUT, &modem_config);
+	modem_play = pcm_open(1, 0, PCM_OUT|PCM_NORESTART, &modem_config);
 	gta04_record = pcm_open(0, 0, PCM_IN, &gta04_config);
-	gta04_play = pcm_open(0, 0, PCM_OUT, &gta04_config);
+	gta04_play = pcm_open(0, 0, PCM_OUT|PCM_NORESTART, &gta04_config);
 
 	if (!modem_record || !pcm_is_ready(modem_record)) {
 		ALOGE("Unable to open PCM device 1,0 (%s)", pcm_get_error(modem_record));
@@ -177,6 +188,8 @@ void* gta04_start_voice_routing(void* data)
 	frames_modem_out = pcm_get_buffer_size(modem_play);
 	frames_gta04_in = pcm_get_buffer_size(gta04_record);
 	frames_gta04_out = pcm_get_buffer_size(gta04_play);
+	//ALOGD("FRAMES: m_IN %d, m_OUT %d, g_IN %d, g_OUT %d",
+	//	frames_modem_in, frames_modem_out, frames_gta04_in, frames_gta04_out);
 
 	modem_rec = malloc(frames_modem_in);
 	gta04_ply = malloc(pcm_frames_to_bytes(gta04_play, frames_gta04_out));
@@ -204,11 +217,25 @@ void* gta04_start_voice_routing(void* data)
 	create_resampler(8000, 44100, 1, RESAMPLER_QUALITY_DEFAULT, NULL, &modem_resampler);
 	create_resampler(44100, 8000, 2, RESAMPLER_QUALITY_DEFAULT, NULL, &gta04_resampler);
 
+	/* We want realtime process priority */
+	rc = nice(-20);
+	if (rc != -20)
+		ALOGD("nice() failed");
+
 	while (1) {
+		pcm_get_htimestamp(gta04_record, &frames_avail1, &timespec_dummy);
+		pcm_get_htimestamp(modem_record, &frames_avail2, &timespec_dummy);
+		ALOGD("FRAMES available for read: gta04 %d, modem %d", frames_avail1, frames_avail2);
+
 		/* Record from internal (gta04) card first */
-		pcm_read(gta04_record, gta04_rec, frames_gta04_in);
+		rc = pcm_read(gta04_record, gta04_rec, frames_gta04_in);
+		if(rc!=0)
+			ALOGD("pcm_read, gta04: ERRNO %d", rc);
 		/* Record from modem card next, this might fail, then we have to stop routing (hangup happened) */
-		if (pcm_read(modem_record, modem_rec, frames_modem_in)) {
+		rc = pcm_read(modem_record, modem_rec, frames_modem_in);
+		if(rc!=0)
+			ALOGD("pcm_read, modem: ERRNO %d", rc);
+		if (rc) {
 			ALOGE("Error capturing sample from modem");
 			break;
 		}
@@ -223,15 +250,36 @@ void* gta04_start_voice_routing(void* data)
 		/* Upmix from 44100 Hz Mono to 44100 Hz Stereo (for gta04) */
 		gta04_mono2stereo(frames_gta04_out, gta04_ply, gta04_final_playback);
 
+		ALOGD("FRAMES: m_IN %d, m_OUT %d, g_IN %d, g_OUT %d",
+			frames_modem_in, frames_modem_out, frames_gta04_in, frames_gta04_out);
+		pcm_get_htimestamp(gta04_play, &frames_avail1, &timespec_dummy);
+		pcm_get_htimestamp(modem_play, &frames_avail2, &timespec_dummy);
+		ALOGD("FRAMES available for write: gta04 %d, modem %d", frames_avail1, frames_avail2);
+
 		/* Playback on internal (gta04) card first */
-		pcm_write(gta04_play, gta04_final_playback, frames_gta04_out);
+		rc = pcm_write(gta04_play, gta04_final_playback, frames_gta04_out);
+		if(rc!=0)
+			ALOGD("pcm_write, gta04: ERRNO %d", rc);
+		if(rc==-32)
+			ALOGD("pcm_write, gta04: underrun occured");
+
 		/* Playback on modem card next, this might fail, then we have to stop routing (hangup happened) */
-		if (pcm_write(modem_play, modem_final_playback, frames_modem_out)) {
+		rc = pcm_write(modem_play, modem_final_playback, frames_modem_out);
+		if(rc!=0)
+			ALOGD("pcm_write, modem: ERRNO %d", rc);
+		if(rc==-32)
+			ALOGD("pcm_write, modem: underrun occured");
+		if (rc) {
 			ALOGE("Error playing sample on modem");
 			break;
 		}
+
+		ALOGD(" "); //==================================================
 	}
 
+	/*
+	 * Teardown
+	 */
 	release_resampler(modem_resampler);
 	release_resampler(gta04_resampler);
 

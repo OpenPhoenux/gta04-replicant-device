@@ -280,7 +280,9 @@ void ril_request_switch_waiting_or_holding_and_active(void *data, size_t length,
  */
 /*
  * Create a dynamically allocated copy of string,
-* changing the encoding from ISO-8859-15 to UTF-8.
+ * changing the encoding from ISO-8859-15 to UTF-8.
+ * This function is provided by Nominal Animal under a CC-BY-SA 3.0 license.
+ * http://stackoverflow.com/questions/11258019/conversion-from-iso-8859-15-latin9-to-utf-8
  */
 char *latin9_to_utf8(char *string)
 {
@@ -344,6 +346,7 @@ char *latin9_to_utf8(char *string)
 
 int at_cusd_unsol(char *string, int error)
 {
+	ALOGD("%s",string);
 	int mode = 2;
 	int code = -1;
 	char tmp[200] = { 0 };
@@ -351,7 +354,8 @@ int at_cusd_unsol(char *string, int error)
 	char *mode_str;
 	char *utf8_res;
 	//TODO: FIXME: Read multiline strings!!!
-	sscanf(string, "+CUSD: %d,\"%200[^\"]\",%d", &mode, (char *) &tmp, &code);
+	//sscanf(string, "+CUSD: %d,\"%200[^\"]\",%d", &mode, (char *) &tmp, &code);
+	sscanf(string, "+CUSD: %d,\"%199c\",%d", &mode, (char *) &tmp, &code);
 	utf8_res = latin9_to_utf8((char *) &tmp);
 	asprintf(&mode_str, "%d", mode);
 	result[0] = mode_str;

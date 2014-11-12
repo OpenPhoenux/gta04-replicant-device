@@ -25,19 +25,19 @@
 				<ctrl name="Earpiece Playback Volume" value="0" />
 			</path>
 		</device>
-                <device type="speaker">
-                        <path type="enable">
+		<device type="speaker">
+			<path type="enable">
 				<ctrl name="HandsfreeL Mux" value="AudioL2" />
 				<ctrl name="HandsfreeR Mux" value="AudioR2" />
 				<ctrl name="HandsfreeL Switch" value="on" />
 				<ctrl name="HandsfreeR Switch" value="on" />
 
 				<ctrl name="DAC2 Analog Playback Volume" value="18" />
-                        </path>
-                        <path type="disable">
+			</path>
+			<path type="disable">
 				<ctrl name="HandsfreeL Switch" value="off" />
 				<ctrl name="HandsfreeR Switch" value="off" />
-                        </path>
+			</path>
 		</device>
 		<device type="wired-headphone">
 			<path type="enable">
@@ -102,10 +102,12 @@
 		<device type="default">
 			<path type="enable">
 				<ctrl name="Voice route" value="Voice to SoC" />
+				<ctrl name="AVADC Clock Priority" value="HiFi high priority" />
 				<ctrl name="DAC Voice Analog Downlink Switch" value="on" />
 			</path>
 			<path type="disable">
 				<ctrl name="Voice route" value="Voice to SoC" />
+				<ctrl name="AVADC Clock Priority" value="HiFi high priority" />
 				<ctrl name="DAC Voice Analog Downlink Switch" value="off" />
 			</path>
 		</device>
