@@ -119,8 +119,7 @@ void* gta04_start_voice_routing(void* data)
 	/*
 	 * Data
 	 */
-	struct pcm_config modem_config;
-	struct pcm_config gta04_config;
+	struct pcm_config p0, r0, p1, r1;
 	struct pcm *modem_record;
 	struct pcm *modem_play;
 	struct pcm *gta04_record;
@@ -134,6 +133,8 @@ void* gta04_start_voice_routing(void* data)
 	unsigned int frames_modem_in, frames_gta04_out;
 	unsigned int frames_gta04_in, frames_modem_out;
 	int rc;
+	int gta04_rec_buffer_size, gta04_ply_buffer_size;
+	int modem_rec_buffer_size, modem_ply_buffer_size;
 
 	unsigned int frames_avail1, frames_avail2;
 	struct timespec timespec_dummy;
@@ -141,31 +142,69 @@ void* gta04_start_voice_routing(void* data)
 	struct resampler_itfe *modem_resampler;
 	struct resampler_itfe *gta04_resampler;
 
-	modem_config.channels = 1;
-	modem_config.rate = 8000;
-	modem_config.period_size = 1024; //tinycap default
-	modem_config.period_count = 4; //tinycap default
-	modem_config.format = PCM_FORMAT_S16_LE;
-	modem_config.start_threshold = 0;
-	modem_config.stop_threshold = 0;
-	modem_config.silence_threshold = 0;
+	//p0 = playback gta04 internal ("default")
+	p0.channels = 2;
+	p0.rate = 44100;
+	/*
+	 * we want a period_size of 1323, so we get a latency of 33,3ms (= 44100/1323)
+	 * 1323 = 5292/(2*16/8), see magic recalculation in pcm_read()/pcm_write()
+	 */
+	p0.period_size = 5292;
+	p0.period_count = 4;
+	p0.format = PCM_FORMAT_S16_LE;
+	p0.start_threshold = 0; //default
+	p0.stop_threshold = 0; //default
+	p0.silence_threshold = 0;
 
-	gta04_config.channels = 2;
-	gta04_config.rate = 44100;
-	gta04_config.period_size = 1024; //tinycap default
-	gta04_config.period_count = 4; //tinycap default
-	gta04_config.format = PCM_FORMAT_S16_LE;
-	gta04_config.start_threshold = 0;
-	gta04_config.stop_threshold = 0;
-	gta04_config.silence_threshold = 0;
+	//r0 = record gta04 internal ("default")
+	r0.channels = 2;
+	r0.rate = 44100;
+	/*
+	 * we want a period_size of 1323, so we get a latency of 33,3ms (= 44100/1323)
+	 * 1323 = 5292/(2*16/8), see magic recalculation in pcm_read()/pcm_write()
+	 */
+	r0.period_size = 5292;
+	r0.period_count = 4;
+	r0.format = PCM_FORMAT_S16_LE;
+	r0.start_threshold = 0; //default
+	r0.stop_threshold = 0; //default
+	r0.silence_threshold = 0;
+
+	//p1 = playback modem ("hw:1,0")
+	p1.channels = 1;
+	p1.rate = 8000;
+	/*
+	 * we want a period size of 240, so we get a latency of 33,3ms (= 8000/240)
+	 * 240 = 480/(1*16/8), see magic recalculation in pcm_read()/pcm_write()
+	 */
+	p1.period_size = 480;
+	p1.period_count = 4;
+	p1.format = PCM_FORMAT_S16_LE;
+	p1.start_threshold = 0; //default
+	p1.stop_threshold = 0; //default
+	p1.silence_threshold = 0;
+
+	//r1 = record modem ("hw:1,0")
+	r1.channels = 1;
+	r1.rate = 8000;
+	/*
+	 * we want a period size of 240, so we get a latency of 33,3ms (= 8000/240)
+	 * 240 = 480/(1*16/8), see magic recalculation in pcm_read()/pcm_write()
+	 */
+	r1.period_size = 480;
+	r1.period_count = 4;
+	r1.format = PCM_FORMAT_S16_LE;
+	r1.start_threshold = 0; //default
+	r1.stop_threshold = 0; //default
+	r1.silence_threshold = 0;
 
 	/*
 	 * Setup
 	 */
-	modem_record = pcm_open(1, 0, PCM_IN, &modem_config);
-	modem_play = pcm_open(1, 0, PCM_OUT|PCM_NORESTART, &modem_config);
-	gta04_record = pcm_open(0, 0, PCM_IN, &gta04_config);
-	gta04_play = pcm_open(0, 0, PCM_OUT|PCM_NORESTART, &gta04_config);
+	modem_record = pcm_open(1, 0, PCM_IN, &r1);
+	modem_play = pcm_open(1, 0, PCM_OUT, &p1);
+	gta04_record = pcm_open(0, 0, PCM_IN, &r0);
+	gta04_play = pcm_open(0, 0, PCM_OUT, &p0);
 
 	if (!modem_record || !pcm_is_ready(modem_record)) {
 		ALOGE("Unable to open PCM device 1,0 (%s)", pcm_get_error(modem_record));
@@ -184,20 +223,24 @@ void* gta04_start_voice_routing(void* data)
 		return NULL;
 	}
 
+	/* buffer_size = period_size * period_count, see pcm_open() */
 	frames_modem_in = pcm_get_buffer_size(modem_record);
 	frames_modem_out = pcm_get_buffer_size(modem_play);
 	frames_gta04_in = pcm_get_buffer_size(gta04_record);
 	frames_gta04_out = pcm_get_buffer_size(gta04_play);
-	//ALOGD("FRAMES: m_IN %d, m_OUT %d, g_IN %d, g_OUT %d",
-	//	frames_modem_in, frames_modem_out, frames_gta04_in, frames_gta04_out);
 
-	modem_rec = malloc(frames_modem_in);
-	gta04_ply = malloc(pcm_frames_to_bytes(gta04_play, frames_gta04_out));
-	gta04_final_playback = malloc(pcm_frames_to_bytes(gta04_play, frames_gta04_out));
+	/* Use twice the buffer size, because we get a segfault otherwise... */
+	gta04_rec_buffer_size = 2*pcm_frames_to_bytes(gta04_record, frames_gta04_in);
+	gta04_ply_buffer_size = 2*pcm_frames_to_bytes(gta04_play, frames_gta04_out);
+	gta04_rec = malloc(gta04_rec_buffer_size);
+	gta04_ply = malloc(gta04_ply_buffer_size);
+	gta04_final_playback = malloc(gta04_ply_buffer_size);
 
-	gta04_rec = malloc(frames_gta04_in);
-	modem_ply = malloc(pcm_frames_to_bytes(gta04_play, frames_modem_out));
-	modem_final_playback = malloc(pcm_frames_to_bytes(gta04_play, frames_modem_out));
+	modem_rec_buffer_size = 2*pcm_frames_to_bytes(modem_record, frames_modem_in);
+	modem_ply_buffer_size = 2*pcm_frames_to_bytes(modem_play, frames_modem_out);
+	modem_rec = malloc(modem_rec_buffer_size);
+	modem_ply = malloc(modem_ply_buffer_size);
+	modem_final_playback = malloc(modem_ply_buffer_size);
 
 	if (!modem_rec || !gta04_ply || !gta04_final_playback || !modem_ply || !gta04_rec || !modem_final_playback) {
 		ALOGE("Unable to allocate memory");
@@ -217,64 +260,57 @@ void* gta04_start_voice_routing(void* data)
 	create_resampler(8000, 44100, 1, RESAMPLER_QUALITY_DEFAULT, NULL, &modem_resampler);
 	create_resampler(44100, 8000, 2, RESAMPLER_QUALITY_DEFAULT, NULL, &gta04_resampler);
 
-	/* We want realtime process priority */
-	rc = nice(-20);
-	if (rc != -20)
-		ALOGD("nice() failed");
+	/* We want realtime thread priority */
+	//rc = nice(-20);
+	//if (rc != -20)
+	//	ALOGD("nice() failed");
 
 	while (1) {
-		pcm_get_htimestamp(gta04_record, &frames_avail1, &timespec_dummy);
-		pcm_get_htimestamp(modem_record, &frames_avail2, &timespec_dummy);
-		ALOGD("FRAMES available for read: gta04 %d, modem %d", frames_avail1, frames_avail2);
+		/* Clear buffers */
+		memset(gta04_rec, 0, gta04_rec_buffer_size);
+		memset(gta04_ply, 0, gta04_ply_buffer_size);
+		memset(gta04_final_playback, 0, gta04_ply_buffer_size);
+		memset(modem_rec, 0, modem_rec_buffer_size);
+		memset(modem_ply, 0, modem_ply_buffer_size);
+		memset(modem_final_playback, 0, modem_ply_buffer_size);
 
 		/* Record from internal (gta04) card first */
-		rc = pcm_read(gta04_record, gta04_rec, frames_gta04_in);
-		if(rc!=0)
+		rc = pcm_read(gta04_record, gta04_rec, r0.period_size);
+		if(rc<0)
 			ALOGD("pcm_read, gta04: ERRNO %d", rc);
+
 		/* Record from modem card next, this might fail, then we have to stop routing (hangup happened) */
-		rc = pcm_read(modem_record, modem_rec, frames_modem_in);
-		if(rc!=0)
-			ALOGD("pcm_read, modem: ERRNO %d", rc);
-		if (rc) {
-			ALOGE("Error capturing sample from modem");
+		rc = pcm_read(modem_record, modem_rec, r1.period_size);
+		if (rc==-1) {
+			ALOGD("Error capturing sample from modem (hangup)");
 			break;
 		}
+		if(rc<0)
+			ALOGD("pcm_read, modem: ERRNO %d", rc);
 
-		/* Resample from 44100 Hz Stereo (from gta04) to 8000 Hz Stereo (for modem) */
+		/* Resample from 44100 Hz Stereo (from gta04) to 8000 Hz Stereo */
 		gta04_resampler->resample_from_input(gta04_resampler, gta04_rec, &frames_gta04_in, modem_ply, &frames_modem_out);
 		/* Downmix from 8000 Hz Stereo to 8000 Hz Mono (for modem) */
 		gta04_stereo2mono(frames_modem_out, modem_ply, modem_final_playback);
 
-		/* Resample from 8000 Hz Mono (from modem) to 44100 Hz Mono (for gta04) */
+		/* Resample from 8000 Hz Mono (from modem) to 44100 Hz Mono */
 		modem_resampler->resample_from_input(modem_resampler, modem_rec, &frames_modem_in, gta04_ply, &frames_gta04_out);
 		/* Upmix from 44100 Hz Mono to 44100 Hz Stereo (for gta04) */
 		gta04_mono2stereo(frames_gta04_out, gta04_ply, gta04_final_playback);
 
-		ALOGD("FRAMES: m_IN %d, m_OUT %d, g_IN %d, g_OUT %d",
-			frames_modem_in, frames_modem_out, frames_gta04_in, frames_gta04_out);
-		pcm_get_htimestamp(gta04_play, &frames_avail1, &timespec_dummy);
-		pcm_get_htimestamp(modem_play, &frames_avail2, &timespec_dummy);
-		ALOGD("FRAMES available for write: gta04 %d, modem %d", frames_avail1, frames_avail2);
-
 		/* Playback on internal (gta04) card first */
-		rc = pcm_write(gta04_play, gta04_final_playback, frames_gta04_out);
-		if(rc!=0)
+		rc = pcm_write(gta04_play, gta04_final_playback, p0.period_size);
+		if(rc<0)
 			ALOGD("pcm_write, gta04: ERRNO %d", rc);
-		if(rc==-32)
-			ALOGD("pcm_write, gta04: underrun occured");
 
 		/* Playback on modem card next, this might fail, then we have to stop routing (hangup happened) */
-		rc = pcm_write(modem_play, modem_final_playback, frames_modem_out);
-		if(rc!=0)
-			ALOGD("pcm_write, modem: ERRNO %d", rc);
-		if(rc==-32)
-			ALOGD("pcm_write, modem: underrun occured");
-		if (rc) {
-			ALOGE("Error playing sample on modem");
+		rc = pcm_write(modem_play, modem_final_playback, p1.period_size);
+		if (rc==-1) {
+			ALOGE("Error playing sample on modem (hangup)");
 			break;
 		}
-
-		ALOGD(" "); //==================================================
+		if(rc<0)
+			ALOGD("pcm_write, modem: ERRNO %d", rc);
 	}
 
 	/*
@@ -289,6 +325,7 @@ void* gta04_start_voice_routing(void* data)
 	free(gta04_rec);
 	free(gta04_ply);
 	free(gta04_final_playback);
+
 	pcm_close(modem_record);
 	pcm_close(modem_play);
 	pcm_close(gta04_record);
