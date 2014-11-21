@@ -152,6 +152,9 @@ int gta04_power_suspend(void *sdata)
 {
 	ALOGD("GTA04 SUSPENDING...");
 
+	//Network status
+	at_send_callback("AT+CREG?", RIL_TOKEN_NULL, at_creg_callback);
+
 	//disable network status updates
 	at_send_callback("AT_OSQI=0", RIL_TOKEN_NULL, at_generic_callback); //TODO: handler
 
@@ -167,6 +170,12 @@ int gta04_power_resume(void *sdata)
 	}
 
 	ALOGD("GTA04 RESUMING...");
+
+	//Network status
+	at_send_callback("AT+CREG?", RIL_TOKEN_NULL, at_creg_callback);
+	at_send_callback("AT+CPAS=?", RIL_TOKEN_NULL, at_generic_callback);
+	at_send_callback("AT+CBST=?", RIL_TOKEN_NULL, at_generic_callback);
+	at_send_callback("AT+COPS=0", RIL_TOKEN_NULL, at_generic_callback);
 
 	// Update Signal Strength
 	at_send_callback("AT+CSQ", RIL_TOKEN_NULL, at_csq_callback);

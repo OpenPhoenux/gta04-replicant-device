@@ -402,3 +402,36 @@ void ril_request_cancel_ussd(void *data, size_t length, RIL_Token token)
 	if (rc < 0)
 		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
+
+void ril_request_dtmf(void *data, size_t length, RIL_Token token)
+{
+	int rc;
+	char *str;
+
+	asprintf(&str, "AT+VTS=%s", (char*)data);
+	rc = at_send_callback(str, token, at_generic_callback);
+	free(str);
+
+	if (rc < 0)
+		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+}
+
+void ril_request_dtmf_start(void *data, size_t length, RIL_Token token)
+{
+	int rc;
+	char *str;
+
+	//TODO: This hould continuously play the sound until dtmf_stop is called
+	asprintf(&str, "AT+VTS=%s", (char*)data);
+	rc = at_send_callback(str, token, at_generic_callback);
+	free(str);
+
+	if (rc < 0)
+		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+}
+
+void ril_request_dtmf_stop(void *data, size_t length, RIL_Token token)
+{
+	//TODO: This is a dummy
+	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
+}

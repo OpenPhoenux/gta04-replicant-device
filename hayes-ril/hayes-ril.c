@@ -56,6 +56,18 @@ struct ril_dispatch_handler ril_dispatch_handlers[] = {
 struct ril_request_handler ril_request_handlers[] = {
 	// Call
 	{
+		.request = RIL_REQUEST_DTMF,
+		.callback = ril_request_dtmf,
+	},
+	{
+		.request = RIL_REQUEST_DTMF_START,
+		.callback = ril_request_dtmf_start,
+	},
+	{
+		.request = RIL_REQUEST_DTMF_STOP,
+		.callback = ril_request_dtmf_stop,
+	},
+	{
 		.request = RIL_REQUEST_SEND_USSD,
 		.callback = ril_request_send_ussd,
 	},
@@ -126,6 +138,14 @@ struct ril_request_handler ril_request_handlers[] = {
 	{
 		.request = RIL_REQUEST_SET_PREFERRED_NETWORK_TYPE,
 		.callback = ril_request_set_preferred_network_type,
+	},
+	{
+		.request = RIL_REQUEST_SET_NETWORK_SELECTION_AUTOMATIC,
+		.callback = ril_request_set_network_selection_automatic,
+	},
+	{
+		.request = RIL_REQUEST_SET_NETWORK_SELECTION_MANUAL,
+		.callback = ril_request_set_network_selection_manual,
 	},
 	{
 		.request = RIL_REQUEST_DATA_REGISTRATION_STATE,

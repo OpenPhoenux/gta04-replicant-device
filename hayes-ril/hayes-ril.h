@@ -95,6 +95,9 @@ extern struct ril_data *ril_data;
 // Call
 int at_cring_unsol(char *string, int error);
 int at_cusd_unsol(char *string, int error);
+void ril_request_dtmf(void *data, size_t length, RIL_Token token);
+void ril_request_dtmf_start(void *data, size_t length, RIL_Token token);
+void ril_request_dtmf_stop(void *data, size_t length, RIL_Token token);
 void ril_request_send_ussd(void *data, size_t length, RIL_Token token);
 void ril_request_cancel_ussd(void *data, size_t length, RIL_Token token);
 void ril_request_get_current_calls(void *data, size_t length, RIL_Token token);
@@ -107,6 +110,7 @@ void ril_request_switch_waiting_or_holding_and_active(void *data, size_t length,
 
 // Network 
 int at_csq_callback(char *string, int error, RIL_Token token);
+int at_creg_callback(char *string, int error, RIL_Token token);
 void ril_request_signal_strength(void *data, size_t length, RIL_Token token);
 int at_creg_unsol(char *string, int error);
 #if RIL_VERSION >= 6
@@ -117,6 +121,9 @@ void ril_request_registration_state(void *data, size_t length, RIL_Token token);
 void ril_request_operator(void *data, size_t length, RIL_Token token);
 void ril_request_get_preferred_network_type(void *data, size_t length, RIL_Token token);
 void ril_request_set_preferred_network_type(void *data, size_t length, RIL_Token token);
+void ril_request_set_preferred_network_type(void *data, size_t length, RIL_Token token);
+void ril_request_set_network_selection_automatic(void *data, size_t length, RIL_Token token);
+void ril_request_set_network_selection_manual(void *data, size_t length, RIL_Token token);
 void ril_request_data_registration_state(void *data, size_t length, RIL_Token token);
 void ril_request_query_network_selection_mode(void *data, size_t length, RIL_Token token);
 void ril_request_query_available_networks(void *data, size_t length, RIL_Token token);

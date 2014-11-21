@@ -279,6 +279,9 @@ int at_cops_list_callback(char *string, int error, RIL_Token token)
 	char *resp_buf[80] = {0}; //80=4*20
 	int counter = 0;
 
+	if (at_error(error) != AT_ERROR_OK || string == NULL)
+		goto error;
+
 	ptr = strtok(string, delimiter);
 	if(strncmp(ptr, "+COPS: ", 7) != 0)
 		goto error;
@@ -348,26 +351,78 @@ void ril_request_operator(void *data, size_t length, RIL_Token token)
 {
 	int rc;
 
-	//rc = at_send_callback("AT+COPN", token, at_copn_callback); //TODO: we somehow need a different token for this call
-
 	rc = at_send_callback("AT+COPS=3,0;+COPS?;+COPS=3,1;+COPS?;+COPS=3,2;+COPS?", token, at_cops_callback);
 	if (rc < 0)
 		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 }
 
+int at_opsys_callback(char *string, int error, RIL_Token token)
+{
+	int mode;
+	int domain;
+	int response[1];
+
+	if(string == NULL)
+		goto error;
+
+	sscanf(string, "_OPSYS: %d,%d", &mode, &domain);
+	switch(mode) {
+		case 0:
+			response[0] = PREF_NET_TYPE_GSM_ONLY;
+		break;
+		case 1:
+			response[0] = PREF_NET_TYPE_WCDMA;
+		break;
+		case 3:
+		default:
+			response[0] = PREF_NET_TYPE_GSM_WCDMA;
+		break;
+	}
+
+	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
+	return AT_STATUS_HANDLED;
+
+error:
+	ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+	return AT_STATUS_HANDLED;
+}
+
 void ril_request_get_preferred_network_type(void *data, size_t length, RIL_Token token)
 {
-	int preferred_network_type[1];
-	preferred_network_type[0] = 1; //==RIL_PreferredNetworkType.PREF_NET_TYPE_GSM_ONLY;
-	ril_request_complete(token, RIL_E_SUCCESS, &preferred_network_type, sizeof(preferred_network_type));
+	at_send_callback("AT_OPSYS?", token, at_opsys_callback); //TODO: FIXME: GTA04 only
 }
 
 void ril_request_set_preferred_network_type(void *data, size_t length, RIL_Token token)
 {
 	/* "data" is int * which is RIL_PreferredNetworkType */
-	//TODO: this is a dummy, complete it
-	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
+	switch(*(int*)data) {
+		case PREF_NET_TYPE_GSM_ONLY:
+			at_send_callback("AT_OPSYS=0,2", token, at_generic_callback); //TODO: FIXME: GTA04 only
+		break;
+		case PREF_NET_TYPE_WCDMA:
+			at_send_callback("AT_OPSYS=1,2", token, at_generic_callback); //TODO: FIXME: GTA04 only
+		break;
+		case PREF_NET_TYPE_GSM_WCDMA:
+		default:
+			at_send_callback("AT_OPSYS=3,2", token, at_generic_callback); //TODO: FIXME: GTA04 only
+		break;
+	}
 }
+
+void ril_request_set_network_selection_automatic(void *data, size_t length, RIL_Token token)
+{
+	at_send_callback("AT+COPS=0", token, at_generic_callback);
+}
+
+void ril_request_set_network_selection_manual(void *data, size_t length, RIL_Token token)
+{
+	char *str;
+	//maybe better use AT+COPS=4,2,%s in order to fall back to automatic selection?
+	asprintf(&str, "AT+COPS=1,2,%s", (const char *)data);
+	at_send_callback(str, token, at_generic_callback);
+	free(str);
+}
+
 void ril_request_data_registration_state(void *data, size_t length, RIL_Token token)
 {
 /*
@@ -407,37 +462,34 @@ void ril_request_data_registration_state(void *data, size_t length, RIL_Token to
  * Please note that registration state 4 ("unknown") is treated
  * as "out of service" in the Android telephony system
  */
-	char *state;
-	char *lac;
-	char *cid;
+	char *response[6];
 
 	if(ril_data->registration_state[0] != NULL)
-		asprintf(&state, "%s", ril_data->registration_state[0]);
+		response[0] = ril_data->registration_state[0];
 	else
-		asprintf(&state, "%d", 4); //unknown
+		response[0] = "4"; //unknown
 
 	if(ril_data->registration_state[1] != NULL)
-		asprintf(&lac, "%s", ril_data->registration_state[1]);
+		response[1] = ril_data->registration_state[1];
 	else
-		asprintf(&lac, "%d", -1); //unknown
+		response[1] = NULL;
 
 	if(ril_data->registration_state[2] != NULL)
-		asprintf(&cid, "%s", ril_data->registration_state[2]);
+		response[2] = ril_data->registration_state[2];
 	else
-		asprintf(&cid, "%d", -1); //unknown
+		response[2] = NULL;
 
 	//ALOGD("================================================================");
 	//ALOGD("State: %s, LAC: %s, CID: %s", state, lac, cid);
 	//ALOGD("================================================================");
 
-	char *response[6] = {
-		state,
-		lac,
-		cid,
-		"3", //FIXME: dummy: 3=RIL_RadioTechnology.RADIO_TECH_UMTS
-		NULL,//FIXME: assumes CREG!=3
-		"1", //FIXME: limit to one pdp context for now
-		};
+	response[3] = "3";  //TODO: this is a dummy: 3=RIL_RadioTechnology.RADIO_TECH_UMTS
+	if(atoi(response[0]) != 3)
+		response[4] = NULL;
+	else
+		response[4] = "40"; //TODO: this is a dummy
+	response[5] = "1";  //limit to one pdp context for now
+
 	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
 }
 
