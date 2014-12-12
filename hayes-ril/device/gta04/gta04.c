@@ -152,11 +152,10 @@ int gta04_power_suspend(void *sdata)
 {
 	ALOGD("GTA04 SUSPENDING...");
 
-	//Network status
-	at_send_callback("AT+CREG?", RIL_TOKEN_NULL, at_creg_callback);
-
 	//disable network status updates
-	at_send_callback("AT_OSQI=0", RIL_TOKEN_NULL, at_generic_callback); //TODO: handler
+	//at_send_callback("AT_OSQI=0", RIL_TOKEN_NULL, at_generic_callback); //TODO: handler
+
+	//TODO: disconnect 3G
 
 	return 0;
 }
@@ -171,17 +170,13 @@ int gta04_power_resume(void *sdata)
 
 	ALOGD("GTA04 RESUMING...");
 
-	//Network status
-	at_send_callback("AT+CREG?", RIL_TOKEN_NULL, at_creg_callback);
-	at_send_callback("AT+CPAS=?", RIL_TOKEN_NULL, at_generic_callback);
-	at_send_callback("AT+CBST=?", RIL_TOKEN_NULL, at_generic_callback);
-	at_send_callback("AT+COPS=0", RIL_TOKEN_NULL, at_generic_callback);
+	//TODO: reconnect 3G (if enabled)
 
 	// Update Signal Strength
 	at_send_callback("AT+CSQ", RIL_TOKEN_NULL, at_csq_callback);
 
 	//re-enable network status updates
-	at_send_callback("AT_OSQI=1", RIL_TOKEN_NULL, at_generic_callback); //TODO: handler
+	//at_send_callback("AT_OSQI=1", RIL_TOKEN_NULL, at_generic_callback); //TODO: handler
 
 	//Check if there are new SMS on the SIM
 	check_sms_on_sim();
@@ -254,9 +249,11 @@ int gta04_transport_find_node(char **tty_node, char *name)
 				asprintf(tty_node, "%s/%s%d", TTY_DEV_BASE, TTY_NODE_BASE, i);
 
 				free(tty_sysfs_node);
+				close(fd);
 				return 0;
 			} else {
 				free(tty_sysfs_node);
+				close(fd);
 			}
 		}
 

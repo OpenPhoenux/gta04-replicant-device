@@ -167,11 +167,11 @@ void hex_dump(void *data, int size)
 
 void ril_data_log(char *data, int length)
 {
-	RIL_LOG_LOCK();
-	ALOGD("\n");
-	ALOGD("%s: ==== DATA DUMP: %d BYTES ====", ril_data->device->tag, length);
+	//RIL_LOG_LOCK();
+	//ALOGD("\n");
+	//ALOGD("%s: ==== DATA DUMP: %d BYTES ====", ril_data->device->tag, length);
 	//hex_dump(data, length);
-	RIL_LOG_UNLOCK();
+	//RIL_LOG_UNLOCK();
 }
 
 void ril_recv_log(char *string, int error)

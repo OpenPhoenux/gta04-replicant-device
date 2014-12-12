@@ -112,6 +112,27 @@ void ril_request_signal_strength(void *data, size_t length, RIL_Token token)
  * Network registration
  */
 
+int at_cfun_callback(char *string, int error, RIL_Token token)
+{
+	int cfun_state = -1;
+	int modem_on;
+	RIL_DATA_LOCK();
+	modem_on = ril_data->modem_on;
+	RIL_DATA_UNLOCK();
+
+	sscanf(string, "+CFUN: %d", &cfun_state);
+
+	// unwanted airplane mode after suspend => reset to operational mode
+	if(cfun_state == 4 && modem_on == 1) {
+		at_send_callback("At+CFUN=1", RIL_TOKEN_NULL, at_generic_callback);
+		at_send_callback("At+CSQ", RIL_TOKEN_NULL, at_generic_callback); // update signal strength
+		ril_request_unsolicited(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED, NULL, 0);
+		//TODO: reset 3G connection
+	}
+
+	return AT_STATUS_HANDLED;
+}
+
 int at_creg_unsol(char *string, int error)
 {
 	int state = 0;
@@ -137,6 +158,10 @@ int at_creg_unsol(char *string, int error)
 
 	if(state == 1 || state == 5) //1=registered, home; 5=registered, roaming
 		ril_device_sim_ready_setup();
+	if(state == 0) {
+		// check if we're in unwanted airplane mode after resume
+		at_send_callback("AT+CFUN?", RIL_TOKEN_NULL, at_cfun_callback);
+	}
 
 complete:
 	return AT_STATUS_HANDLED;
@@ -464,7 +489,7 @@ void ril_request_data_registration_state(void *data, size_t length, RIL_Token to
  */
 	char *response[6];
 
-	if(ril_data->registration_state[0] != NULL)
+	if(ril_data->registration_state[0] != NULL) //FIXME: not valid after suspend!
 		response[0] = ril_data->registration_state[0];
 	else
 		response[0] = "4"; //unknown
