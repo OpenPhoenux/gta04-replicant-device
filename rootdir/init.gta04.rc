@@ -16,7 +16,9 @@ on boot
 	chmod 777 /sys/power/wake_unlock
 
 	# Modem GPIO + RIL
-	insmod system/lib/modules/hso.ko debug=0x11111
+	#insmod system/lib/modules/hso.ko
+	#hso is now build into the kernel, to avoid strange problems
+	#compare: http://projects.goldelico.com/p/gta04-replicant/issues/676/
 	chown radio radio /sys/class/gpio/gpio186/value
 	chmod 660 /sys/class/gpio/gpio186/value
 
