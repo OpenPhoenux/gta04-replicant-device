@@ -124,8 +124,8 @@ int at_cfun_callback(char *string, int error, RIL_Token token)
 
 	// unwanted airplane mode after suspend => reset to operational mode
 	if(cfun_state == 4 && modem_on == 1) {
-		at_send_callback("At+CFUN=1", RIL_TOKEN_NULL, at_generic_callback);
-		at_send_callback("At+CSQ", RIL_TOKEN_NULL, at_generic_callback); // update signal strength
+		at_send_callback("AT+CFUN=1", RIL_TOKEN_NULL, at_generic_callback);
+		at_send_callback("AT+CSQ", RIL_TOKEN_NULL, at_generic_callback); // update signal strength
 		ril_request_unsolicited(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED, NULL, 0);
 		//TODO: reset 3G connection
 	}
@@ -140,6 +140,7 @@ int at_creg_unsol(char *string, int error)
 	char cid[10] = { 0 };
 	int rc;
 
+	at_send_callback("AT+CSQ", RIL_TOKEN_NULL, at_generic_callback); // update signal strength
 	rc = sscanf(string, "+CREG: %d,\"%10[^\"]\",\"%10[^\"]\"", &state, (char *) &lac, (char *) &cid);
 	if (rc < 1)
 		goto complete;
@@ -176,6 +177,7 @@ int at_creg_callback(char *string, int error, RIL_Token token)
 	int rc;
 	int i;
 
+	at_send_callback("AT+CSQ", RIL_TOKEN_NULL, at_generic_callback); // update signal strength
 	if (!at_strings_compare("+CREG", string) && at_error(error) == AT_ERROR_OK)
 		return AT_STATUS_UNHANDLED;
 
