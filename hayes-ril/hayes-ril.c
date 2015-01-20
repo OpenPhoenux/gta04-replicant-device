@@ -365,7 +365,6 @@ int ril_data_init(void)
 	ril_data->radio_state = RADIO_STATE_OFF;
 	ril_data->sim_ready_initialized = 0;
 	ril_data->imsi_token = NULL;
-	ril_data->modem_on = 0;
 
 	pthread_mutex_init(&ril_data->log_mutex, NULL);
 	pthread_mutex_init(&ril_data->at_data.requests_mutex, NULL);

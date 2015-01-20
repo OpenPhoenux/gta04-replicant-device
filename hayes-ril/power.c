@@ -34,10 +34,6 @@ int at_cfun_enable_callback(char *string, int error, RIL_Token token)
 
 		ril_data->radio_state = RADIO_STATE_SIM_NOT_READY;
 		ril_request_unsolicited(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED, NULL, 0);
-
-		RIL_DATA_LOCK();
-		ril_data->modem_on = 1;
-		RIL_DATA_UNLOCK();
 	} else {
 		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 	}
@@ -52,10 +48,6 @@ int at_cfun_disable_callback(char *string, int error, RIL_Token token)
 
 		ril_data->radio_state = RADIO_STATE_OFF;
 		ril_request_unsolicited(RIL_UNSOL_RESPONSE_RADIO_STATE_CHANGED, NULL, 0);
-
-		RIL_DATA_LOCK();
-		ril_data->modem_on = 0;
-		RIL_DATA_UNLOCK();
 	} else {
 		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
 	}

@@ -79,8 +79,6 @@ struct ril_data {
 	int sim_ready_initialized;
 	RIL_Token imsi_token;
 
-	int modem_on; //modem power state / airplane mode
-
 	struct list_head *outgoing_sms;
 };
 
