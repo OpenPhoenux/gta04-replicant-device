@@ -32,7 +32,8 @@ PRODUCT_COPY_FILES += \
 
 # Battery
 PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/rootdir/battery-init.sh:system/battery-init.sh
+	device/goldelico/gta04/rootdir/battery-init.sh:system/battery-init.sh \
+	device/goldelico/gta04/rootdir/battery-init.sh:system/power-save.sh
 
 # USB
 PRODUCT_PROPERTY_OVERRIDES += \

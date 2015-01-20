@@ -83,6 +83,11 @@ service battery /system/battery-init.sh
 	class main
 	oneshot
 
+# Power Save (disabled for now)
+#service powersave /system/power-save.sh
+#	class main
+#	oneshot
+
 on post-fs-data
 	mkdir /data/media 0775 media_rw media_rw
 	chown media_rw media_rw /data/media
