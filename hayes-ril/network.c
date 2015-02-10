@@ -52,13 +52,30 @@ void at2ril_signal_strength(RIL_SignalStrength *ss, int *values)
 	if (ril_data->device->type == DEV_GSM) {
 		ss->GW_SignalStrength.signalStrength = values[0];
 		ss->GW_SignalStrength.bitErrorRate = values[1];
+		ss->CDMA_SignalStrength.dbm = -1; //set to invalid value
+		ss->CDMA_SignalStrength.ecio = -1; //set to invalid value
+		ss->EVDO_SignalStrength.dbm = -1; //set to invalid value
+		ss->EVDO_SignalStrength.ecio = -1; //set to invalid value
+		ss->EVDO_SignalStrength.signalNoiseRatio = -1; //set to invalid value
+		ss->LTE_SignalStrength.signalStrength = 99; //set to invalid value
+		ss->LTE_SignalStrength.rsrp = 0x7FFFFFFF; //set to invalid value
+		ss->LTE_SignalStrength.rsrq = 0x7FFFFFFF; //set to invalid value
+		ss->LTE_SignalStrength.rssnr = 0x7FFFFFFF; //set to invalid value
+		ss->LTE_SignalStrength.cqi = 0x7FFFFFFF; //set to invalid value
 	} else {
 		/* 1st # is CDMA, 2nd is EVDO */
+		ss->GW_SignalStrength.signalStrength = -1; //set to invalid value
+		ss->GW_SignalStrength.bitErrorRate = -1; //set to invalid value
 		ss->CDMA_SignalStrength.dbm = dbm_table[values[0]];
 		ss->CDMA_SignalStrength.ecio = ecio_table[values[0]];
 		ss->EVDO_SignalStrength.dbm = edbm_table[values[1]];
 		ss->EVDO_SignalStrength.ecio = ecio_table[values[1]];
 		ss->EVDO_SignalStrength.signalNoiseRatio = values[1];
+		ss->LTE_SignalStrength.signalStrength = 99; //set to invalid value
+		ss->LTE_SignalStrength.rsrp = 0x7FFFFFFF; //set to invalid value
+		ss->LTE_SignalStrength.rsrq = 0x7FFFFFFF; //set to invalid value
+		ss->LTE_SignalStrength.rssnr = 0x7FFFFFFF; //set to invalid value
+		ss->LTE_SignalStrength.cqi = 0x7FFFFFFF; //set to invalid value
 	}
 }
 
@@ -144,6 +161,8 @@ int at_owcti_callback(char *string, int error, RIL_Token token)
 		break;
 	}
 
+	//TODO: RIL_UNSOL_VOICE_RADIO_TECH_CHANGED
+
 	return AT_STATUS_HANDLED;
 }
 
@@ -177,6 +196,8 @@ int at_octi_callback(char *string, int error, RIL_Token token)
 		ALOGD("GTA04 radio_tech: UNKNOWN");
 		break;
 	}
+
+	//TODO: RIL_UNSOL_VOICE_RADIO_TECH_CHANGED
 
 	return AT_STATUS_HANDLED;
 }
