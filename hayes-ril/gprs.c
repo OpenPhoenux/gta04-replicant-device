@@ -42,7 +42,7 @@ int at_owandata_callback(char *string, int error, RIL_Token token)
 	RIL_Data_Call_Response_v6 response;
 	int status = 0; //FIXME: RIL_DataCallFailCause
 #ifndef HCRADIO
-	int suggestedRetryTime = -1;
+	int suggestedRetryTime = 3;
 #endif
 	int cid = 1; //FIXME: static
 	int active;
@@ -75,7 +75,7 @@ int at_owandata_callback(char *string, int error, RIL_Token token)
 	response.suggestedRetryTime = suggestedRetryTime;
 #endif
 	response.cid = cid;
-	response.active = active?2:0;
+	response.active = active?1:0;
 	response.type = type;
 	response.ifname = ifname;
 	response.addresses = address;
@@ -83,6 +83,7 @@ int at_owandata_callback(char *string, int error, RIL_Token token)
 	response.gateways = gateway;
 
 	rc = ifc_configure(ifname, inet_addr(address), 32, inet_addr(gateway), inet_addr(dns1), inet_addr(dns2));
+	ALOGD("ifc_configure: rc: %d", rc);
 	if(rc<0)
 		goto error;
 
@@ -96,8 +97,6 @@ error:
 
 void ril_request_setup_data_call(void *data, size_t length, RIL_Token token)
 {
-	struct ril_gprs_connection *gprs_connection = NULL;
-
 	char *username = NULL;
 	char *password = NULL;
 	char *apn = NULL;

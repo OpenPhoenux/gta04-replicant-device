@@ -353,7 +353,7 @@ int at_cusd_unsol(char *string, int error)
 	char *result[2];
 	char *mode_str;
 	char *utf8_res;
-	//TODO: FIXME: Read multiline strings!!!
+	//TODO: FIXME: Read multiline strings!!! check at_send_request_data(), at_error(error) == AT_ERROR_OK_EXPECT_DATA
 	//sscanf(string, "+CUSD: %d,\"%200[^\"]\",%d", &mode, (char *) &tmp, &code);
 	sscanf(string, "+CUSD: %d,\"%199c\",%d", &mode, (char *) &tmp, &code);
 	utf8_res = latin9_to_utf8((char *) &tmp);
