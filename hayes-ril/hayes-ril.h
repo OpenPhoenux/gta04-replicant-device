@@ -71,6 +71,7 @@ struct ril_data {
 	pthread_mutex_t log_mutex;
 
 	RIL_RadioState radio_state;
+	RIL_RadioTechnology radio_technology;
 
 	char *registration_state[3];
 
@@ -111,6 +112,8 @@ void ril_request_switch_waiting_or_holding_and_active(void *data, size_t length,
 // Network 
 int at_csq_callback(char *string, int error, RIL_Token token);
 int at_creg_callback(char *string, int error, RIL_Token token);
+int at_octi_callback(char *string, int error, RIL_Token token);
+int at_owcti_callback(char *string, int error, RIL_Token token);
 void ril_request_signal_strength(void *data, size_t length, RIL_Token token);
 int at_creg_unsol(char *string, int error);
 #if RIL_VERSION >= 6

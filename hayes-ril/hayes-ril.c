@@ -363,6 +363,7 @@ int ril_data_init(void)
 		return -ENOMEM;
 
 	ril_data->radio_state = RADIO_STATE_OFF;
+	ril_data->radio_technology = RADIO_TECH_UNKNOWN;
 	ril_data->sim_ready_initialized = 0;
 	ril_data->imsi_token = NULL;
 

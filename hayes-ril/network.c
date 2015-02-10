@@ -109,6 +109,79 @@ void ril_request_signal_strength(void *data, size_t length, RIL_Token token)
 }
 
 /*
+ * Network state / technology
+ */
+int at_owcti_callback(char *string, int error, RIL_Token token)
+{
+	int rc;
+	int cell_type;
+
+	rc = sscanf(string, "_OWCTI: %d", &cell_type);
+
+	switch(cell_type) {
+		case 0: // Non-WCDMA, check GSM
+		at_send_callback("AT_OCTI?", token, at_octi_callback); //TODO: FIXME: GTA04 only
+		break;
+		case 1: // WCDMA only
+		ril_data->radio_technology = RADIO_TECH_UMTS;
+		ALOGD("GTA04 radio_tech: UMTS");
+		break;
+		case 2: // WCDMA + HSDPA
+		ril_data->radio_technology = RADIO_TECH_HSDPA;
+		ALOGD("GTA04 radio_tech: HSDPA");
+		break;
+		case 3: // WCDMA + HSUPA
+		ril_data->radio_technology = RADIO_TECH_HSUPA;
+		ALOGD("GTA04 radio_tech: HSUPA");
+		break;
+		case 4: // WCDMA + HSDPA + HSUPA
+		ril_data->radio_technology = RADIO_TECH_HSPA;
+		ALOGD("GTA04 radio_tech: HSPA");
+		break;
+		default: // ERROR?
+		ril_data->radio_technology = RADIO_TECH_UNKNOWN;
+		ALOGD("GTA04 radio_tech: UNKNOWN");
+		break;
+	}
+
+	return AT_STATUS_HANDLED;
+}
+
+int at_octi_callback(char *string, int error, RIL_Token token)
+{
+	int rc;
+	int mode, cell_type;
+
+	rc = sscanf(string, "_OCTI: %d,%d", &mode, &cell_type);
+	ALOGD("GTA04: radio_tech: _OCTI: %d", cell_type);
+
+	switch(cell_type) {
+		case 0: // Unknown
+		ril_data->radio_technology = RADIO_TECH_UNKNOWN;
+		ALOGD("GTA04 radio_tech: UNKNOWN");
+		break;
+		case 1: // GSM
+		ril_data->radio_technology = RADIO_TECH_GSM;
+		ALOGD("GTA04 radio_tech: GSM");
+		break;
+		case 2: // GPRS
+		ril_data->radio_technology = RADIO_TECH_GPRS;
+		ALOGD("GTA04 radio_tech: GPRS");
+		break;
+		case 3: // EDGE
+		ril_data->radio_technology = RADIO_TECH_EDGE;
+		ALOGD("GTA04 radio_tech: EDGE");
+		break;
+		default: // ERROR?
+		ril_data->radio_technology = RADIO_TECH_UNKNOWN;
+		ALOGD("GTA04 radio_tech: UNKNOWN");
+		break;
+	}
+
+	return AT_STATUS_HANDLED;
+}
+
+/*
  * Network registration
  */
 
@@ -197,11 +270,13 @@ void ril_request_registration_state(void *data, size_t length, RIL_Token token)
 	if (ril_data->registration_state[0] != NULL) {
 		ril_request_complete(token, RIL_E_SUCCESS, ril_data->registration_state, sizeof(ril_data->registration_state));
 
-		for (i = 0 ; i < 3 ; i++)
-			if (ril_data->registration_state[i] != NULL)
-				free(ril_data->registration_state[i]);
+		//TODO: this conflicts with ril_request_data_registration_state, which accesses ril_data, too.
+		//TODO: is it needed?
+		//for (i = 0 ; i < 3 ; i++)
+		//	if (ril_data->registration_state[i] != NULL)
+		//		free(ril_data->registration_state[i]);
 
-		memset(&ril_data->registration_state, 0, sizeof(ril_data->registration_state));
+		//memset(&ril_data->registration_state, 0, sizeof(ril_data->registration_state));
 	} else {
 		rc = at_send_callback("AT+CREG?", token, at_creg_callback);
 		if (rc < 0)
@@ -464,28 +539,25 @@ void ril_request_data_registration_state(void *data, size_t length, RIL_Token to
  * Please note that registration state 4 ("unknown") is treated
  * as "out of service" in the Android telephony system
  */
+	at_send_callback("AT_OWCTI?", RIL_TOKEN_NULL, at_owcti_callback); //TODO: FIXME: GTA04 only
+	//wait a little, for OWCTI/OCTI to update ril_data
+	sleep(1); //FIXME: find proper way to do this
+
 	char *response[6];
 
-	if(ril_data->registration_state[0] != NULL) //FIXME: not valid after suspend!
+	if(ril_data->registration_state[0] != NULL)
 		response[0] = ril_data->registration_state[0];
 	else
 		response[0] = "4"; //unknown
 
-	if(ril_data->registration_state[1] != NULL)
-		response[1] = ril_data->registration_state[1];
-	else
-		response[1] = NULL;
-
-	if(ril_data->registration_state[2] != NULL)
-		response[2] = ril_data->registration_state[2];
-	else
-		response[2] = NULL;
+	response[1] = ril_data->registration_state[1]; //LAC or NULL if not registered
+	response[2] = ril_data->registration_state[2]; //CID or NULL if not registered
 
 	//ALOGD("================================================================");
 	//ALOGD("State: %s, LAC: %s, CID: %s", state, lac, cid);
 	//ALOGD("================================================================");
 
-	response[3] = "3";  //TODO: this is a dummy: 3=RIL_RadioTechnology.RADIO_TECH_UMTS
+	asprintf(&response[3], "%d", ril_data->radio_technology);
 	if(atoi(response[0]) != 3)
 		response[4] = NULL;
 	else
