@@ -167,5 +167,6 @@ void ril_device_sim_ready_setup(void);
 // Gprs
 void ril_request_setup_data_call(void *data, size_t length, RIL_Token token);
 void ril_request_deactivate_data_call(void *data, size_t length, RIL_Token token);
+void ril_request_last_data_call_fail_cause(void *data, size_t length, RIL_Token token);
 
 #endif

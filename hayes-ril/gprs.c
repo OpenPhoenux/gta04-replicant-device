@@ -57,18 +57,20 @@ int at_owandata_callback(char *string, int error, RIL_Token token)
 	char speed[20];
 	int rc;
 	char buf[50];
+	int ifc_retrys = 10;
 
-	if(string==NULL)
+	if(string==NULL || at_error(error) == AT_ERROR_ERROR) {
+		ALOGD("OWANDATA: AT_ERROR_ERROR");
 		goto error;
+	}
 
 	rc = sscanf(string, "_OWANDATA: %d, %20[^,], %20[^,], %20[^,], %20[^,], %20[^,], %20[^,],%20[^,]", &active, address, gateway, dns1, dns2, nbns1, nbns2, speed);
 	if(rc!=8)
 		goto error;
-	//ALOGD("================================================================");
-	//ALOGD("%s", string);
-	//ALOGD("rc = %d", rc);
-	//ALOGD("%d %s %s %s %s %s %s %s", active, address, gateway, dns1, dns2, nbns1, nbns2, speed);
-	//ALOGD("================================================================");
+
+	ALOGD("================================================================");
+	ALOGD("OWANDATA: %d %s %s %s %s %s %s %s", active, address, gateway, dns1, dns2, nbns1, nbns2, speed);
+	ALOGD("================================================================");
 
 	response.status = status;
 #ifndef HCRADIO
@@ -83,15 +85,30 @@ int at_owandata_callback(char *string, int error, RIL_Token token)
 	response.gateways = gateway;
 
 	rc = ifc_configure(ifname, inet_addr(address), 32, inet_addr(gateway), inet_addr(dns1), inet_addr(dns2));
-	ALOGD("ifc_configure: rc: %d", rc);
-	if(rc<0)
+	while(rc != 0 && ifc_retrys > 0) {
+		ALOGD("ifc_configure: rc: %d", rc);
+		rc = ifc_configure(ifname, inet_addr(address), 32, inet_addr(gateway), inet_addr(dns1), inet_addr(dns2));
+		ifc_retrys--;
+	}
+	if(rc<0) {
+		ALOGD("ifc_configure did not succeed after 10 retrys. Failing.");
 		goto error;
+	}
 
 	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(response));
 	return AT_STATUS_HANDLED;
 
 error:
 	ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+	return AT_STATUS_HANDLED;
+}
+
+int at_owannwerror_callback(char *string, int error, RIL_Token token)
+{
+	ALOGD("%s", string);
+	int response = PDP_FAIL_ERROR_UNSPECIFIED; //TODO: This is a dummy. Implement it.
+
+	ril_request_complete(token, RIL_E_SUCCESS, &response, sizeof(int));
 	return AT_STATUS_HANDLED;
 }
 
@@ -103,16 +120,16 @@ void ril_request_setup_data_call(void *data, size_t length, RIL_Token token)
 	char *string = NULL;
 	int rc;
 
-	if (data == NULL || length < (int) (4 * sizeof(char *)))
+	if (data == NULL)
 		goto error;
 
 	apn = ((char **) data)[2]; //e.g.: internet.t-mobile
 	username = ((char **) data)[3]; //e.g.: t-mobile
 	password = ((char **) data)[4]; //e.g.: tm
 
-	//ALOGD("================================================================");
-	//ALOGD("Requesting data connection to APN '%s'\n", apn);
-	//ALOGD("================================================================");
+	ALOGD("================================================================");
+	ALOGD("Requesting data connection to APN '%s'\n", apn);
+	ALOGD("================================================================");
 
 	asprintf(&string, "AT+CGDCONT=1,\"IP\",\"%s\"", apn); //IPv4 context #1
 	at_send_callback(string, RIL_TOKEN_NULL, at_generic_callback);
@@ -128,4 +145,9 @@ void ril_request_deactivate_data_call(void *data, size_t length, RIL_Token token
 	rc = ifc_reset_connections("hso0", RESET_IPV4_ADDRESSES); //FIXME: gta04 specific interface
 	rc = ifc_disable("hso0"); //FIXME: gta04 specific interface
 	at_send_callback("AT_OWANCALL=1,0,1", token, at_generic_callback);
+}
+
+void ril_request_last_data_call_fail_cause(void *data, size_t length, RIL_Token token)
+{
+	at_send_callback("AT_OWANNWERROR?", token, at_owannwerror_callback);
 }
