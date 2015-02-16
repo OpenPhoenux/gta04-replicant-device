@@ -346,22 +346,39 @@ char *latin9_to_utf8(char *string)
 
 int at_cusd_unsol(char *string, int error)
 {
-	ALOGD("%s",string);
 	int mode = 2;
 	int code = -1;
 	char tmp[200] = { 0 };
 	char *result[2];
 	char *mode_str;
 	char *utf8_res;
-	//TODO: FIXME: Read multiline strings!!! check at_send_request_data(), at_error(error) == AT_ERROR_OK_EXPECT_DATA
-	//sscanf(string, "+CUSD: %d,\"%200[^\"]\",%d", &mode, (char *) &tmp, &code);
+	struct at_response *response = NULL;
+	char *concat_str = "\0";
+
 	sscanf(string, "+CUSD: %d,\"%199c\",%d", &mode, (char *) &tmp, &code);
 	utf8_res = latin9_to_utf8((char *) &tmp);
+
+	ALOGD("USSD: %d,\"%s\",%d", mode, utf8_res, code);
+
+	/**
+	 * USSD responses might be multi line, so we need to manually catch the
+	 * remaining lines (individual responses) from the AT subsystem. We can
+	 * find out if we already reached the last line/response, by checking
+	 * if the variable 'code' has already been read out by sscanf (i.e.
+	 * code != -1).
+	 */
+	while(code == -1) {
+		response = at_response_find();
+		asprintf(&concat_str, "%s\n%s", concat_str, response->string);
+		sscanf(concat_str, "\n+CUSD: %d,\"%200[^\"]\",%d", &mode, (char *) &tmp, &code);
+		utf8_res = latin9_to_utf8((char *) &tmp);
+		ALOGD("USSD: %d,\"%s\",%d", mode, utf8_res, code);
+		at_response_unregister(response);
+	}
+
 	asprintf(&mode_str, "%d", mode);
 	result[0] = mode_str;
 	result[1] = utf8_res;
-
-	ALOGD("USSD: %d,\"%s\",%d", mode, utf8_res, code);
 
 	switch(mode) {
 		case 0:
