@@ -4,19 +4,25 @@
 		period_size="1024" period_count="4">
 		<device type="default">
 			<path type="enable">
-				<ctrl name="Codec Operation Mode" value="Option 1 (audio)" />
-				<ctrl name="DAC1 Analog Playback Switch" value="off" />
+				<ctrl name="Codec Operation Mode" value="Option 2 (voice/audio)" /> <!-- needed for hwrouting, can only be set if no streams open -->
+				<ctrl name="Voice route" value="Voice to SoC" />
+				<ctrl name="AVADC Clock Priority" value="HiFi high priority" />
+
+				<ctrl name="DAC1 Analog Playback Switch" value="off" /> <!-- DAC1 not used in GTA04 -->
 				<ctrl name="DAC2 Analog Playback Switch" value="on" />
 
 				<ctrl name="DAC2 Digital Fine Playback Volume" value="60" />
 				<ctrl name="DAC2 Digital Coarse Playback Volume" value="0" />
+			</path>
+			<path type="disable">
+				<ctrl name="DAC2 Analog Playback Switch" value="off" />
 			</path>
 		</device>
 		<device type="earpiece">
 			<path type="enable">
 				<ctrl name="Earpiece Mixer AudioL2" value="on" />
 
-				<ctrl name="DAC2 Analog Playback Volume" value="14" />
+				<ctrl name="DAC2 Analog Playback Volume" value="18" />
 				<ctrl name="Earpiece Playback Volume" value="1" />
 			</path>
 			<path type="disable">
@@ -39,32 +45,21 @@
 				<ctrl name="HandsfreeR Switch" value="off" />
 			</path>
 		</device>
-		<device type="wired-headphone">
-			<path type="enable">
-				<write name="/sys/class/gpio/gpio55/value" value="1" />
-				<ctrl name="HeadsetR Mixer AudioR2" value="on" />
-				<ctrl name="HeadsetL Mixer AudioL2" value="on" />
-
-				<ctrl name="DAC2 Analog Playback Volume" value="14" />
-				<ctrl name="Headset Playback Volume" value="1" />
-			</path>
-			<path type="disable">
-				<ctrl name="HeadsetR Mixer AudioR2" value="off" />
-				<ctrl name="HeadsetL Mixer AudioL2" value="off" />
-			</path>
-		</device>
+		<!-- TODO: <device type="wired-headphone"> -->
 		<device type="wired-headset">
 			<path type="enable">
 				<write name="/sys/class/gpio/gpio55/value" value="1" />
 				<ctrl name="HeadsetR Mixer AudioR2" value="on" />
 				<ctrl name="HeadsetL Mixer AudioL2" value="on" />
 
-				<ctrl name="DAC2 Analog Playback Volume" value="14" />
-				<ctrl name="Headset Playback Volume" value="1" />
+				<ctrl name="DAC2 Analog Playback Volume" value="18" />
+				<ctrl name="Headset Playback Volume" value="2" />
 			</path>
 			<path type="disable">
 				<ctrl name="HeadsetR Mixer AudioR2" value="off" />
 				<ctrl name="HeadsetL Mixer AudioL2" value="off" />
+
+				<ctrl name="Headset Playback Volume" value="0" />
 			</path>
 		</device>
 	</output>
@@ -89,7 +84,6 @@
 		</device>
 		<device type="wired-headset">
 			<path type="enable">
-				<write name="/sys/devices/virtual/gpio/gpio23/value" value="0" />
 				<ctrl name="Analog Left Headset Mic Capture Switch" value="on" />
 			</path>
 			<path type="disable">
@@ -101,33 +95,48 @@
 	<modem card="0" device="0">
 		<device type="default">
 			<path type="enable">
-				<ctrl name="Voice route" value="Voice to SoC" />
-				<ctrl name="AVADC Clock Priority" value="HiFi high priority" />
+				<ctrl name="Voice route" value="Voice to twl4030" /> <!-- needed for hwrouting -->
+				<ctrl name="AVADC Clock Priority" value="Voice high priority" /> <!-- needed for hwrouting -->
+
 				<ctrl name="DAC Voice Analog Downlink Switch" value="on" />
+				<ctrl name="DAC Voice Digital Downlink Volume" value="44" />
 			</path>
 			<path type="disable">
+				<ctrl name="DAC Voice Analog Downlink Switch" value="off" />
+
 				<ctrl name="Voice route" value="Voice to SoC" />
 				<ctrl name="AVADC Clock Priority" value="HiFi high priority" />
-				<ctrl name="DAC Voice Analog Downlink Switch" value="off" />
 			</path>
 		</device>
 		<device type="earpiece">
 			<path type="enable">
 				<ctrl name="Earpiece Mixer Voice" value="on" />
+				<ctrl name="Analog Left Main Mic Capture Switch" attr="mic" value="on" /> <!-- capture -->
 
-				<ctrl name="Earpiece Playback Volume" value="3" />
-				<ctrl name="DAC Voice Digital Downlink Volume" value="40" />
-
-				<ctrl name="Analog Left Main Mic Capture Switch" attr="mic" value="on" />
+				<ctrl name="Earpiece Playback Volume" value="2" />
 				<ctrl name="DAC Voice Analog Downlink Volume" attr="voice-volume" value="0-15" />
 			</path>
 			<path type="disable">
 				<ctrl name="Earpiece Mixer Voice" value="off" />
-
+				<ctrl name="Analog Left Main Mic Capture Switch" attr="mic" value="off" /> <!-- capture -->
 				<ctrl name="Earpiece Playback Volume" value="0" />
-				<ctrl name="DAC Voice Digital Downlink Volume" value="0" />
+			</path>
+		</device>
+		<!-- TODO: <device type="wired-headphone"> -->
+		<device type="wired-headset">
+			<path type="enable">
+				<write name="/sys/class/gpio/gpio55/value" value="1" />
+				<ctrl name="HeadsetR Mixer Voice" value="on" />
+				<ctrl name="HeadsetL Mixer Voice" value="on" />
+				<ctrl name="Analog Left Headset Mic Capture Switch" attr="mic" value="on" /> <!-- capture -->
 
-				<ctrl name="Analog Left Main Mic Capture Switch" attr="mic" value="off" />
+				<ctrl name="Headset Playback Volume" value="2" />
+				<ctrl name="DAC Voice Analog Downlink Volume" attr="voice-volume" value="0-15" />
+			</path>
+			<path type="disable">
+				<ctrl name="HeadsetR Mixer Voice" value="off" />
+				<ctrl name="HeadsetL Mixer Voice" value="off" />
+				<ctrl name="Analog Left Headset Mic Capture Switch" attr="mic" value="off" /> <!-- capture -->
 			</path>
 		</device>
 	</modem>
