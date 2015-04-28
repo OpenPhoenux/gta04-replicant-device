@@ -113,8 +113,12 @@
 				<ctrl name="Voice route" value="Voice to twl4030" /> <!-- needed for hwrouting -->
 				<ctrl name="AVADC Clock Priority" value="Voice high priority" /> <!-- needed for hwrouting -->
 
+				<ctrl name="TX1 Capture Route" value="Analog" />
+				<ctrl name="TX1 Digital Capture Volume" value="12" />
+				<ctrl name="Analog Capture Volume" value="1" />
+
 				<ctrl name="DAC Voice Analog Downlink Switch" value="on" />
-				<ctrl name="DAC Voice Digital Downlink Volume" value="44" />
+				<ctrl name="DAC Voice Digital Downlink Volume" value="0" /> <!-- Digital and Analog Downlink Volume together => echo. So set this to 0. -->
 			</path>
 			<path type="disable">
 				<ctrl name="DAC Voice Analog Downlink Switch" value="off" />
