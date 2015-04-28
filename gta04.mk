@@ -30,10 +30,11 @@ PRODUCT_COPY_FILES += \
 # Don't install kernel boot splash (initlogo.rle), as it is not universal for all Display sizes (Letux 2804/3704/7004)
 # This is now also handled via replicant_gta04_install.sh script in upstream Replicant
 
-# Battery
+# Battery, Powersave, Audio-Routing
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/rootdir/battery-init.sh:system/battery-init.sh \
-	device/goldelico/gta04/rootdir/battery-init.sh:system/power-save.sh
+	device/goldelico/gta04/rootdir/power-save.sh:system/power-save.sh \
+	device/goldelico/gta04/rootdir/voice-routing-init.sh:system/voice-routing-init.sh
 
 # USB
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -74,8 +75,11 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
 	audio.primary.omap3
 
+# TinyALSA audio config, use hwrouting as default config
 PRODUCT_COPY_FILES += \
-	device/goldelico/gta04/configs/tinyalsa-audio.xml:system/etc/tinyalsa-audio.xml \
+	device/goldelico/gta04/configs/tinyalsa-audio_hwrouting.xml:system/etc/tinyalsa-audio.xml \
+	device/goldelico/gta04/configs/tinyalsa-audio_hwrouting.xml:system/etc/tinyalsa-audio_hwrouting.xml \
+	device/goldelico/gta04/configs/tinyalsa-audio_swrouting.xml:system/etc/tinyalsa-audio_swrouting.xml \
 	device/goldelico/gta04/configs/audio_policy.conf:system/etc/audio_policy.conf
 
 # RIL

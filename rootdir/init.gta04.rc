@@ -78,6 +78,11 @@ on boot
 	#mount ext4 /dev/block/mmcblk0p4 /data nosuid wait
 	#mount vfat /dev/block/mmcblk0p1 /mnt/boot/ ro wait
 
+# ALSA Voice Routing Configuration
+service voicerouting /system/voice-routing-init.sh
+	class main
+	oneshot
+
 # Battery Driver
 service battery /system/battery-init.sh
 	class main
