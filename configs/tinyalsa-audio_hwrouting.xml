@@ -45,7 +45,22 @@
 				<ctrl name="HandsfreeR Switch" value="off" />
 			</path>
 		</device>
-		<!-- TODO: <device type="wired-headphone"> -->
+		<device type="wired-headphone">
+			<path type="enable">
+				<write name="/sys/class/gpio/gpio55/value" value="1" />
+				<ctrl name="HeadsetR Mixer AudioR2" value="on" />
+				<ctrl name="HeadsetL Mixer AudioL2" value="on" />
+
+				<ctrl name="DAC2 Analog Playback Volume" value="18" />
+				<ctrl name="Headset Playback Volume" value="2" />
+			</path>
+			<path type="disable">
+				<ctrl name="HeadsetR Mixer AudioR2" value="off" />
+				<ctrl name="HeadsetL Mixer AudioL2" value="off" />
+
+				<ctrl name="Headset Playback Volume" value="0" />
+			</path>
+		</device>
 		<device type="wired-headset">
 			<path type="enable">
 				<write name="/sys/class/gpio/gpio55/value" value="1" />
@@ -122,7 +137,22 @@
 				<ctrl name="Earpiece Playback Volume" value="0" />
 			</path>
 		</device>
-		<!-- TODO: <device type="wired-headphone"> -->
+		<device type="wired-headphone">
+			<path type="enable">
+				<write name="/sys/class/gpio/gpio55/value" value="1" />
+				<ctrl name="HeadsetR Mixer Voice" value="on" />
+				<ctrl name="HeadsetL Mixer Voice" value="on" />
+				<ctrl name="Analog Left Main Mic Capture Switch" attr="mic" value="on" /> <!-- capture -->
+
+				<ctrl name="Headset Playback Volume" value="2" />
+				<ctrl name="DAC Voice Analog Downlink Volume" attr="voice-volume" value="0-15" />
+			</path>
+			<path type="disable">
+				<ctrl name="HeadsetR Mixer Voice" value="off" />
+				<ctrl name="HeadsetL Mixer Voice" value="off" />
+				<ctrl name="Analog Left Main Mic Capture Switch" attr="mic" value="off" /> <!-- capture -->
+			</path>
+		</device>
 		<device type="wired-headset">
 			<path type="enable">
 				<write name="/sys/class/gpio/gpio55/value" value="1" />
