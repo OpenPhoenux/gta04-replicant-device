@@ -124,11 +124,13 @@ int bma180_acceleration_activate(struct gta04_sensors_handlers *handlers)
 
 	data = (struct bma180_acceleration_data *) handlers->data;
 
+/*
 	rc = ssp_sensor_enable(ACCELEROMETER_SENSOR);
 	if (rc < 0) {
 		ALOGE("%s: Unable to enable ssp sensor", __func__);
 		return -1;
 	}
+*/
 
 	handlers->activated = 1;
 
@@ -147,11 +149,13 @@ int bma180_acceleration_deactivate(struct gta04_sensors_handlers *handlers)
 
 	data = (struct bma180_acceleration_data *) handlers->data;
 
+/*
 	rc = ssp_sensor_disable(ACCELEROMETER_SENSOR);
 	if (rc < 0) {
 		ALOGE("%s: Unable to disable ssp sensor", __func__);
 		return -1;
 	}
+*/
 
 	handlers->activated = 0;
 
@@ -162,20 +166,25 @@ int bma180_acceleration_set_delay(struct gta04_sensors_handlers *handlers, long 
 {
 	struct bma180_acceleration_data *data;
 	int rc;
-	long int delay_ms = delay/1000000; //bma150/180 expects milliseconds, not nanoseconds
+	int delay_ms = (int)(delay/1000000); //bma150/180 expects milliseconds, not nanoseconds
+
 	if(delay_ms > 200) //bma150/180 expects 200ms maximum, TODO: get this value from 'max' node in sysfs
 		delay_ms = 200;
 
-	ALOGD("%s(%p, %ld)", __func__, handlers, delay_ms);
+	//if sensor is not active, set poll_delay to 0, in order to save power
+	if(handlers->activated == 0)
+		delay_ms = 0;
+
+	ALOGD("%s(%p, %d)", __func__, handlers, delay_ms);
 
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
 
 	data = (struct bma180_acceleration_data *) handlers->data;
 
-	rc = sysfs_value_write(data->path_delay, (int) delay_ms);
+	rc = sysfs_value_write(data->path_delay, delay_ms);
 	if (rc < 0) {
-		ALOGE("%s: Unable to write sysfs value (%ld) to %s", __func__, delay_ms, data->path_delay);
+		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, delay_ms, data->path_delay);
 		return -1;
 	}
 
