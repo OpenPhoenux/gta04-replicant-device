@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2013 Paul Kocialkowski <contact@paulk.fr>
+ * Copyright (C) 2014-2015 Golden Delicious Computers
+ *                         Lukas Märdian <lukas@goldelico.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,16 +35,72 @@
 
 const char *iio_dir = "/sys/bus/iio/devices/";
 
-char *make_sysfs_name(const char *input_name, const char *file_name)
+char *make_sysfs_name(const char *device_name, const char *file_name)
 {
 	char *name;
 	int ret;
 
-	ret = asprintf(&name, "/sys/bus/iio/devices/%s/%s", input_name, file_name);
+	ret = asprintf(&name, "/sys/bus/iio/devices/%s/%s", device_name, file_name);
 	if (ret < 0)
 		return NULL;
 
 	return name;
+}
+
+/**
+ * iio_set_default_trigger - function to select a sensor's default (data ready) IIO trigger
+ * A sensor's default trigger has a name of this format: <SENSOR_NAME>-dev<SENSOR_NUM>, i.e. itg3200-dev1
+ *
+ * @device_name: the sensor's sysfs name (i.e. iio:device1)
+ * @name: the sensor's name (i.e. itg3200)
+ * @dev_num: the sensor's IIO number (i.e. 1)
+ */
+int iio_set_default_trigger(char* device_name, char* name, int dev_num)
+{
+	char *tmp;
+	char *default_trigger;
+	int rc;
+
+	tmp = make_sysfs_name(device_name, "trigger/current_trigger");
+	asprintf(&default_trigger, "%s-dev%d", name, dev_num); //construct default trigger name
+	rc = sysfs_string_write(tmp, default_trigger, strlen(default_trigger)+1); //+1 for null byte
+	if (rc < 0) {
+		ALOGE("%s: Unable to write sysfs string (%s) to %s", __func__, default_trigger, tmp);
+		goto error;
+	}
+	free(tmp);
+	free(default_trigger);
+	return 0;
+
+error:
+	free(tmp);
+	free(default_trigger);
+	return -1;
+}
+
+/**
+ * iio_set_buffer_state - function to enable/disable an IIO buffer
+ *
+ * @device_name: the sensor's sysfs name (i.e. iio:device1)
+ * @state: 1 to enable, 0 to disable
+ */
+int iio_set_buffer_state(char* device_name, int state)
+{
+	char *tmp;
+	int rc;
+
+	tmp = make_sysfs_name(device_name, "buffer/enable");
+	rc = sysfs_value_write(tmp, state);
+	if (rc < 0) {
+		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, state, tmp);
+		goto error;
+	}
+	free(tmp);
+	return 0;
+
+error:
+	free(tmp);
+	return -1;
 }
 
 /*

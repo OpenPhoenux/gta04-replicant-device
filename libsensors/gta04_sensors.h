@@ -94,7 +94,9 @@ int sysfs_string_write(char *path, char *buffer, size_t length);
 
 int open_input(char* mInputName, const char* inputName);
 int find_type_by_name(const char *name, const char *type);
-char *make_sysfs_name(const char *input_name, const char *file_name);
+char *make_sysfs_name(const char *device_name, const char *file_name);
+int iio_set_default_trigger(char* device_name, char* name, int dev_num);
+int iio_set_buffer_state(char* device_name, int state);
 
 /*
  * Sensors

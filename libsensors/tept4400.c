@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2014 Lukas Märdian <lukas@goldelico.com>
+ * Copyright (C) 2014-2015 Golden Delicious Computers
+ *                         Lukas Märdian <lukas@goldelico.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
