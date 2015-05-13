@@ -35,15 +35,15 @@
 #include "ssp.h"
 #include "iio/myiio.h"
 
-char mInputName[PATH_MAX];
+char *mInputName;
 //char *mInputSysfsEnable;
 char *mInputSysfsSamplingFrequency;
 char *mIioSysfsXChan;
 char *mIioSysfsYChan;
 char *mIioSysfsZChan;
-FILE *mIioSysfsXChanFp;
-FILE *mIioSysfsYChanFp;
-FILE *mIioSysfsZChanFp;
+int mIioSysfsXChanFp;
+int mIioSysfsYChanFp;
+int mIioSysfsZChanFp;
 char *data_name = "itg3200";
 
 struct itg3200_data {
@@ -59,6 +59,8 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 	char path[PATH_MAX] = { 0 };
 	int input_fd = -1;
 	int rc;
+	int dev_num;
+	char* tmp;
 
 	ALOGD("%s(%p, %p)", __func__, handlers, device);
 
@@ -67,12 +69,16 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 
 	data = (struct itg3200_data *) calloc(1, sizeof(struct itg3200_data));
 
-	input_fd = open_input(mInputName, data_name); //from iio.c
+	//input_fd = open_input(mInputName, data_name); //from iio.c
+	dev_num = find_type_by_name(data_name, "iio:device");
+	asprintf(&mInputName, "iio:device%d", dev_num);
 	ALOGD("%s: mInputName: %s", __func__, mInputName);
+/*
 	if (input_fd < 0) {
 		ALOGE("%s: Unable to open input", __func__);
 		goto error;
 	}
+*/
 
 	mInputSysfsSamplingFrequency = make_sysfs_name(mInputName, "sampling_frequency");
 	if (mInputSysfsSamplingFrequency==NULL) {
@@ -98,26 +104,64 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 		goto error;
 	}
 
-	mIioSysfsXChanFp = fopen(mIioSysfsXChan, "r");
-	if (mIioSysfsXChanFp == NULL) {
+	mIioSysfsXChanFp = open(mIioSysfsXChan, O_RDONLY);
+	if (mIioSysfsXChanFp < 0) {
 		ALOGE("%s: unable to open %s", __func__, mIioSysfsXChan);
 		goto error;
 	}
 
-	mIioSysfsYChanFp = fopen(mIioSysfsYChan, "r");
-	if (mIioSysfsYChanFp == NULL) {
+	mIioSysfsYChanFp = open(mIioSysfsYChan, O_RDONLY);
+	if (mIioSysfsYChanFp < 0) {
 		ALOGE("%s: unable to open %s", __func__, mIioSysfsYChan);
 		goto error;
 	}
 
-	mIioSysfsZChanFp = fopen(mIioSysfsZChan, "r");
-	if (mIioSysfsZChanFp == NULL) {
+	mIioSysfsZChanFp = open(mIioSysfsZChan, O_RDONLY);
+	if (mIioSysfsZChanFp < 0) {
 		ALOGE("%s: unable to open %s", __func__, mIioSysfsZChan);
 		goto error;
 	}
 
+	//Enable IIO channel X
+	asprintf(&tmp, "/sys/bus/iio/devices/%s/scan_elements/in_anglvel_x_en", mInputName);
+	rc = sysfs_value_write(tmp, 1);
+	if (rc < 0) {
+		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 1, tmp);
+		goto error;
+	}
+	free(tmp);
+/*
+	//Enable IIO channel Y
+	asprintf(&tmp, "/sys/bus/iio/devices/%s/scan_elements/in_anglvel_y_en", mInputName);
+	rc = sysfs_value_write(tmp, 1);
+	if (rc < 0) {
+		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 1, tmp);
+		goto error;
+	}
+	free(tmp);
+
+	//Enable IIO channel Z
+	asprintf(&tmp, "/sys/bus/iio/devices/%s/scan_elements/in_anglvel_z_en", mInputName);
+	rc = sysfs_value_write(tmp, 1);
+	if (rc < 0) {
+		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 1, tmp);
+		goto error;
+	}
+	free(tmp);
+*/
+	//Select default (data ready) IIO trigger
+	asprintf(&tmp, "/sys/bus/iio/devices/%s/trigger/current_trigger", mInputName);
+	rc = sysfs_string_write(tmp, "itg3200-dev1", 13); //TODO: dynamically adopt number in "dev1"
+	if (rc < 0) {
+		ALOGE("%s: Unable to write sysfs string (%s) to %s", __func__, "itg3200-dev1", tmp);
+		goto error;
+	}
+	free(tmp);
+
+/*
 	int flags = fcntl(input_fd, F_GETFL, 0);
 	fcntl(input_fd, F_SETFL, flags | O_NONBLOCK);
+*/
 
 /*
 	rc = iio_sysfs_path_prefix("itg3200", (char *) &path);
@@ -129,7 +173,7 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 	snprintf(data->path_delay, PATH_MAX, "%s/sampling_frequency", path);
 */
 
-	handlers->poll_fd = input_fd;
+	handlers->poll_fd = open("/dev/iio:device1", O_RDONLY);// | O_NONBLOCK);
 	handlers->data = (void *) data;
 
 	return 0;
@@ -151,7 +195,7 @@ int itg3200_deinit(struct gta04_sensors_handlers *handlers)
 {
 //TODO
 	ALOGD("%s(%p)", __func__, handlers);
-/*
+
 	if (handlers == NULL)
 		return -EINVAL;
 
@@ -162,7 +206,7 @@ int itg3200_deinit(struct gta04_sensors_handlers *handlers)
 	if (handlers->data != NULL)
 		free(handlers->data);
 	handlers->data = NULL;
-*/
+
 	return 0;
 }
 
@@ -170,6 +214,7 @@ int itg3200_activate(struct gta04_sensors_handlers *handlers)
 {
 	struct itg3200_data *data;
 	int rc;
+	char *tmp;
 
 	ALOGD("%s(%p)", __func__, handlers);
 
@@ -180,15 +225,30 @@ int itg3200_activate(struct gta04_sensors_handlers *handlers)
 
 	data = (struct itg3200_data *) handlers->data;
 
+	//Enable IIO buffer
+	asprintf(&tmp, "/sys/bus/iio/devices/%s/buffer/enable", mInputName);
+	rc = sysfs_value_write(tmp, 1);
+	if (rc < 0) {
+		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 1, tmp);
+		goto error;
+	}
+	free(tmp);
+
+/*
 	rc = ssp_sensor_enable(GYROSCOPE_SENSOR);
 	if (rc < 0) {
 		ALOGE("%s: Unable to enable ssp sensor", __func__);
 		return -1;
 	}
+*/
 
 	handlers->activated = 1;
 
 	return 0;
+
+	error:
+	free(tmp);
+	return -1;
 }
 
 int itg3200_deactivate(struct gta04_sensors_handlers *handlers)
@@ -196,8 +256,19 @@ int itg3200_deactivate(struct gta04_sensors_handlers *handlers)
 //TODO
 	struct itg3200_data *data;
 	int rc;
+	char *tmp;
 
 	ALOGD("%s(%p)", __func__, handlers);
+
+	//Disable IIO buffer
+	asprintf(&tmp, "/sys/bus/iio/devices/%s/buffer/enable", mInputName);
+	rc = sysfs_value_write(tmp, 0);
+	if (rc < 0) {
+		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 0, tmp);
+		goto error;
+	}
+	free(tmp);
+
 /*
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
@@ -209,10 +280,15 @@ int itg3200_deactivate(struct gta04_sensors_handlers *handlers)
 		ALOGE("%s: Unable to disable ssp sensor", __func__);
 		return -1;
 	}
-
-	handlers->activated = 1;
 */
+
+	handlers->activated = 0;
+
 	return 0;
+
+	error:
+	free(tmp);
+	return -1;
 }
 
 int itg3200_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
@@ -220,9 +296,19 @@ int itg3200_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
 //TODO
 	struct itg3200_data *data;
 	int rc;
+	char *tmp;
 
 	//TODO: which unit do we need? we get nanoseconds in 'long int delay'
 	ALOGD("%s(%p, %ld)", __func__, handlers, delay);
+
+	//Disable IIO buffer
+	asprintf(&tmp, "/sys/bus/iio/devices/%s/sampling_frequency", mInputName);
+	rc = sysfs_value_write(tmp, 1); //FIXME: use argument
+	if (rc < 0) {
+		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 0, tmp);
+		return -1;
+	}
+	free(tmp);
 /*
 	if (handlers == NULL || handlers->data == NULL)
 		return -EINVAL;
@@ -240,7 +326,7 @@ int itg3200_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
 
 float itg3200_convert(int value)
 {
-	return value * (70.0f / 4000.0f) * (3.1415926535f / 180.0f);
+	return value * (70.0f / 4000.0f) * (3.1415926535f / 180.0f); //TODO: check formula
 }
 
 int itg3200_get_data(struct gta04_sensors_handlers *handlers,
@@ -250,55 +336,78 @@ int itg3200_get_data(struct gta04_sensors_handlers *handlers,
 	struct input_event input_event;
 	int input_fd;
 	int rc;
+	char buf[1024];
 
-	ALOGD("%s(%p, %p)", __func__, handlers, event);
+	//ALOGD("%s(%p, %p)", __func__, handlers, event);
 
+/*
 	if (handlers == NULL || handlers->data == NULL || event == NULL)
 		return -EINVAL;
+*/
 
 	data = (struct itg3200_data *) handlers->data;
+
 
 	input_fd = handlers->poll_fd;
 	if (input_fd < 0)
 		return -EINVAL;
 
+	//clear /dev/iio:device1, so it wont poll() in an infinite loop
+	do {
+		rc = read(input_fd, &buf, 1024);
+		ALOGD("itg3200: read %d bytes", rc);
+	} while (rc > 0);
+
+
 	memset(event, 0, sizeof(struct sensors_event_t));
 	event->version = sizeof(struct sensors_event_t);
 	event->sensor = handlers->handle;
 	event->type = handlers->handle;
-
+/*
 	event->gyro.x = data->gyro.x;
 	event->gyro.y = data->gyro.y;
 	event->gyro.z = data->gyro.z;
+*/
 
+/*
 	do {
 		rc = read(input_fd, &input_event, sizeof(input_event));
 		if (rc < (int) sizeof(input_event))
 			break;
 
-		if (input_event.type == EV_REL) {
-			switch (input_event.code) {
-				case REL_RX:
-					event->gyro.x = itg3200_convert(input_event.value);
-					break;
-				case REL_RY:
-					event->gyro.y = itg3200_convert(input_event.value);
-					break;
-				case REL_RZ:
-					event->gyro.z = itg3200_convert(input_event.value);
-					break;
-				default:
-					continue;
-			}
-		} else if (input_event.type == EV_SYN) {
-			if (input_event.code == SYN_REPORT)
-				event->timestamp = input_timestamp(&input_event);
+		if (input_event.type == EV_SYN) {
+			rc = pread(mIioSysfsXChanFp, &buf, 1024, 0);
+			ALOGD("GYRO X: %d (rc: %d)", atoi(buf), rc);
+			event->gyro.x = itg3200_convert(atoi(buf));
+
+			rc = pread(mIioSysfsYChanFp, &buf, 1024, 0);
+			ALOGD("GYRO Y: %d (rc: %d)", atoi(buf), rc);
+			event->gyro.y = itg3200_convert(atoi(buf));
+
+			rc = pread(mIioSysfsZChanFp, &buf, 1024, 0);
+			ALOGD("GYRO Z: %d (rc: %d)", atoi(buf), rc);
+			event->gyro.z = itg3200_convert(atoi(buf));
 		}
 	} while (input_event.type != EV_SYN);
+*/
+
+			rc = pread(mIioSysfsXChanFp, &buf, 1024, 0);
+			ALOGD("GYRO X: %d (rc: %d)", atoi(buf), rc);
+			event->gyro.x = itg3200_convert(atoi(buf));
+
+			rc = pread(mIioSysfsYChanFp, &buf, 1024, 0);
+			ALOGD("GYRO Y: %d (rc: %d)", atoi(buf), rc);
+			event->gyro.y = itg3200_convert(atoi(buf));
+
+			rc = pread(mIioSysfsZChanFp, &buf, 1024, 0);
+			ALOGD("GYRO Z: %d (rc: %d)", atoi(buf), rc);
+			event->gyro.z = itg3200_convert(atoi(buf));
+
 
 	data->gyro.x = event->gyro.x;
 	data->gyro.y = event->gyro.y;
 	data->gyro.z = event->gyro.z;
+
 
 	return 0;
 }
