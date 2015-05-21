@@ -36,19 +36,14 @@
 #include "ssp.h"
 #include "iio/myiio.h"
 
-char *device_name;
-//char *mInputSysfsEnable;
-char *mInputSysfsSamplingFrequency;
-char *mIioSysfsXChan;
-char *mIioSysfsYChan;
-char *mIioSysfsZChan;
-int mIioSysfsXChanFp;
-int mIioSysfsYChanFp;
-int mIioSysfsZChanFp;
-
 struct hmc5883l_data {
 	char* name;
+	char* iio_name;
 	sensors_vec_t magnetic;
+
+	int x_fp;
+	int y_fp;
+	int z_fp;
 };
 
 int hmc5883l_enable_iio_channels(char* device_name)
@@ -99,6 +94,9 @@ int hmc5883l_init(struct gta04_sensors_handlers *handlers,
 	int rc;
 	int dev_num;
 	char* tmp;
+	char *x_path;
+	char *y_path;
+	char *z_path;
 
 	ALOGD("%s(%p, %p)", __func__, handlers, device);
 
@@ -109,52 +107,26 @@ int hmc5883l_init(struct gta04_sensors_handlers *handlers,
 	data->name = "hmc5883l";
 
 	dev_num = find_type_by_name(data->name, "iio:device");
-	asprintf(&device_name, "iio:device%d", dev_num); //i.e. device_name = iio:device0
+	asprintf(&(data->iio_name), "iio:device%d", dev_num); //i.e. device_name = iio:device0
 
-	mInputSysfsSamplingFrequency = make_sysfs_name(device_name, "in_magn_sampling_frequency");
-	if (mInputSysfsSamplingFrequency==NULL) {
-		ALOGE("%s: unable to allocate mem for %s:poll_delay", __func__, data->name);
-		goto error;
-	}
+	hmc5883l_enable_iio_channels(data->iio_name);
+	iio_set_default_trigger(data->iio_name, data->name, dev_num);
 
-	mIioSysfsXChan = make_sysfs_name(device_name, "in_magn_x_raw");
-	if (mIioSysfsXChan==NULL) {
-		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data->name, "in_anglvel_x_raw");
-		goto error;
-	}
-
-	mIioSysfsYChan = make_sysfs_name(device_name, "in_magn_y_raw");
-	if (mIioSysfsYChan==NULL) {
-		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data->name, "in_anglvel_y_raw");
-		goto error;
-	}
-
-	mIioSysfsZChan = make_sysfs_name(device_name, "in_magn_z_raw");
-	if (mIioSysfsZChan==NULL) {
-		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data->name, "in_anglvel_z_raw");
-		goto error;
-	}
-
-	mIioSysfsXChanFp = open(mIioSysfsXChan, O_RDONLY);
-	if (mIioSysfsXChanFp < 0) {
-		ALOGE("%s: unable to open %s", __func__, mIioSysfsXChan);
-		goto error;
-	}
-
-	mIioSysfsYChanFp = open(mIioSysfsYChan, O_RDONLY);
-	if (mIioSysfsYChanFp < 0) {
-		ALOGE("%s: unable to open %s", __func__, mIioSysfsYChan);
-		goto error;
-	}
-
-	mIioSysfsZChanFp = open(mIioSysfsZChan, O_RDONLY);
-	if (mIioSysfsZChanFp < 0) {
-		ALOGE("%s: unable to open %s", __func__, mIioSysfsZChan);
-		goto error;
-	}
-
-	hmc5883l_enable_iio_channels(device_name);
-	iio_set_default_trigger(device_name, data->name, dev_num);
+	x_path = make_sysfs_name(data->iio_name, "in_magn_x_raw");
+	y_path = make_sysfs_name(data->iio_name, "in_magn_y_raw");
+	z_path = make_sysfs_name(data->iio_name, "in_magn_z_raw");
+	data->x_fp = open(x_path, O_RDONLY);
+	data->y_fp = open(y_path, O_RDONLY);
+	data->z_fp = open(z_path, O_RDONLY);
+	if (data->x_fp < 0)
+		ALOGE("%s: unable to open %s", __func__, x_path);
+	if (data->y_fp < 0)
+		ALOGE("%s: unable to open %s", __func__, y_path);
+	if (data->z_fp < 0)
+		ALOGE("%s: unable to open %s", __func__, z_path);
+	free(x_path);
+	free(y_path);
+	free(z_path);
 
 /*
 	int flags = fcntl(iio_fd, F_GETFL, 0);
@@ -186,10 +158,16 @@ error:
 
 int hmc5883l_deinit(struct gta04_sensors_handlers *handlers)
 {
+	struct hmc5883l_data *data;
 	ALOGD("%s(%p)", __func__, handlers);
 
 	if (handlers == NULL)
 		return -EINVAL;
+
+	data = (struct hmc5883l_data *) handlers->data;
+	close(data->x_fp);
+	close(data->y_fp);
+	close(data->z_fp);
 
 	if (handlers->poll_fd >= 0)
 		close(handlers->poll_fd);
@@ -226,7 +204,7 @@ int hmc5883l_activate(struct gta04_sensors_handlers *handlers)
 */
 
 	//operating_mode is removed in kernels > 3.12!
-	tmp = make_sysfs_name(device_name, "operating_mode");
+	tmp = make_sysfs_name(data->iio_name, "operating_mode");
 	rc = sysfs_value_write(tmp, 0); //0 = continuous sampling
 	if (rc < 0) {
 		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 0, tmp);
@@ -235,7 +213,7 @@ int hmc5883l_activate(struct gta04_sensors_handlers *handlers)
 	free(tmp);
 
 	//Enable IIO buffer
-	rc = iio_set_buffer_state(device_name, 1);
+	rc = iio_set_buffer_state(data->iio_name, 1);
 	if (rc < 0) {
 		ALOGE("%s: Unable to enable IIO buffer", __func__);
 		return -1;
@@ -270,7 +248,7 @@ int hmc5883l_deactivate(struct gta04_sensors_handlers *handlers)
 */
 
 	//operating_mode is removed in kernels > 3.12!
-	tmp = make_sysfs_name(device_name, "operating_mode");
+	tmp = make_sysfs_name(data->iio_name, "operating_mode");
 	rc = sysfs_value_write(tmp, 3); //3 = power save
 	if (rc < 0) {
 		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 0, tmp);
@@ -279,7 +257,7 @@ int hmc5883l_deactivate(struct gta04_sensors_handlers *handlers)
 	free(tmp);
 
 	//Disable IIO buffer
-	rc = iio_set_buffer_state(device_name, 0);
+	rc = iio_set_buffer_state(data->iio_name, 0);
 	if (rc < 0) {
 		ALOGE("%s: Unable to disable IIO buffer", __func__);
 		return -1;
@@ -320,7 +298,7 @@ int hmc5883l_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
 		frequency = 0;
 	*/
 
-	tmp = make_sysfs_name(device_name, "in_magn_sampling_frequency");
+	tmp = make_sysfs_name(data->iio_name, "in_magn_sampling_frequency");
 /* TODO: hmc5883l has only a certain set of frequencies (see sampling_frequency_available in sysfs)
 	ALOGD("%s: setting sampling_frequency to %d", __func__, frequency);
 	rc = sysfs_value_write(tmp, frequency);
@@ -359,7 +337,6 @@ int hmc5883l_get_data(struct gta04_sensors_handlers *handlers,
 
 	data = (struct hmc5883l_data *) handlers->data;
 
-
 	iio_fd = handlers->poll_fd;
 	if (iio_fd < 0)
 		return -EINVAL;
@@ -381,15 +358,15 @@ int hmc5883l_get_data(struct gta04_sensors_handlers *handlers,
 	event->magnetic.z = data->magnetic.z;
 
 	//TODO: use bytes from iio_fd, instead of reading sysfs
-	rc = pread(mIioSysfsXChanFp, &buf, 1024, 0);
+	rc = pread(data->x_fp, &buf, 1024, 0);
 	//ALOGD("COMPASS X: %d (rc: %d)", atoi(buf), rc);
 	event->magnetic.x = hmc5883l_convert(atoi(buf));
 
-	rc = pread(mIioSysfsYChanFp, &buf, 1024, 0);
+	rc = pread(data->y_fp, &buf, 1024, 0);
 	//ALOGD("COMPASS Y: %d (rc: %d)", atoi(buf), rc);
 	event->magnetic.y = hmc5883l_convert(atoi(buf));
 
-	rc = pread(mIioSysfsZChanFp, &buf, 1024, 0);
+	rc = pread(data->z_fp, &buf, 1024, 0);
 	//ALOGD("COMPASS Z: %d (rc: %d)", atoi(buf), rc);
 	event->magnetic.z = hmc5883l_convert(atoi(buf));
 

@@ -36,19 +36,14 @@
 #include "ssp.h"
 #include "iio/myiio.h"
 
-char *device_name;
-//char *mInputSysfsEnable;
-char *mInputSysfsSamplingFrequency;
-char *mIioSysfsXChan;
-char *mIioSysfsYChan;
-char *mIioSysfsZChan;
-int mIioSysfsXChanFp;
-int mIioSysfsYChanFp;
-int mIioSysfsZChanFp;
-char *data_name = "itg3200";
-
 struct itg3200_data {
+	char *name;
+	char *iio_name;
 	sensors_vec_t gyro;
+
+	int x_fp;
+	int y_fp;
+	int z_fp;
 };
 
 int itg3200_enable_iio_channels(char* device_name)
@@ -99,6 +94,9 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 	int rc;
 	int dev_num;
 	char* tmp;
+	char *x_path;
+	char *y_path;
+	char *z_path;
 
 	ALOGD("%s(%p, %p)", __func__, handlers, device);
 
@@ -106,54 +104,29 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 		return -EINVAL;
 
 	data = (struct itg3200_data *) calloc(1, sizeof(struct itg3200_data));
+	data->name = "itg3200";
 
-	dev_num = find_type_by_name(data_name, "iio:device");
-	asprintf(&device_name, "iio:device%d", dev_num); //i.e. device_name = iio:device1
+	dev_num = find_type_by_name(data->name, "iio:device");
+	asprintf(&(data->iio_name), "iio:device%d", dev_num); //i.e. data->iio_name = iio:device1
 
-	mInputSysfsSamplingFrequency = make_sysfs_name(device_name, "sampling_frequency");
-	if (mInputSysfsSamplingFrequency==NULL) {
-		ALOGE("%s: unable to allocate mem for %s:poll_delay", __func__, data_name);
-		goto error;
-	}
+	itg3200_enable_iio_channels(data->iio_name);
+	iio_set_default_trigger(data->iio_name, data->name, dev_num);
 
-	mIioSysfsXChan = make_sysfs_name(device_name, "in_anglvel_x_raw");
-	if (mIioSysfsXChan==NULL) {
-		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data_name, "in_anglvel_x_raw");
-		goto error;
-	}
-
-	mIioSysfsYChan = make_sysfs_name(device_name, "in_anglvel_y_raw");
-	if (mIioSysfsYChan==NULL) {
-		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data_name, "in_anglvel_y_raw");
-		goto error;
-	}
-
-	mIioSysfsZChan = make_sysfs_name(device_name, "in_anglvel_z_raw");
-	if (mIioSysfsZChan==NULL) {
-		ALOGE("%s: unable to allocate mem for %s:%s", __func__, data_name, "in_anglvel_z_raw");
-		goto error;
-	}
-
-	mIioSysfsXChanFp = open(mIioSysfsXChan, O_RDONLY);
-	if (mIioSysfsXChanFp < 0) {
-		ALOGE("%s: unable to open %s", __func__, mIioSysfsXChan);
-		goto error;
-	}
-
-	mIioSysfsYChanFp = open(mIioSysfsYChan, O_RDONLY);
-	if (mIioSysfsYChanFp < 0) {
-		ALOGE("%s: unable to open %s", __func__, mIioSysfsYChan);
-		goto error;
-	}
-
-	mIioSysfsZChanFp = open(mIioSysfsZChan, O_RDONLY);
-	if (mIioSysfsZChanFp < 0) {
-		ALOGE("%s: unable to open %s", __func__, mIioSysfsZChan);
-		goto error;
-	}
-
-	itg3200_enable_iio_channels(device_name);
-	iio_set_default_trigger(device_name, data_name, dev_num);
+	x_path = make_sysfs_name(data->iio_name, "in_anglvel_x_raw");
+	y_path = make_sysfs_name(data->iio_name, "in_anglvel_y_raw");
+	z_path = make_sysfs_name(data->iio_name, "in_anglvel_z_raw");
+	data->x_fp = open(x_path, O_RDONLY);
+	data->y_fp = open(y_path, O_RDONLY);
+	data->z_fp = open(z_path, O_RDONLY);
+	if (data->x_fp < 0)
+		ALOGE("%s: unable to open %s", __func__, x_path);
+	if (data->y_fp < 0)
+		ALOGE("%s: unable to open %s", __func__, y_path);
+	if (data->z_fp < 0)
+		ALOGE("%s: unable to open %s", __func__, z_path);
+	free(x_path);
+	free(y_path);
+	free(z_path);
 
 /*
 	int flags = fcntl(iio_fd, F_GETFL, 0);
@@ -185,10 +158,16 @@ error:
 
 int itg3200_deinit(struct gta04_sensors_handlers *handlers)
 {
+	struct itg3200_data *data;
 	ALOGD("%s(%p)", __func__, handlers);
 
 	if (handlers == NULL)
 		return -EINVAL;
+
+	data = (struct itg3200_data *) handlers->data;
+	close(data->x_fp);
+	close(data->y_fp);
+	close(data->z_fp);
 
 	if (handlers->poll_fd >= 0)
 		close(handlers->poll_fd);
@@ -224,7 +203,7 @@ int itg3200_activate(struct gta04_sensors_handlers *handlers)
 */
 
 	//Enable IIO buffer
-	rc = iio_set_buffer_state(device_name, 1);
+	rc = iio_set_buffer_state(data->iio_name, 1);
 	if (rc < 0) {
 		ALOGE("%s: Unable to enable IIO buffer", __func__);
 		return -1;
@@ -255,7 +234,7 @@ int itg3200_deactivate(struct gta04_sensors_handlers *handlers)
 */
 
 	//Disable IIO buffer
-	rc = iio_set_buffer_state(device_name, 0);
+	rc = iio_set_buffer_state(data->iio_name, 0);
 	if (rc < 0) {
 		ALOGE("%s: Unable to disable IIO buffer", __func__);
 		return -1;
@@ -292,7 +271,7 @@ int itg3200_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
 		frequency = 0;
 	*/
 
-	tmp = make_sysfs_name(device_name, "sampling_frequency");
+	tmp = make_sysfs_name(data->iio_name, "sampling_frequency");
 	ALOGD("%s: setting sampling_frequency to %d", __func__, frequency);
 	rc = sysfs_value_write(tmp, frequency);
 	if (rc < 0) {
@@ -329,7 +308,6 @@ int itg3200_get_data(struct gta04_sensors_handlers *handlers,
 
 	data = (struct itg3200_data *) handlers->data;
 
-
 	iio_fd = handlers->poll_fd;
 	if (iio_fd < 0)
 		return -EINVAL;
@@ -351,15 +329,15 @@ int itg3200_get_data(struct gta04_sensors_handlers *handlers,
 	event->gyro.z = data->gyro.z;
 
 	//TODO: use bytes from iio_fd, instead of reading sysfs
-	rc = pread(mIioSysfsXChanFp, &buf, 1024, 0);
+	rc = pread(data->x_fp, &buf, 1024, 0);
 	//ALOGD("GYRO X: %d (rc: %d)", atoi(buf), rc);
 	event->gyro.x = itg3200_convert(atoi(buf));
 
-	rc = pread(mIioSysfsYChanFp, &buf, 1024, 0);
+	rc = pread(data->y_fp, &buf, 1024, 0);
 	//ALOGD("GYRO Y: %d (rc: %d)", atoi(buf), rc);
 	event->gyro.y = itg3200_convert(atoi(buf));
 
-	rc = pread(mIioSysfsZChanFp, &buf, 1024, 0);
+	rc = pread(data->z_fp, &buf, 1024, 0);
 	//ALOGD("GYRO Z: %d (rc: %d)", atoi(buf), rc);
 	event->gyro.z = itg3200_convert(atoi(buf));
 
