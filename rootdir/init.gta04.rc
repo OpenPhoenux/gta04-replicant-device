@@ -29,13 +29,24 @@ on boot
 
 	chmod 666 /sys/bus/i2c/devices/2-0048/values #tsc2007
 
-	chmod 666 /dev/iio:device1 #itg3200
-	chmod 666 /sys/bus/iio/devices/iio:device1/buffer/enable #itg3200
-	chmod 666 /sys/bus/iio/devices/iio:device1/sampling_frequency #itg3200
-	chmod 666 /sys/bus/iio/devices/iio:device1/scan_elements/in_anglvel_x_en #itg3200
-	chmod 666 /sys/bus/iio/devices/iio:device1/scan_elements/in_anglvel_y_en #itg3200
-	chmod 666 /sys/bus/iio/devices/iio:device1/scan_elements/in_anglvel_z_en #itg3200
-	chmod 666 /sys/bus/iio/devices/iio:device1/trigger/current_trigger #itg3200
+	#ITG3200
+	chmod 666 /dev/iio:device1
+	chmod 666 /sys/bus/iio/devices/iio:device1/buffer/enable
+	chmod 666 /sys/bus/iio/devices/iio:device1/sampling_frequency
+	chmod 666 /sys/bus/iio/devices/iio:device1/scan_elements/in_anglvel_x_en
+	chmod 666 /sys/bus/iio/devices/iio:device1/scan_elements/in_anglvel_y_en
+	chmod 666 /sys/bus/iio/devices/iio:device1/scan_elements/in_anglvel_z_en
+	chmod 666 /sys/bus/iio/devices/iio:device1/trigger/current_trigger
+
+	#HMC5883L
+	chmod 666 /dev/iio:device0
+	chmod 666 /sys/bus/iio/devices/iio:device0/buffer/enable
+	chmod 666 /sys/bus/iio/devices/iio:device0/operating_mode
+	chmod 666 /sys/bus/iio/devices/iio:device0/sampling_frequency
+	chmod 666 /sys/bus/iio/devices/iio:device0/scan_elements/in_magn_x_en
+	chmod 666 /sys/bus/iio/devices/iio:device0/scan_elements/in_magn_y_en
+	chmod 666 /sys/bus/iio/devices/iio:device0/scan_elements/in_magn_z_en
+	chmod 666 /sys/bus/iio/devices/iio:device0/trigger/current_trigger
 
 	# Lights
 	chown system system /sys/class/backlight/pwm-backlight/brightness
