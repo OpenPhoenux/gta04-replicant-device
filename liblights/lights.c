@@ -17,6 +17,7 @@
 #define LOG_TAG "lights"
 #include <cutils/log.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -138,7 +139,7 @@ static int set_light_notifications(struct light_device_t *dev,
 	int red, green, blue;
 	unsigned int colorRGB;
 	int max;
-	int rc;
+	int rc = 0;
 
 	colorRGB = state->color;
 	red   = (colorRGB >> 16) & 0xFF;
@@ -205,7 +206,7 @@ static int set_light_battery(struct light_device_t *dev,
 	int red, green, blue;
 	unsigned int colorRGB;
 	int max;
-	int rc;
+	int rc = 0;
 
 	colorRGB = state->color;
 	red   = (colorRGB >> 16) & 0xFF;
@@ -287,6 +288,12 @@ static int set_light_backlight(struct light_device_t *dev,
 
 	if(brightness_max > 0)
 		brightness = (brightness * brightness_max) / 0xff;
+
+	//avoid low brightness, but allow off (0)
+	//this helps in situations where you think the device is off/crashed,
+	//even though its working, but brighness is set too low (e.g. 3).
+	if(brightness > 0 && brightness < 15)
+		brightness = 15; //minimum brighness = 15
 
 	//ALOGD("Setting brightness to: %d", brightness);
 
