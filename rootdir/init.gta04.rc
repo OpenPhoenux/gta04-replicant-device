@@ -76,6 +76,10 @@ on boot
 	chown gps gps /sys/class/switch/gps_antenna/state
 	chmod 0660 /sys/class/switch/gps_antenna/state
 
+	# Battery Fast Charge
+	chmod 777 /sys/devices/platform/omap_i2c.1/i2c-1/1-0048/twl4030_usb/id
+	chmod 777 /sys/devices/platform/omap_i2c.1/i2c-1/1-004a/twl4030_bci/max_current
+
 	#Bluetooth
 	insmod /system/lib/modules/bluetooth.ko
 	insmod /system/lib/modules/hci_uart.ko
@@ -106,6 +110,10 @@ service voicerouting /system/voice-routing-init.sh
 service battery /system/battery-init.sh
 	class main
 	oneshot
+
+# Battery Fast Charge
+service batteryd /system/bin/logwrapper /system/bin/batteryd.gta04
+	class main
 
 # Power Save (disabled for now)
 #service powersave /system/power-save.sh
