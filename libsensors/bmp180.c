@@ -32,7 +32,6 @@
 #include <utils/Log.h>
 
 #include "gta04_sensors.h"
-#include "ssp.h"
 
 struct bmp180_data {
 	char path_delay[PATH_MAX];
@@ -115,12 +114,6 @@ int bmp180_activate(struct gta04_sensors_handlers *handlers)
 
 	data = (struct bmp180_data *) handlers->data;
 
-	rc = ssp_sensor_enable(PRESSURE_SENSOR);
-	if (rc < 0) {
-		ALOGE("%s: Unable to enable ssp sensor", __func__);
-		return -1;
-	}
-
 	handlers->activated = 1;
 
 	return 0;
@@ -137,12 +130,6 @@ int bmp180_deactivate(struct gta04_sensors_handlers *handlers)
 		return -EINVAL;
 
 	data = (struct bmp180_data *) handlers->data;
-
-	rc = ssp_sensor_disable(PRESSURE_SENSOR);
-	if (rc < 0) {
-		ALOGE("%s: Unable to disable ssp sensor", __func__);
-		return -1;
-	}
 
 	handlers->activated = 1;
 

@@ -33,7 +33,6 @@
 #include <utils/Log.h>
 
 #include "gta04_sensors.h"
-#include "ssp.h"
 #include "iio/myiio.h"
 
 struct itg3200_data {
@@ -194,14 +193,6 @@ int itg3200_activate(struct gta04_sensors_handlers *handlers)
 
 	data = (struct itg3200_data *) handlers->data;
 
-/*
-	rc = ssp_sensor_enable(GYROSCOPE_SENSOR);
-	if (rc < 0) {
-		ALOGE("%s: Unable to enable ssp sensor", __func__);
-		return -1;
-	}
-*/
-
 	//Enable IIO buffer
 	rc = iio_set_buffer_state(data->iio_name, 1);
 	if (rc < 0) {
@@ -224,14 +215,6 @@ int itg3200_deactivate(struct gta04_sensors_handlers *handlers)
 		return -EINVAL;
 
 	data = (struct itg3200_data *) handlers->data;
-
-/*
-	rc = ssp_sensor_disable(GYROSCOPE_SENSOR);
-	if (rc < 0) {
-		ALOGE("%s: Unable to disable ssp sensor", __func__);
-		return -1;
-	}
-*/
 
 	//Disable IIO buffer
 	rc = iio_set_buffer_state(data->iio_name, 0);

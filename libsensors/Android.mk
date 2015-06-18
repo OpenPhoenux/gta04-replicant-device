@@ -21,15 +21,14 @@ LOCAL_SRC_FILES := \
 	gta04_sensors.c \
 	input.c \
 	iio.c \
-	ssp.c \
 	bma180.c \
 	lis302.c \
 	itg3200.c \
 	hmc5883l.c \
 	tept4400.c \
+	orientation.c \
 	$(NULL)
 
-#	orientation.c \
 #	bmp180.c \
 
 LOCAL_C_INCLUDES := \

@@ -105,9 +105,6 @@ int iio_set_buffer_state(char* device_name, int state);
 int orientation_fill(struct gta04_sensors_handlers *handlers,
 	sensors_vec_t *acceleration, sensors_vec_t *magnetic);
 
-int ssp_sensor_enable(int sensor_type);
-int ssp_sensor_disable(int sensor_type);
-
 extern struct gta04_sensors_handlers bma180;
 extern struct gta04_sensors_handlers lis302;
 extern struct gta04_sensors_handlers itg3200;

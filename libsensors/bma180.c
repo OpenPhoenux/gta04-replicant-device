@@ -28,7 +28,6 @@
 #include <utils/Log.h>
 
 #include "gta04_sensors.h"
-#include "ssp.h"
 
 struct bma180_acceleration_data {
 	struct gta04_sensors_handlers *orientation_sensor;
@@ -124,14 +123,6 @@ int bma180_acceleration_activate(struct gta04_sensors_handlers *handlers)
 
 	data = (struct bma180_acceleration_data *) handlers->data;
 
-/*
-	rc = ssp_sensor_enable(ACCELEROMETER_SENSOR);
-	if (rc < 0) {
-		ALOGE("%s: Unable to enable ssp sensor", __func__);
-		return -1;
-	}
-*/
-
 	handlers->activated = 1;
 
 	return 0;
@@ -148,14 +139,6 @@ int bma180_acceleration_deactivate(struct gta04_sensors_handlers *handlers)
 		return -EINVAL;
 
 	data = (struct bma180_acceleration_data *) handlers->data;
-
-/*
-	rc = ssp_sensor_disable(ACCELEROMETER_SENSOR);
-	if (rc < 0) {
-		ALOGE("%s: Unable to disable ssp sensor", __func__);
-		return -1;
-	}
-*/
 
 	handlers->activated = 0;
 

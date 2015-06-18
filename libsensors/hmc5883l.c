@@ -33,7 +33,6 @@
 #include <utils/Log.h>
 
 #include "gta04_sensors.h"
-#include "ssp.h"
 #include "iio/myiio.h"
 
 struct hmc5883l_data {
@@ -195,14 +194,6 @@ int hmc5883l_activate(struct gta04_sensors_handlers *handlers)
 
 	data = (struct hmc5883l_data *) handlers->data;
 
-/*
-	rc = ssp_sensor_enable(MAGNETIC_FIELD_SENSOR);
-	if (rc < 0) {
-		ALOGE("%s: Unable to enable ssp sensor", __func__);
-		return -1;
-	}
-*/
-
 	//operating_mode is removed in kernels > 3.12!
 	tmp = make_sysfs_name(data->iio_name, "operating_mode");
 	rc = sysfs_value_write(tmp, 0); //0 = continuous sampling
@@ -238,14 +229,6 @@ int hmc5883l_deactivate(struct gta04_sensors_handlers *handlers)
 		return -EINVAL;
 
 	data = (struct hmc5883l_data *) handlers->data;
-
-/*
-	rc = ssp_sensor_disable(MAGNETIC_FIELD_SENSOR);
-	if (rc < 0) {
-		ALOGE("%s: Unable to disable ssp sensor", __func__);
-		return -1;
-	}
-*/
 
 	//operating_mode is removed in kernels > 3.12!
 	tmp = make_sysfs_name(data->iio_name, "operating_mode");
