@@ -33,6 +33,9 @@
 /*
  * Sensors list
  */
+/* Values (from sensors.h):
+ * name, vendor, hw/driver version, handle, type, maxRange (SI units), resolution, power (mA), minDelay, reserved
+ */
 struct sensor_t gta04_sensors[] = {
 	{ "BMA180 Acceleration Sensor", "Bosch", 1, SENSOR_TYPE_ACCELEROMETER,
 		SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000, {}, },
@@ -59,7 +62,6 @@ struct gta04_sensors_handlers *gta04_sensors_handlers[] = {
 	&hmc5883l,
 	&tept4400,
 	&orientation,
-	//&lsm330dlc_gyroscope,
 	//&bmp180,
 };
 

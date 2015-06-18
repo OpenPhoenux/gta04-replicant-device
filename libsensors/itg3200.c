@@ -272,7 +272,8 @@ error:
 
 float itg3200_convert(int value)
 {
-	return value * (70.0f / 4000.0f) * (3.1415926535f / 180.0f); //TODO: check formula
+	//all values are inverted (therefor, multiply with -1)
+	return value * (-1.0f) * (70.0f / 2000.0f) * (3.1415926535f / 180.0f);
 }
 
 int itg3200_get_data(struct gta04_sensors_handlers *handlers,
@@ -311,17 +312,16 @@ int itg3200_get_data(struct gta04_sensors_handlers *handlers,
 	event->gyro.y = data->gyro.y;
 	event->gyro.z = data->gyro.z;
 
+	event->gyro.status = SENSOR_STATUS_ACCURACY_MEDIUM;
+
 	//TODO: use bytes from iio_fd, instead of reading sysfs
 	rc = pread(data->x_fp, &buf, 1024, 0);
-	//ALOGD("GYRO X: %d (rc: %d)", atoi(buf), rc);
-	event->gyro.x = itg3200_convert(atoi(buf));
+	event->gyro.y = itg3200_convert(atoi(buf)); //X and Y are interchanged and inverted
 
 	rc = pread(data->y_fp, &buf, 1024, 0);
-	//ALOGD("GYRO Y: %d (rc: %d)", atoi(buf), rc);
-	event->gyro.y = itg3200_convert(atoi(buf));
+	event->gyro.x = itg3200_convert(atoi(buf)); //X and Y are interchanged and inverted
 
 	rc = pread(data->z_fp, &buf, 1024, 0);
-	//ALOGD("GYRO Z: %d (rc: %d)", atoi(buf), rc);
 	event->gyro.z = itg3200_convert(atoi(buf));
 
 	data->gyro.x = event->gyro.x;
