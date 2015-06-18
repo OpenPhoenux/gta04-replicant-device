@@ -31,10 +31,36 @@
  * Globals
  */
 
+#define L2804_GTA04 0
+#define L3704_7004  1
+
 const char rumble_input[] = "twl4030:vibrator";
 
 int rumble_fd = -1;
 int rumble_id = -1;
+
+/*
+ * Device detect
+ */
+int gta04_check_device() {
+	/* Letux3704/Letux7004 */
+	char left_brightness[] =
+		"/sys/class/leds/gta04:left/brightness";
+	char right_brightness[] =
+		"/sys/class/leds/gta04:right/brightness";
+	/* GTA04/Letux2804 has gta04:red/green:power/aux LEDs */
+
+	if(access(left_brightness, F_OK) != -1 && access(right_brightness, F_OK) != -1) {
+		ALOGD("Detected Letux3704/Letux7004.");
+		return L3704_7004;
+	}
+	else {
+		ALOGD("Detected GTA04/Letux2804");
+		return L2804_GTA04;
+	}
+
+	return L2804_GTA04; //default, should never be reached
+}
 
 /*
  * Input
@@ -150,7 +176,10 @@ int sendit(int duration)
 	effect.id = -1;
 	effect.replay.length = duration;
 	effect.replay.delay = 0;
-	effect.u.rumble.strong_magnitude = 0xffff;
+	if(gta04_check_device() == L3704_7004)
+		effect.u.rumble.strong_magnitude = 0xbfff; //reduced intensity
+	else
+		effect.u.rumble.strong_magnitude = 0xffff;
 
 	rc = ioctl(rumble_fd, EVIOCSFF, &effect);
 	if (rc < 0)
