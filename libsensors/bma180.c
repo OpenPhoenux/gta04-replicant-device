@@ -176,7 +176,7 @@ int bma180_acceleration_set_delay(struct gta04_sensors_handlers *handlers, long 
 
 float bma180_acceleration_convert(int value)
 {
-	return (float) value * (GRAVITY_EARTH / 1024.0f);
+	return (float) value * (GRAVITY_EARTH / 256.0f); //BMA180 is configured to 2G mode in kernel driver
 }
 
 int bma180_acceleration_get_data(struct gta04_sensors_handlers *handlers,
