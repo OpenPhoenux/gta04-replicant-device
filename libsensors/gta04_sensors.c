@@ -39,8 +39,6 @@
 struct sensor_t gta04_sensors[] = {
 	{ "BMA180 Acceleration Sensor", "Bosch", 1, SENSOR_TYPE_ACCELEROMETER,
 		SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000, {}, },
-	{ "LIS302 Acceleration Sensor", "STMicroelectronics", 1, SENSOR_TYPE_ACCELEROMETER,
-		SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000, {}, },
 	{ "ITG3200 Gyroscope Sensor", "InvenSense", 1, SENSOR_TYPE_GYROSCOPE,
 		SENSOR_TYPE_GYROSCOPE, 500.0f * (3.1415926535f / 180.0f), (70.0f / 4000.0f) * (3.1415926535f / 180.0f), 6.1f, 5000, {}, },
 	{ "HMC5883L Magnetic Sensor", "Honeywell", 1, SENSOR_TYPE_MAGNETIC_FIELD,
@@ -57,7 +55,6 @@ int gta04_sensors_count = sizeof(gta04_sensors) / sizeof(struct sensor_t);
 
 struct gta04_sensors_handlers *gta04_sensors_handlers[] = {
 	&bma180,
-	&lis302,
 	&itg3200,
 	&hmc5883l,
 	&tept4400,
@@ -71,6 +68,25 @@ int gta04_sensors_handlers_count = sizeof(gta04_sensors_handlers) /
 /*
  * GTA04 Sensors
  */
+
+int gta04_sensors_hwdetect()
+{
+	char buf[50];
+	int rc;
+	rc = sysfs_string_read("/sys/class/input/input1/name", (char*)&buf, 6);
+	if(strncmp(buf, "bma150", 6) != 0 && strncmp(buf, "bma180", 6) != 0) {
+		//switch accel, because the default BMA180 is not available
+		ALOGD("BMA150/180 accel not available, switching to LIS302.");
+		struct sensor_t lis302_data = { "LIS302 Acceleration Sensor", "STMicroelectronics", 1, SENSOR_TYPE_ACCELEROMETER,
+						SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000, {}, };
+		gta04_sensors[0] = lis302_data;
+		gta04_sensors_handlers[0] = &lis302; //defined in gta04_sensors.h
+	}
+	else {
+		//ALOGD("Keeping BMA180 accel.");
+	}
+	return 0;
+}
 
 int gta04_sensors_activate(struct sensors_poll_device_t *dev, int handle,
 	int enabled)
@@ -222,6 +238,7 @@ int gta04_sensors_close(hw_device_t *device)
 int gta04_sensors_open(const struct hw_module_t* module, const char *id,
 	struct hw_device_t** device)
 {
+	gta04_sensors_hwdetect();
 	struct gta04_sensors_device *gta04_sensors_device;
 	int p, i;
 

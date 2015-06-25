@@ -316,10 +316,10 @@ int itg3200_get_data(struct gta04_sensors_handlers *handlers,
 
 	//TODO: use bytes from iio_fd, instead of reading sysfs
 	rc = pread(data->x_fp, &buf, 1024, 0);
-	event->gyro.y = itg3200_convert(atoi(buf)); //X and Y are interchanged and inverted
+	event->gyro.y = itg3200_convert(atoi(buf)); //X and Y are interchanged
 
 	rc = pread(data->y_fp, &buf, 1024, 0);
-	event->gyro.x = itg3200_convert(atoi(buf)); //X and Y are interchanged and inverted
+	event->gyro.x = itg3200_convert(atoi(buf)); //X and Y are interchanged
 
 	rc = pread(data->z_fp, &buf, 1024, 0);
 	event->gyro.z = itg3200_convert(atoi(buf));
