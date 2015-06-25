@@ -20,15 +20,19 @@
 		</device>
 		<device type="earpiece">
 			<path type="enable">
+				<!-- Audio L2 (from SoC) on Earpiece not used in hwrouting
 				<ctrl name="Earpiece Mixer AudioL2" value="on" />
 
 				<ctrl name="DAC2 Analog Playback Volume" value="18" />
 				<ctrl name="Earpiece Playback Volume" value="1" />
+				-->
 			</path>
 			<path type="disable">
+				<!-- Audio L2 (from SoC) on Earpiece not used in hwrouting
 				<ctrl name="Earpiece Mixer AudioL2" value="off" />
 
 				<ctrl name="Earpiece Playback Volume" value="0" />
+				-->
 			</path>
 		</device>
 		<device type="speaker">
@@ -118,10 +122,13 @@
 				<ctrl name="Analog Capture Volume" value="1" />
 
 				<ctrl name="DAC Voice Analog Downlink Switch" value="on" />
-				<ctrl name="DAC Voice Digital Downlink Volume" value="0" /> <!-- Digital and Analog Downlink Volume together => echo. So set this to 0. -->
+				<ctrl name="DAC2 Analog Playback Switch" value="off" /> <!-- Disable DAC2 Analog Playback to avoid hearing the peer twice on GTA04 side. -->
+				<!--<ctrl name="DAC Voice Digital Downlink Volume" value="0" />--> <!-- Digital and Analog Downlink Volume together => echo. So set this to 0. -->
+				<ctrl name="DAC Voice Digital Downlink Volume" value="45" /> <!-- Needed to get voice onto the Earpiece, TODO: CONFLICT with the line above! -->
 			</path>
 			<path type="disable">
 				<ctrl name="DAC Voice Analog Downlink Switch" value="off" />
+				<ctrl name="DAC2 Analog Playback Switch" value="on" />
 
 				<ctrl name="Voice route" value="Voice to SoC" />
 				<ctrl name="AVADC Clock Priority" value="HiFi high priority" />
@@ -138,6 +145,7 @@
 			<path type="disable">
 				<ctrl name="Earpiece Mixer Voice" value="off" />
 				<ctrl name="Analog Left Main Mic Capture Switch" attr="mic" value="off" /> <!-- capture -->
+
 				<ctrl name="Earpiece Playback Volume" value="0" />
 			</path>
 		</device>
