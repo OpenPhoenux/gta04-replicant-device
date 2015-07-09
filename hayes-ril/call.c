@@ -159,6 +159,13 @@ error:
 	return AT_STATUS_HANDLED;
 }
 
+int at_vts_callback(char *string, int error, RIL_Token token)
+{
+	ALOGD("CB: at+vts: %s (err: %d)", string, error);
+	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
+	return AT_STATUS_HANDLED;
+}
+
 void ril_request_get_current_calls(void *data, size_t length, RIL_Token token)
 {
 	int rc;
@@ -426,11 +433,11 @@ void ril_request_dtmf(void *data, size_t length, RIL_Token token)
 	char *str;
 
 	asprintf(&str, "AT+VTS=%s", (char*)data);
-	rc = at_send_callback(str, token, at_generic_callback);
+	ALOGD("request_dtmf: %s", str);
+	rc = at_send_callback_nowait(str, token, at_vts_callback);
 	free(str);
 
-	if (rc < 0)
-		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+	//ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
 }
 
 void ril_request_dtmf_start(void *data, size_t length, RIL_Token token)
@@ -440,15 +447,19 @@ void ril_request_dtmf_start(void *data, size_t length, RIL_Token token)
 
 	//TODO: This hould continuously play the sound until dtmf_stop is called
 	asprintf(&str, "AT+VTS=%s", (char*)data);
-	rc = at_send_callback(str, token, at_generic_callback);
+	ALOGD("request_dtmf_start: %s", str);
+	rc = at_send_callback_nowait(str, token, at_vts_callback);
 	free(str);
 
-	if (rc < 0)
-		ril_request_complete(token, RIL_E_GENERIC_FAILURE, NULL, 0);
+	//ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
 }
 
 void ril_request_dtmf_stop(void *data, size_t length, RIL_Token token)
 {
-	//TODO: This is a dummy
+	int rc;
+
+	//TODO: this is a dummy
+	ALOGD("request_dtmf_stop");
+
 	ril_request_complete(token, RIL_E_SUCCESS, NULL, 0);
 }

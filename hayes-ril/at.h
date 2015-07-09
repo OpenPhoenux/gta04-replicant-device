@@ -44,6 +44,7 @@ enum {
 	AT_FLAG_DELIMITERS_CR	= (1 << 1),
 	AT_FLAG_LOCKED		= (1 << 2),
 	AT_FLAG_URGENT		= (1 << 3),
+	AT_FLAG_NOWAIT		= (1 << 4),
 };
 
 enum {
@@ -210,6 +211,8 @@ int at_requests_unfreeze(void);
 int at_send(char *string, RIL_Token token,
 	int (*callback)(char *string, int error, RIL_Token token), int flags);
 int at_send_callback(char *string, RIL_Token token,
+	int (*callback)(char *string, int error, RIL_Token token));
+int at_send_callback_nowait(char *string, RIL_Token token,
 	int (*callback)(char *string, int error, RIL_Token token));
 int at_send_locked(char *string, int flags);
 int at_send_string_locked(char *string);
