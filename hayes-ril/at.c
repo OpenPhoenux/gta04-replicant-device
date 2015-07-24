@@ -24,6 +24,8 @@
 
 #include <hayes-ril.h>
 
+int confirm_next_pending = 0;
+
 /*
  * Utilities
  */
@@ -282,6 +284,7 @@ int at_response_dispatch(struct at_response *response)
 
 int at_response_process(char *data, int length)
 {
+	ALOGD("at_response_process()");
 	static char buffer[AT_RECV_BYTES_MAX] = { 0 };
 	char *string;
 	char *line;
@@ -299,11 +302,30 @@ int at_response_process(char *data, int length)
 
 	request_sent = at_request_find_status(AT_STATUS_SENT);
 	request_pending = at_request_find_status(AT_STATUS_PENDING);
+	if (request_sent != NULL)
+		ALOGD("at_response_process: SENT   : %s", request_sent->string);
+	else
+		ALOGD("at_response_process: SENT   : NULL");
+	if (request_pending != NULL)
+		ALOGD("at_response_process: PENDING: %s", request_pending->string);
+	else
+		ALOGD("at_response_process: PENDING: NULL");
+
+	if (confirm_next_pending == 1 && request_pending != NULL) {
+		ALOGD("CONFIRM NEXT PENDING");
+		confirm_next_pending = 0;
+		ALOGD("Confirmation of pending request"); //received echo of previouly sent (PENDING) command/request
+
+		request_pending->status = AT_STATUS_SENT; //awaiting response/OK/ERROR
+		request_sent = request_pending;
+		request_pending = NULL;
+	}
 
 	p = l = 0;
 
 	ril_data_log(data, length);
 
+	//loop over received buffer (from transport) character for character, create line if delimiter matches
 	for (i = 0 ; i < length ; i++) {
 		if (at_delimiter_process(&data[i]) || i == (length - 1)) {
 			l = i - p;
@@ -330,12 +352,24 @@ int at_response_process(char *data, int length)
 				else
 					buffer[o+1] = '\0';
 
+				ALOGD("at_response_process (i=%d, len=%d), line: %s", i, length, line);
+				//if the received bytes contain an echo of a pending request
 				if (request_pending != NULL && at_strings_compare(request_pending->string, line)) {
-					ALOGD("Confirmation of pending request");
+					ALOGD("Confirmation of pending request"); //received echo of previouly sent (PENDING) command/request
 
-					request_pending->status = AT_STATUS_SENT;
+					request_pending->status = AT_STATUS_SENT; //awaiting response/OK/ERROR
 					request_sent = request_pending;
 					request_pending = NULL;
+
+					//TODO: adopt for AT+VTS special case only and not general NOWAIT
+					if(request_sent != NULL && (request_sent->flags & AT_FLAG_NOWAIT)) {
+						//TODO: Do not wait for a response of this request
+						confirm_next_pending = 1; //echo of next command after AT+VTS=... is lost, so we need to confirm it manually
+						ALOGD("Confirmed NOWAIT request: %s", request_sent->string);
+						rc = at_response_register("NOWAIT HACK", AT_ERROR_OK, request_sent); //inject response for nowait request
+						if (rc >= 0)
+							AT_RESPONSES_QUEUE_UNLOCK();
+					}
 
 					o = 0;
 					p = i + 1;
@@ -357,6 +391,10 @@ int at_response_process(char *data, int length)
 
 				// Either we don't need an error or we already have one
 				if (request_sent == NULL || error != AT_ERROR_UNDEF) {
+					if (request_sent != NULL)
+						ALOGD("at_response_register: %s", request_sent->string);
+					else
+						ALOGD("at_response_register: NULL");
 					rc = at_response_register(string, error, request_sent);
 					if (rc >= 0)
 						AT_RESPONSES_QUEUE_UNLOCK();
@@ -592,6 +630,16 @@ int at_request_send_next(void)
 		at_request_find_status(AT_STATUS_PENDING) != NULL ||
 		at_request_find_status(AT_STATUS_FREEZED) != NULL) {
 		ALOGD("There is still at least one unanswered request!");
+		request = at_request_find_status(AT_STATUS_SENT);
+		if (request != NULL)
+			ALOGD("AT_STATUS_SENT: %s (%p)", request->string, (void*)request->token);
+		request = at_request_find_status(AT_STATUS_PENDING);
+		if (request != NULL)
+			ALOGD("AT_STATUS_PENDING: %s (%p)", request->string, (void*)request->token);
+		request = at_request_find_status(AT_STATUS_FREEZED);
+		if (request != NULL)
+			ALOGD("AT_STATUS_FREEZED: %s (%p)", request->string, (void*)request->token);
+
 		return -1;
 	}
 
@@ -613,7 +661,7 @@ send:
 		return -1;
 	}
 
-	request->status = AT_STATUS_PENDING;
+	request->status = AT_STATUS_PENDING; //awaiting the echo of this command on the transport
 
 	return 0;
 }
@@ -695,6 +743,12 @@ int at_send_callback(char *string, RIL_Token token,
 	int (*callback)(char *string, int error, RIL_Token token))
 {
 	return at_send(string, token, callback, 0);
+}
+
+int at_send_callback_nowait(char *string, RIL_Token token,
+	int (*callback)(char *string, int error, RIL_Token token))
+{
+	return at_send(string, token, callback, AT_FLAG_NOWAIT);
 }
 
 /*

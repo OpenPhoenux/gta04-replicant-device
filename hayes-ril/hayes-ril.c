@@ -56,16 +56,8 @@ struct ril_dispatch_handler ril_dispatch_handlers[] = {
 struct ril_request_handler ril_request_handlers[] = {
 	// Call
 	{
-		.request = RIL_REQUEST_DTMF,
-		.callback = ril_request_dtmf,
-	},
-	{
 		.request = RIL_REQUEST_DTMF_START,
 		.callback = ril_request_dtmf_start,
-	},
-	{
-		.request = RIL_REQUEST_DTMF_STOP,
-		.callback = ril_request_dtmf_stop,
 	},
 	{
 		.request = RIL_REQUEST_SEND_USSD,
