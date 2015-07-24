@@ -592,15 +592,6 @@ int at_request_send_next(void)
 		at_request_find_status(AT_STATUS_PENDING) != NULL ||
 		at_request_find_status(AT_STATUS_FREEZED) != NULL) {
 		ALOGD("There is still at least one unanswered request!");
-		request = at_request_find_status(AT_STATUS_SENT);
-		if (request != NULL)
-			ALOGD("AT_STATUS_SENT: %s", request->string);
-		request = at_request_find_status(AT_STATUS_PENDING);
-		if (request != NULL)
-			ALOGD("AT_STATUS_PENDING: %s", request->string);
-		request = at_request_find_status(AT_STATUS_FREEZED);
-		if (request != NULL)
-			ALOGD("AT_STATUS_FREEZED: %s", request->string);
 		return -1;
 	}
 
@@ -694,11 +685,6 @@ int at_send(char *string, RIL_Token token,
 
 	at_request_send_next();
 
-	if (flags & AT_FLAG_NOWAIT) {
-		struct at_response resp = { "OK", AT_ERROR_OK, request };
-		at_response_dispatch(&resp);
-	}
-
 	if (flags & AT_FLAG_LOCKED)
 		AT_LOCK_LOCK();
 
@@ -709,12 +695,6 @@ int at_send_callback(char *string, RIL_Token token,
 	int (*callback)(char *string, int error, RIL_Token token))
 {
 	return at_send(string, token, callback, 0);
-}
-
-int at_send_callback_nowait(char *string, RIL_Token token,
-	int (*callback)(char *string, int error, RIL_Token token))
-{
-	return at_send(string, token, callback, AT_FLAG_NOWAIT);
 }
 
 /*
