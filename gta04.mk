@@ -73,7 +73,8 @@ PRODUCT_COPY_FILES += \
 
 # Audio
 PRODUCT_PACKAGES += \
-	audio.primary.omap3
+	audio.primary.omap3 \
+	libaudio-ril-inteface
 
 # TinyALSA audio config, use hwrouting as default config
 PRODUCT_COPY_FILES += \
