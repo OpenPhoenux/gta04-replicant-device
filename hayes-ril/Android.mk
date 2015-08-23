@@ -31,13 +31,8 @@ hayes_ril_files := \
 	util.c
 
 ifeq ($(TARGET_DEVICE),gta04)
-	hayes_ril_device_files := \
-		device/gta04/gta04.c \
-		device/gta04/gsm-voice-route.c
-	hayes_ril_device_libs := libtinyalsa libaudioutils
-	LOCAL_C_INCLUDES += $(LOCAL_PATH)/device/gta04/ \
-		external/tinyalsa/include \
-		system/media/audio_utils/include
+	hayes_ril_device_files := device/gta04/gta04.c
+	LOCAL_C_INCLUDES += $(LOCAL_PATH)/device/gta04/
 endif
 
 ifeq ($(TARGET_DEVICE),passion)
@@ -52,8 +47,7 @@ endif
 
 ifneq ($(hayes_ril_device_files),)
 	LOCAL_SRC_FILES := $(hayes_ril_files) $(hayes_ril_device_files)
-	LOCAL_SHARED_LIBRARIES += libcutils libnetutils libutils libril \
-		$(hayes_ril_device_libs)
+	LOCAL_SHARED_LIBRARIES += libcutils libnetutils libutils libril
 	LOCAL_PRELINK_MODULE := false
 
 	LOCAL_C_INCLUDES += $(KERNEL_HEADERS) $(LOCAL_PATH)
