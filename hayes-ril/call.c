@@ -44,8 +44,8 @@ RIL_CallState at2ril_call_state(int state)
 			//TODO: only on GTA04!
 			/* If gta04_voice_routing thread is not yet running, let's start it */
 			if (gta04_voice_routing == 0 || pthread_kill(gta04_voice_routing, 0) != 0) {
-				ALOGD("Starting gta04_voice_routing");
-				pthread_create(&gta04_voice_routing, NULL, gta04_start_voice_routing, NULL);
+				//ALOGD("Starting gta04_voice_routing");
+				//pthread_create(&gta04_voice_routing, NULL, gta04_start_voice_routing, NULL);
 			}
 			return RIL_CALL_ACTIVE;
 		case 1:
