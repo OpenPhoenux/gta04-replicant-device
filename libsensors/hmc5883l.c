@@ -301,7 +301,8 @@ error:
 
 float hmc5883l_convert(int value)
 {
-	return value*1.0; //TODO: create formular
+	return (value * (100.0f / 1370.0f)); //Gain: 0.88 => /1370, Gauss to uT => *100
+	//return value * 1.0f;
 }
 
 int hmc5883l_get_data(struct gta04_sensors_handlers *handlers,
@@ -342,16 +343,13 @@ int hmc5883l_get_data(struct gta04_sensors_handlers *handlers,
 
 	//TODO: use bytes from iio_fd, instead of reading sysfs
 	rc = pread(data->x_fp, &buf, 1024, 0);
-	//ALOGD("COMPASS X: %d (rc: %d)", atoi(buf), rc);
-	event->magnetic.x = hmc5883l_convert(atoi(buf));
+	event->magnetic.y = hmc5883l_convert(atoi(buf)) - 75.0; //X and Y are interchanged
 
 	rc = pread(data->y_fp, &buf, 1024, 0);
-	//ALOGD("COMPASS Y: %d (rc: %d)", atoi(buf), rc);
-	event->magnetic.y = hmc5883l_convert(atoi(buf));
+	event->magnetic.x = hmc5883l_convert(atoi(buf)) + 10.0; //X and Y are interchanged
 
 	rc = pread(data->z_fp, &buf, 1024, 0);
-	//ALOGD("COMPASS Z: %d (rc: %d)", atoi(buf), rc);
-	event->magnetic.z = hmc5883l_convert(atoi(buf));
+	event->magnetic.z = hmc5883l_convert(atoi(buf)) - 50.0;
 
 	data->magnetic.x = event->magnetic.x;
 	data->magnetic.y = event->magnetic.y;
