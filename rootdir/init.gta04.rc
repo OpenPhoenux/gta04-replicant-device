@@ -23,7 +23,9 @@ on boot
 	chmod 660 /sys/class/gpio/gpio186/value
 
 	# Sensors #TODO: beware of unstable path names, lis302 or bma180 might not be installed on all devices, which leads to different names
+	chmod 666 /sys/devices/platform/omap_i2c.2/i2c-2/2-0077/poll_delay #bmp085
 	chmod 666 /sys/class/input/input1/poll #bma150
+	chmod 666 /sys/class/input/input2/poll #bma150 (if lis302 not installed)
 	chmod 666 /sys/class/input/input5/poll #lis302
 	write /sys/class/input/input5/poll 0 #disable lis302 as it disturbs the bma180
 

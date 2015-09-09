@@ -27,9 +27,10 @@ LOCAL_SRC_FILES := \
 	hmc5883l.c \
 	tept4400.c \
 	orientation.c \
+	bmp085.c \
 	$(NULL)
 
-#	bmp180.c \
+
 
 LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)

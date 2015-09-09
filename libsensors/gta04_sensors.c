@@ -47,8 +47,8 @@ struct sensor_t gta04_sensors[] = {
 		SENSOR_TYPE_LIGHT, 10.0f, 0.1f, 10.0f, 5000, {}, }, //TODO: power, min_delay
 	{ "Orientation Sensor", "GTA04 Sensors", 1, SENSOR_TYPE_ORIENTATION,
 		SENSOR_TYPE_ORIENTATION, 360.0f, 0.1f, 0.0f, 10000, {}, },
-	/*{ "BMP180 Pressure Sensor", "Bosch", 1, SENSOR_TYPE_PRESSURE,
-		SENSOR_TYPE_PRESSURE, 1000.0f, 1.0f, 1.0f, 66700, {}, },*/
+	{ "BMP085 Pressure Sensor", "Bosch", 1, SENSOR_TYPE_PRESSURE,
+		SENSOR_TYPE_PRESSURE, 1000.0f, 1.0f, 1.0f, 66700, {}, },
 };
 
 int gta04_sensors_count = sizeof(gta04_sensors) / sizeof(struct sensor_t);
@@ -59,7 +59,7 @@ struct gta04_sensors_handlers *gta04_sensors_handlers[] = {
 	&hmc5883l,
 	&tept4400,
 	&orientation,
-	//&bmp180,
+	&bmp085,
 };
 
 int gta04_sensors_handlers_count = sizeof(gta04_sensors_handlers) /
@@ -73,8 +73,9 @@ int gta04_sensors_hwdetect()
 {
 	char buf[50];
 	int rc;
-	rc = sysfs_string_read("/sys/class/input/input1/name", (char*)&buf, 6);
-	if(strncmp(buf, "bma150", 6) != 0 && strncmp(buf, "bma180", 6) != 0) {
+	if (input_open("bma150") < 0) {
+	//rc = sysfs_string_read("/sys/class/input/input1/name", (char*)&buf, 6);
+	//if(strncmp(buf, "bma150", 6) != 0 && strncmp(buf, "bma180", 6) != 0) {
 		//switch accel, because the default BMA180 is not available
 		ALOGD("BMA150/180 accel not available, switching to LIS302.");
 		struct sensor_t lis302_data = { "LIS302 Acceleration Sensor", "STMicroelectronics", 1, SENSOR_TYPE_ACCELEROMETER,

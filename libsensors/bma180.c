@@ -196,7 +196,7 @@ int bma180_acceleration_get_data(struct gta04_sensors_handlers *handlers,
 
 	input_fd = handlers->poll_fd;
 	if (input_fd < 0)
-		return -1;
+		return -EINVAL;
 
 	memset(event, 0, sizeof(struct sensors_event_t));
 	event->version = sizeof(struct sensors_event_t);
@@ -207,7 +207,7 @@ int bma180_acceleration_get_data(struct gta04_sensors_handlers *handlers,
 	event->acceleration.y = data->acceleration.y;
 	event->acceleration.z = data->acceleration.z;
 
-	event->magnetic.status = SENSOR_STATUS_ACCURACY_MEDIUM;
+	event->acceleration.status = SENSOR_STATUS_ACCURACY_MEDIUM;
 
 	do {
 		rc = read(input_fd, &input_event, sizeof(input_event));

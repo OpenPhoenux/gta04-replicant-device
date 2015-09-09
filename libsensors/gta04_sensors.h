@@ -111,6 +111,6 @@ extern struct gta04_sensors_handlers itg3200;
 extern struct gta04_sensors_handlers hmc5883l;
 extern struct gta04_sensors_handlers orientation;
 extern struct gta04_sensors_handlers tept4400;
-//extern struct gta04_sensors_handlers bmp180;
+extern struct gta04_sensors_handlers bmp085;
 
 #endif
