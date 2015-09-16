@@ -43,7 +43,7 @@ TARGET_XLOADER_SOURCE := bootable/bootloader/goldelico/gta04/x-loader/
 TARGET_XLOADER_CONFIG := omap3530gta04_config
 
 # Kernel
-TARGET_KERNEL_CONFIG := gta04_defconfig
+TARGET_KERNEL_CONFIG := letux_defconfig
 TARGET_KERNEL_SOURCE := kernel/goldelico/gta04
 # pass LOADADDR=0x80008000 manually for kernel build.
 # This variable is not considered in Replicant 4.2
