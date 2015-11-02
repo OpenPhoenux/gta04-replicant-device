@@ -25,7 +25,8 @@ PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/rootdir/ueventd.rc:root/ueventd.rc \
 	device/goldelico/gta04/rootdir/init.gta04.rc:root/init.gta04.rc \
 	device/goldelico/gta04/rootdir/init.gta04.usb.rc:root/init.gta04.usb.rc \
-	device/goldelico/gta04/rootdir/ueventd.gta04.rc:root/ueventd.gta04.rc
+	device/goldelico/gta04/rootdir/ueventd.gta04.rc:root/ueventd.gta04.rc \
+	device/goldelico/gta04/rootdir/boot/bootargs.scr:root/boot/bootargs.scr #contains FunctionFS IDs for adb (g_ffs.idVendor=0x18d1 g_ffs.idProduct=0x4e26)
 
 # Don't install kernel boot splash (initlogo.rle), as it is not universal for all Display sizes (Letux 2804/3704/7004)
 # This is now also handled via replicant_gta04_install.sh script in upstream Replicant
