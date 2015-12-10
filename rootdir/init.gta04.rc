@@ -96,7 +96,7 @@ on boot
 	chown bluetooth bluetooth /sys/class/rfkill/rfkill1/type
 	write /sys/class/rfkill/rfkill1/state 0
 
-#on fs
+on fs
 	#mount ext4 /dev/block/mmcblk0p2 /system wait
 	#mount ext4 /dev/block/mmcblk0p2 /system ro wait remount
 	#mount ext4 /dev/block/mmcblk0p3 /cache nosuid wait
