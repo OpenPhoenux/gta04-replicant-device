@@ -1,6 +1,8 @@
 import init.gta04.usb.rc
 
 on early-init
+	#Let the Kernel (kmod.c) load its module dependencies
+	symlink /system/xbin/modprobe /sbin/modprobe
 	export EXTERNAL_STORAGE /mnt/sdcard
 	mkdir /mnt/sdcard 0000 system system
 	symlink /mnt/sdcard /sdcard
