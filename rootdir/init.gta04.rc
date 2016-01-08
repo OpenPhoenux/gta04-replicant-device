@@ -13,6 +13,8 @@ on early-init
 	mkdir /mnt/boot 0000 system system
 
 on boot
+	start modules
+
 	# Enable Wake Locks
 	chmod 777 /sys/power/wake_lock
 	chmod 777 /sys/power/wake_unlock
@@ -104,6 +106,11 @@ on fs
 	#mount ext4 /dev/block/mmcblk0p3 /cache nosuid wait
 	#mount ext4 /dev/block/mmcblk0p4 /data nosuid wait
 	#mount vfat /dev/block/mmcblk0p1 /mnt/boot/ ro wait
+
+# Manual Module Loading
+service modules /system/bin/logwrapper /system/load_modules.sh
+	class core
+	oneshot
 
 # ALSA Voice Routing Configuration
 service voicerouting /system/voice-routing-init.sh

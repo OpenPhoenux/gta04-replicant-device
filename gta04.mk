@@ -33,6 +33,7 @@ PRODUCT_COPY_FILES += \
 
 # Battery, Powersave, Audio-Routing
 PRODUCT_COPY_FILES += \
+	device/goldelico/gta04/rootdir/battery-init.sh:system/load_modules.sh \
 	device/goldelico/gta04/rootdir/battery-init.sh:system/battery-init.sh \
 	device/goldelico/gta04/rootdir/power-save.sh:system/power-save.sh \
 	device/goldelico/gta04/rootdir/voice-routing-init.sh:system/voice-routing-init.sh
