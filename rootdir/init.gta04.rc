@@ -87,18 +87,18 @@ on boot
 	chmod 777 /sys/devices/platform/omap_i2c.1/i2c-1/1-004a/twl4030_bci/max_current
 
 	#Bluetooth
-	insmod /system/lib/modules/bluetooth.ko
-	insmod /system/lib/modules/hci_uart.ko
+	#insmod /system/lib/modules/bluetooth.ko
+	#insmod /system/lib/modules/hci_uart.ko
 	chown bluetooth bluetooth /dev/ttyO0
 	chmod 0600 /dev/ttyO0
 	#rfkill1 is only available if hciattach is running
-	start hciattach
-	start bluetoothd
-	wait /sys/class/rfkill/rfkill1/state
-	chmod 0660 /sys/class/rfkill/rfkill1/state
-	chown bluetooth bluetooth /sys/class/rfkill/rfkill1/state
-	chown bluetooth bluetooth /sys/class/rfkill/rfkill1/type
-	write /sys/class/rfkill/rfkill1/state 0
+	#start hciattach
+	#start bluetoothd
+	#wait /sys/class/rfkill/rfkill1/state
+	#chmod 0660 /sys/class/rfkill/rfkill1/state
+	#chown bluetooth bluetooth /sys/class/rfkill/rfkill1/state
+	#chown bluetooth bluetooth /sys/class/rfkill/rfkill1/type
+	#write /sys/class/rfkill/rfkill1/state 0
 
 on fs
 	#mount ext4 /dev/block/mmcblk0p2 /system wait
@@ -143,13 +143,14 @@ on post-fs-data
 
 	#setprop vold.post_fs_data_done 1
 
+# There is no hciattach with BlueDroid
 # for bluetooth (speed=3000000, choose 115200 for GTA04A3 boards)
-service hciattach /system/bin/logwrapper /system/bin/hciattach -s 3000000 /dev/ttyO0 any 3000000 flow
-	class main
-	user bluetooth
-	group bluetooth net_bt_admin
-	disabled
-	oneshot
+#service hciattach /system/bin/logwrapper /system/bin/hciattach -s 3000000 /dev/ttyO0 any 3000000 flow
+#	class main
+#	user bluetooth
+#	group bluetooth net_bt_admin
+#	disabled
+#	oneshot
 
 # Wi-Fi
 service wpa_supplicant /system/bin/wpa_supplicant -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf

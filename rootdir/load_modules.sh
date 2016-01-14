@@ -29,3 +29,10 @@ insmod /system/lib/modules/g_ffs.ko idVendor=0x18d1 idProduct=0x4e26
 #Temoporary ADB fix:
 mount -o uid=2000,gid=2000 -t functionfs adb /dev/usb-ffs/adb
 restart adbd
+
+#Vibracall
+modprobe twl4030_vibra
+
+#Bluetooth
+modprobe w2cbw003-bluetooth
+modprobe hci_uart

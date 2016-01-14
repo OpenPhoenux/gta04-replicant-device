@@ -33,8 +33,10 @@
  */
 
 const char serial_path[] = "/dev/ttyO0";
-const speed_t serial_init_speed = B3000000;
-const speed_t serial_work_speed = B3000000;
+//const speed_t serial_init_speed = B3000000; //GTA04A4
+//const speed_t serial_work_speed = B3000000; //GTA04A4
+const speed_t serial_init_speed = B115200; //GTA04A3
+const speed_t serial_work_speed = B115200; //GTA04A3
 
 struct gta04_bt_vendor *gta04_bt_vendor = NULL;
 
