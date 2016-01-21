@@ -16,7 +16,10 @@ modprobe tsc2007
 #Battery/Charger
 modprobe phy-twl4030-usb
 modprobe twl4030_charger
-modprobe twl4030_madc_battery #TODO bq27xxx
+modprobe omap_hdq
+modprobe w1_bq27000
+modprobe bq27xxx_battery
+#modprobe twl4030_madc_battery #optional for L3740/L7004
 
 #Power Button
 modprobe twl4030-pwrbutton
