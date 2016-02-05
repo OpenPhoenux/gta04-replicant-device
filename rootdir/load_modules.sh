@@ -39,3 +39,7 @@ modprobe twl4030_vibra
 #Bluetooth
 modprobe w2cbw003-bluetooth
 modprobe hci_uart
+
+#WiFi
+modprobe libertas #autoloads the cfg80211 dependency
+#libertas_sdio is loaded by the Android framework, once WiFi is enabled
