@@ -33,10 +33,10 @@
  */
 
 const char serial_path[] = "/dev/ttyO0";
-//const speed_t serial_init_speed = B3000000; //GTA04A4
-//const speed_t serial_work_speed = B3000000; //GTA04A4
-const speed_t serial_init_speed = B115200; //GTA04A3
-const speed_t serial_work_speed = B115200; //GTA04A3
+const speed_t serial_init_speed = B3000000; //GTA04A4
+const speed_t serial_work_speed = B3000000; //GTA04A4
+//const speed_t serial_init_speed = B115200; //GTA04A3
+//const speed_t serial_work_speed = B115200; //GTA04A3
 
 struct gta04_bt_vendor *gta04_bt_vendor = NULL;
 
@@ -373,7 +373,8 @@ int gta04_bt_vendor_op_userial_open(void *param)
 
 	sleep(1);
 
-	rc = gta04_bt_vendor_hci_h4_read_event(NULL, 0, HCI_EVENT_VENDOR);
+	//rc = gta04_bt_vendor_hci_h4_read_event(NULL, 0, HCI_EVENT_VENDOR);
+	rc = gta04_bt_vendor_hci_h4_read_event(NULL, 0, HCI_EVENT_COMMAND_COMPLETE);
 	if (rc < 0) {
 		ALOGE("%s: Reading HCI failed", __func__);
 		return -1;
