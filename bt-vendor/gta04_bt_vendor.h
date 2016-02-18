@@ -73,8 +73,8 @@ struct gta04_bt_vendor {
  */
 
 extern const char serial_path[];
-extern const speed_t serial_init_speed;
-extern const speed_t serial_work_speed;
+extern speed_t serial_init_speed;
+extern speed_t serial_work_speed;
 
 extern struct gta04_bt_vendor *gta04_bt_vendor;
 

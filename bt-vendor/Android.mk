@@ -21,7 +21,7 @@ LOCAL_SRC_FILES := gta04_bt_vendor.c hci.c
 
 LOCAL_C_INCLUDES := external/bluetooth/bluedroid/hci/include
 
-LOCAL_SHARED_LIBRARIES := liblog
+LOCAL_SHARED_LIBRARIES := liblog libgta04
 LOCAL_PRELINK_MODULE := false
 
 LOCAL_MODULE := libbt-vendor
