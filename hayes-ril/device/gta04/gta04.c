@@ -22,12 +22,45 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+//#include <linux/rfkill.h>
 
 #define LOG_TAG "RIL-DEV"
 #include <utils/Log.h>
 
 #include "gta04.h"
 #include <hayes-ril.h>
+
+int rfkill_block(uint8_t block) {
+	struct rfkill_event event;
+	ssize_t len;
+	int fd;
+
+	if(block == 1)
+		ALOGD("executing 'rfkill block wwan'");
+	else if(block == 0)
+		ALOGD("executing 'rfkill unblock wwan'");
+	else {
+		ALOGE("invalid rfkill_block parameter");
+		return -1;
+	}
+
+	fd = open("/dev/rfkill", O_RDWR);
+	if (fd < 0) {
+		ALOGE("Can't open RFKILL control device");
+		return -1;
+	}
+	memset(&event, 0, sizeof(event));
+	event.op = RFKILL_OP_CHANGE_ALL;
+	event.type = RFKILL_TYPE_WWAN;
+	event.soft = block;
+	len = write(fd, &event, sizeof(event));
+	if (len < 0) {
+		ALOGE("Failed to change RFKILL state");
+		return -1;
+	}
+	close(fd);
+	return 0;
+}
 
 int gta04_power_count_nodes(void)
 {
@@ -62,8 +95,8 @@ int gta04_power_on(void *sdata)
 	int fd;
 	int retry = 0;
 
-	if(access(GPIO_SYSFS, F_OK) < 0) {
-		ALOGD("GPIO-186 not available, assuming GTA04a3: Modem is on");
+	if(is_gta04a3()) {
+		ALOGD("Detected GTA04A3: Modem is on");
 		return 0;
 	}
 
@@ -72,16 +105,8 @@ retry:
 	if (tty_nodes_count < 2) {
 		ALOGD("Powering modem on");
 
-		fd = open(GPIO_SYSFS, O_RDWR);
-		if (fd < 0) {
-			ALOGE("Unable to open GPIO SYSFS node, modem will stay off");
-			return -1;
-		}
-
-		write(fd, gpio_sysfs_value_0, strlen(gpio_sysfs_value_1));
-		sleep(1);
-		write(fd, gpio_sysfs_value_1, strlen(gpio_sysfs_value_0));
-		sleep(5);
+		rfkill_block(0);
+		sleep(3);
 
 		tty_nodes_count = gta04_power_count_nodes();
 		if(tty_nodes_count < 2 && retry < 10) {
@@ -109,8 +134,8 @@ int gta04_power_off(void *sdata)
 	int fd;
 	int retry = 0;
 
-	if(access(GPIO_SYSFS, F_OK) < 0) {
-		ALOGW("GPIO-186 not available, assuming GTA04a3: Modem stays on");
+	if(is_gta04a3()) {
+		ALOGW("Detected GTA04A3: Modem stays on");
 		return 0;
 	}
 
@@ -119,16 +144,8 @@ retry:
 	if (tty_nodes_count > 0) {
 		ALOGD("Powering modem off");
 
-		fd = open(GPIO_SYSFS, O_RDWR);
-		if (fd < 0) {
-			ALOGE("Unable to open GPIO SYSFS node, modem will stay on");
-			return -1;
-		}
-
-		write(fd, gpio_sysfs_value_1, strlen(gpio_sysfs_value_1));
-		sleep(1);
-		write(fd, gpio_sysfs_value_0, strlen(gpio_sysfs_value_0));
-		sleep(5);
+		rfkill_block(1);
+		sleep(3);
 
 		tty_nodes_count = gta04_power_count_nodes();
 		if(tty_nodes_count > 0 && retry < 10) {
