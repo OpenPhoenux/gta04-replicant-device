@@ -6,6 +6,12 @@ DEVICE=$(cat /sys/firmware/devicetree/base/model) #TODO: for later use
 modprobe panel_tpo_td028ttec1
 modprobe omapdrm
 
+#Audio
+modprobe snd-soc-twl4030
+modprobe snd-soc-simple-card
+modprobe snd-soc-omap-twl4030
+modprobe snd-soc-omap-mcbsp
+
 #Backlight
 modprobe pwm-omap-dmtimer
 modprobe pwm_bl
