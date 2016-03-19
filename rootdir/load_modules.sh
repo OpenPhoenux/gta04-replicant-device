@@ -15,6 +15,8 @@ modprobe snd-soc-omap-mcbsp
 #Backlight
 modprobe pwm-omap-dmtimer
 modprobe pwm_bl
+chown system.system /sys/class/backlight/backlight/brightness
+chown system.system /sys/class/backlight/backlight/max_brightness
 
 #Touchscreen
 modprobe tsc2007
@@ -31,6 +33,7 @@ modprobe bq27xxx_battery
 modprobe twl4030-pwrbutton
 
 #USB FunctionFS (ADB)
+modprobe omap2430 #used for MUSB/UDC
 modprobe libcomposite
 modprobe usb_f_fs
 #modprobe g_ffs idVendor=0x18d1 idProduct=0x4e26 #FIXME: Busybox modprobe does not correctly pass the module parameters
