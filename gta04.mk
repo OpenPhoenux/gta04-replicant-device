@@ -20,13 +20,49 @@ PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/replicant_gta04_install.sh:replicant_gta04_install.sh
 
 # System Root
+# TODO: the device-tree files (*.dtb) are currently Linux-4.5.0 based, find a
+#       way to automatically install the current dtbs via the kernel build env.
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/rootdir/init.rc:root/init.rc \
 	device/goldelico/gta04/rootdir/ueventd.rc:root/ueventd.rc \
 	device/goldelico/gta04/rootdir/init.gta04.rc:root/init.gta04.rc \
 	device/goldelico/gta04/rootdir/init.gta04.usb.rc:root/init.gta04.usb.rc \
 	device/goldelico/gta04/rootdir/ueventd.gta04.rc:root/ueventd.gta04.rc \
+	device/goldelico/gta04/rootdir/boot/omap3-beagle+gta04.dtb:root/boot/omap3-beagle+gta04.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-beagle+gta04b1.dtb:root/boot/omap3-beagle+gta04b1.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-beagle+gta04b4.dtb:root/boot/omap3-beagle+gta04b4.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-beagle-xm+gta04.dtb:root/boot/omap3-beagle-xm+gta04.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-beagle-xm+gta04b1.dtb:root/boot/omap3-beagle-xm+gta04b1.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-beagle-xm+gta04b7.dtb:root/boot/omap3-beagle-xm+gta04b7.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-beagle-xm-ab+gta04b1.dtb:root/boot/omap3-beagle-xm-ab+gta04b1.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-beagle-xm-ab+gta04b7.dtb:root/boot/omap3-beagle-xm-ab+gta04b7.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04+b6.dtb:root/boot/omap3-gta04+b6.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04+b7.dtb:root/boot/omap3-gta04+b7.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04a2.dtb:root/boot/omap3-gta04a2.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04a3+b2.dtb:root/boot/omap3-gta04a3+b2.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04a3.dtb:root/boot/omap3-gta04a3.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04a4+b2.dtb:root/boot/omap3-gta04a4+b2.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04a4+b3.dtb:root/boot/omap3-gta04a4+b3.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04a4.dtb:root/boot/omap3-gta04a4.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04a5.dtb:root/boot/omap3-gta04a5.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-n900.dtb:root/boot/omap3-n900.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-pandora-1ghz.dtb:root/boot/omap3-pandora-1ghz.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-pandora-600mhz.dtb:root/boot/omap3-pandora-600mhz.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-evm+pyra4.dtb:root/boot/omap5-evm+pyra4.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-letux-cortex15+pyra.dtb:root/boot/omap5-letux-cortex15+pyra.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-letux-cortex15-v4.9+pyra.dtb:root/boot/omap5-letux-cortex15-v4.9+pyra.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-letux-cortex15-v4.9.dtb:root/boot/omap5-letux-cortex15-v4.9.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-letux-cortex15.dtb:root/boot/omap5-letux-cortex15.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-pyra+boe.dtb:root/boot/omap5-pyra+boe.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-pyra+lg.dtb:root/boot/omap5-pyra+lg.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-pyra+ssd+boe.dtb:root/boot/omap5-pyra+ssd+boe.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-pyra+ssd+succ.dtb:root/boot/omap5-pyra+ssd+succ.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-pyra+succ.dtb:root/boot/omap5-pyra+succ.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-pyra-brokenevm.dtb:root/boot/omap5-pyra-brokenevm.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-pyra.dtb:root/boot/omap5-pyra.dtb \
+	device/goldelico/gta04/rootdir/boot/omap5-uevm.dtb:root/boot/omap5-uevm.dtb \
 	device/goldelico/gta04/rootdir/boot/bootargs.scr:root/boot/bootargs.scr #contains FunctionFS IDs for adb (g_ffs.idVendor=0x18d1 g_ffs.idProduct=0x4e26)
+
 
 # Don't install kernel boot splash (initlogo.rle), as it is not universal for all Display sizes (Letux 2804/3704/7004)
 # This is now also handled via replicant_gta04_install.sh script in upstream Replicant
