@@ -1,4 +1,32 @@
 #!/system/bin/sh
+#Debian/4.5 uses this extra modules, which are unused in Replicant, up to now:
+#autofs4                25916  1 
+#usb_f_ecm               7039  1 
+#g_ether                 4993  0 
+#usb_f_rndis            16962  2 g_ether
+#u_ether                13270  3 usb_f_ecm,usb_f_rndis,g_ether
+#ipv6                  410330  20 
+#hso                    30144  0 #(this is built-in the Replicant kernel)
+#w2sg0004                5680  0 
+#encoder_opa362          3378  1 
+#twl4030_madc_hwmon      3361  0 
+#connector_analog_tv     3566  1 
+#twl4030_madc_battery     3998  0 
+#extcon_gpio             3185  0 
+#bmp085_i2c              1706  0 
+#itg3200                 4789  1 
+#hmc5843_i2c             3258  0 
+#at24                    5541  0 
+#lis3lv02d_i2c           3673  0 
+#hmc5843_core            6842  1 hmc5843_i2c
+#bma150                  6740  0 
+#lis3lv02d              15911  1 lis3lv02d_i2c
+#input_polldev           4917  2 bma150,lis3lv02d
+#gpio_twl4030            4789  0 
+#rtc_twl                 6128  0 
+#twl4030_madc            9490  1 twl4030_madc_hwmon
+
+
 #This scipt loads some modules, which are not loaded automatically (for some reason)
 DEVICE=$(cat /sys/firmware/devicetree/base/model) #TODO: for later use
 
