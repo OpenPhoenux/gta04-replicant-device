@@ -7,23 +7,10 @@
 #u_ether                13270  3 usb_f_ecm,usb_f_rndis,g_ether
 #ipv6                  410330  20 
 #hso                    30144  0 #(this is built-in the Replicant kernel)
-#w2sg0004                5680  0 
 #encoder_opa362          3378  1 
 #twl4030_madc_hwmon      3361  0 
 #connector_analog_tv     3566  1 
 #twl4030_madc_battery     3998  0 
-#extcon_gpio             3185  0 
-#bmp085_i2c              1706  0 
-#itg3200                 4789  1 
-#hmc5843_i2c             3258  0 
-#at24                    5541  0 
-#lis3lv02d_i2c           3673  0 
-#hmc5843_core            6842  1 hmc5843_i2c
-#bma150                  6740  0 
-#lis3lv02d              15911  1 lis3lv02d_i2c
-#input_polldev           4917  2 bma150,lis3lv02d
-#gpio_twl4030            4789  0 
-#rtc_twl                 6128  0 
 #twl4030_madc            9490  1 twl4030_madc_hwmon
 
 
@@ -86,3 +73,25 @@ modprobe libertas #autoloads the cfg80211 dependency
 chmod 777 /dev/rfkill
 modprobe wwan-on-off
 modprobe ehci-omap
+
+#Sensors
+modprobe bmp085-i2c
+modprobe itg3200
+modprobe hmc5843_i2c
+modprobe lis3lv02d_i2c
+modprobe bma150
+chmod 666 /dev/input/*
+#chmod 666 /dev/iio:device*
+#chmod 666 /sys/bus/iio/devices/iio:device*/buffer/enable
+#chmod 666 /sys/bus/iio/devices/iio:device*/*
+#chmod 666 /sys/bus/iio/devices/iio:device0/scan_elements/*
+#chmod 666 /sys/bus/iio/devices/iio:device0/trigger/*
+
+#GPS
+modprobe w2sg0004
+modprobe extcon-gpio
+
+#Misc
+modprobe gpio_twl4030
+modprobe rtc_twl
+modprobe at24 #I2C-EEPROM
