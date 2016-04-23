@@ -81,6 +81,7 @@ modprobe hmc5843_i2c
 modprobe lis3lv02d_i2c
 modprobe bma150
 chmod 666 /dev/input/*
+chmod 666 /sys/class/input/*/poll
 #chmod 666 /dev/iio:device*
 #chmod 666 /sys/bus/iio/devices/iio:device*/buffer/enable
 #chmod 666 /sys/bus/iio/devices/iio:device*/*
