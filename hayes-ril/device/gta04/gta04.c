@@ -95,18 +95,13 @@ int gta04_power_on(void *sdata)
 	int fd;
 	int retry = 0;
 
-	if(is_gta04a3()) {
-		ALOGD("Detected GTA04A3: Modem is on");
-		return 0;
-	}
-
 retry:
 	tty_nodes_count = gta04_power_count_nodes();
 	if (tty_nodes_count < 2) {
 		ALOGD("Powering modem on");
 
 		rfkill_block(0);
-		sleep(3);
+		sleep(10);
 
 		tty_nodes_count = gta04_power_count_nodes();
 		if(tty_nodes_count < 2 && retry < 10) {
