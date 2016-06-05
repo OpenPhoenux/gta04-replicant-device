@@ -30,6 +30,8 @@
 #include "gta04.h"
 #include <hayes-ril.h>
 
+int MODEM_TOGGLE_COUNTER = 0;
+
 int rfkill_block(uint8_t block) {
 	struct rfkill_event event;
 	ssize_t len;
@@ -60,6 +62,22 @@ int rfkill_block(uint8_t block) {
 	}
 	close(fd);
 	return 0;
+}
+
+
+void gta04_modem_toggle(void)
+{
+	if((MODEM_TOGGLE_COUNTER % 2) == 0) {
+		ALOGD("gta04_modem_toggle block");
+		rfkill_block(1);
+		sleep(8); //the modem needs up to 8 sec to appear on the USB bus
+		debug_lsusb();
+	} else {
+		ALOGD("gta04_modem_toggle unblock");
+		rfkill_block(0);
+		sleep(8); //the modem needs up to 8 sec to appear on the USB bus
+		debug_lsusb();
+	}
 }
 
 int gta04_power_count_nodes(void)
@@ -100,8 +118,13 @@ retry:
 	if (tty_nodes_count < 2) {
 		ALOGD("Powering modem on");
 
-		rfkill_block(0);
-		sleep(10);
+		if(is_gta04a4()) {
+			ALOGD("GTA04a4: toggle");
+			gta04_modem_toggle();
+		} else {
+			rfkill_block(0);
+			sleep(8);
+		}
 
 		tty_nodes_count = gta04_power_count_nodes();
 		if(tty_nodes_count < 2 && retry < 10) {
@@ -139,8 +162,13 @@ retry:
 	if (tty_nodes_count > 0) {
 		ALOGD("Powering modem off");
 
-		rfkill_block(1);
-		sleep(3);
+		if(is_gta04a4()) {
+			ALOGD("GTA04a4: toggle");
+			gta04_modem_toggle();
+		} else {
+			rfkill_block(1);
+			sleep(8);
+		}
 
 		tty_nodes_count = gta04_power_count_nodes();
 		if(tty_nodes_count > 0 && retry < 10) {
