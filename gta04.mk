@@ -81,9 +81,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/usr/idc/TSC2007_Touchscreen.idc:system/usr/idc/TSC2007_Touchscreen.idc \
 	device/goldelico/gta04/usr/keylayout/twl4030_pwrbutton.kl:system/usr/keylayout/twl4030_pwrbutton.kl \
-	device/goldelico/gta04/usr/keylayout/Phone_button.kl:system/usr/keylayout/Phone_button.kl \
+	device/goldelico/gta04/usr/keylayout/gpio-keys.kl:system/usr/keylayout/gpio-keys.kl \
 	device/goldelico/gta04/usr/keylayout/gta04_Headset_Jack.kl:system/usr/keylayout/gta04_Headset_Jack.kl \
-	device/goldelico/gta04/usr/keylayout/3G_Wakeup.kl:system/usr/keylayout/3G_Wakeup.kl
+	device/goldelico/gta04/usr/keylayout/gpio-keys-wwan-wakeup.kl:system/usr/keylayout/gpio-keys-wwan-wakeup.kl
 
 # Bluetooth configuration files
 PRODUCT_COPY_FILES += \
