@@ -41,9 +41,9 @@ static pthread_mutex_t lights_mutex = PTHREAD_MUTEX_INITIALIZER;
 int device_type = L2804_GTA04; /* Needs to be detected, default to GTA04 */
 
 char backlight_brightness[] =
-	"/sys/class/backlight/pwm-backlight/brightness";
+	"/sys/class/backlight/backlight/brightness";
 char backlight_max_brightness[] =
-	"/sys/class/backlight/pwm-backlight/max_brightness";
+	"/sys/class/backlight/backlight/max_brightness";
 
 /* GTA04/Letux2804 */
 char pwr_red_brightness[] =
@@ -292,10 +292,10 @@ static int set_light_backlight(struct light_device_t *dev,
 	//avoid low brightness, but allow off (0)
 	//this helps in situations where you think the device is off/crashed,
 	//even though its working, but brighness is set too low (e.g. 3).
-	if(brightness > 0 && brightness < 15)
-		brightness = 15; //minimum brighness = 15
+	if(brightness > 0 && brightness < 2)
+		brightness = 2; //minimum brighness: 20%
 
-	//ALOGD("Setting brightness to: %d", brightness);
+	ALOGD("Setting brightness to: %d", brightness);
 
 	pthread_mutex_lock(&lights_mutex);
 	rc = sysfs_write_int(backlight_brightness, brightness);

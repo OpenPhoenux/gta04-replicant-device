@@ -1,6 +1,8 @@
 import init.gta04.usb.rc
 
 on early-init
+	#Let the Kernel (kmod.c) load its module dependencies
+	symlink /system/xbin/modprobe /sbin/modprobe
 	export EXTERNAL_STORAGE /mnt/sdcard
 	mkdir /mnt/sdcard 0000 system system
 	symlink /mnt/sdcard /sdcard
@@ -11,6 +13,8 @@ on early-init
 	mkdir /mnt/boot 0000 system system
 
 on boot
+	start modules
+
 	# Enable Wake Locks
 	chmod 777 /sys/power/wake_lock
 	chmod 777 /sys/power/wake_unlock
@@ -51,8 +55,10 @@ on boot
 	chmod 666 /sys/bus/iio/devices/iio:device0/trigger/current_trigger
 
 	# Lights
-	chown system system /sys/class/backlight/pwm-backlight/brightness
-	chown system system /sys/class/backlight/pwm-backlight/max_brightness
+	chown system system /sys/class/backlight/pwm-backlight/brightness #old
+	chown system system /sys/class/backlight/pwm-backlight/max_brightness #old
+	chown system system /sys/class/backlight/backlight/brightness
+	chown system system /sys/class/backlight/backlight/max_brightness
 	# Letux 2804
 	chown system system /sys/class/leds/gta04:red:power/brightness
 	chown system system /sys/class/leds/gta04:red:power/max_brightness
@@ -83,25 +89,30 @@ on boot
 	chmod 777 /sys/devices/platform/omap_i2c.1/i2c-1/1-004a/twl4030_bci/max_current
 
 	#Bluetooth
-	insmod /system/lib/modules/bluetooth.ko
-	insmod /system/lib/modules/hci_uart.ko
+	#insmod /system/lib/modules/bluetooth.ko
+	#insmod /system/lib/modules/hci_uart.ko
 	chown bluetooth bluetooth /dev/ttyO0
 	chmod 0600 /dev/ttyO0
 	#rfkill1 is only available if hciattach is running
-	start hciattach
-	start bluetoothd
-	wait /sys/class/rfkill/rfkill1/state
-	chmod 0660 /sys/class/rfkill/rfkill1/state
-	chown bluetooth bluetooth /sys/class/rfkill/rfkill1/state
-	chown bluetooth bluetooth /sys/class/rfkill/rfkill1/type
-	write /sys/class/rfkill/rfkill1/state 0
+	#start hciattach
+	#start bluetoothd
+	#wait /sys/class/rfkill/rfkill1/state
+	#chmod 0660 /sys/class/rfkill/rfkill1/state
+	#chown bluetooth bluetooth /sys/class/rfkill/rfkill1/state
+	#chown bluetooth bluetooth /sys/class/rfkill/rfkill1/type
+	#write /sys/class/rfkill/rfkill1/state 0
 
-#on fs
+on fs
 	#mount ext4 /dev/block/mmcblk0p2 /system wait
 	#mount ext4 /dev/block/mmcblk0p2 /system ro wait remount
 	#mount ext4 /dev/block/mmcblk0p3 /cache nosuid wait
 	#mount ext4 /dev/block/mmcblk0p4 /data nosuid wait
 	#mount vfat /dev/block/mmcblk0p1 /mnt/boot/ ro wait
+
+# Manual Module Loading
+service modules /system/bin/logwrapper /system/load_modules.sh
+	class core
+	oneshot
 
 # ALSA Voice Routing Configuration
 service voicerouting /system/voice-routing-init.sh
@@ -134,13 +145,14 @@ on post-fs-data
 
 	#setprop vold.post_fs_data_done 1
 
+# There is no hciattach with BlueDroid
 # for bluetooth (speed=3000000, choose 115200 for GTA04A3 boards)
-service hciattach /system/bin/logwrapper /system/bin/hciattach -s 3000000 /dev/ttyO0 any 3000000 flow
-	class main
-	user bluetooth
-	group bluetooth net_bt_admin
-	disabled
-	oneshot
+#service hciattach /system/bin/logwrapper /system/bin/hciattach -s 3000000 /dev/ttyO0 any 3000000 flow
+#	class main
+#	user bluetooth
+#	group bluetooth net_bt_admin
+#	disabled
+#	oneshot
 
 # Wi-Fi
 service wpa_supplicant /system/bin/wpa_supplicant -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf

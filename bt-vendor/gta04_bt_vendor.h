@@ -39,6 +39,7 @@
 #define HCI_CMD_PREAMBLE_SIZE					3
 
 #define HCI_EVENT_VENDOR					0xFF
+#define HCI_EVENT_COMMAND_COMPLETE				0x0E
 
 #define HCI_BCCMD_PDU_GETREQ					0x0000
 #define HCI_BCCMD_PDU_GETRESP					0x0001
@@ -72,8 +73,8 @@ struct gta04_bt_vendor {
  */
 
 extern const char serial_path[];
-extern const speed_t serial_init_speed;
-extern const speed_t serial_work_speed;
+extern speed_t serial_init_speed;
+extern speed_t serial_work_speed;
 
 extern struct gta04_bt_vendor *gta04_bt_vendor;
 

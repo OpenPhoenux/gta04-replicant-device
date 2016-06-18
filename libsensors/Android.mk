@@ -23,14 +23,13 @@ LOCAL_SRC_FILES := \
 	iio.c \
 	bma180.c \
 	lis302.c \
-	itg3200.c \
-	hmc5883l.c \
 	tept4400.c \
 	orientation.c \
 	bmp085.c \
 	$(NULL)
 
-
+#	itg3200.c \
+#	hmc5883l.c \
 
 LOCAL_C_INCLUDES := \
 	$(LOCAL_PATH)

@@ -39,4 +39,17 @@ struct gta04_transport_data {
 	int application_ac;
 };
 
+// from linux/rfkill.h
+#define RFKILL_OP_CHANGE_ALL	3
+#define RFKILL_TYPE_WWAN	5
+struct rfkill_event {
+	uint32_t idx;
+	uint8_t  type;
+	uint8_t  op;
+	uint8_t  soft, hard;
+};
+
+//from libgta04
+extern int is_gta04a3();
+
 #endif

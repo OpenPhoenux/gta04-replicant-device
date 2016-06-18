@@ -32,9 +32,12 @@
  * Globals
  */
 
+extern int is_gta04a3(); //from libgta04
+extern int is_gta04a4(); //from libgta04
+
 const char serial_path[] = "/dev/ttyO0";
-const speed_t serial_init_speed = B3000000;
-const speed_t serial_work_speed = B3000000;
+speed_t serial_init_speed;
+speed_t serial_work_speed;
 
 struct gta04_bt_vendor *gta04_bt_vendor = NULL;
 
@@ -187,6 +190,17 @@ int gta04_bt_vendor_init(const bt_vendor_callbacks_t *callbacks,
 	int rc;
 
 	ALOGD("%s(%p, %p)", __func__, callbacks, local_bdaddr);
+
+	if(is_gta04a3()) {
+		//FIXME: it still does not work with B115200 on A3
+		ALOGD("Detected GTA04a3, reducing baud rate.");
+		serial_init_speed = B115200;
+		serial_work_speed = B115200;
+	}
+	else {
+		serial_init_speed = B3000000;
+		serial_work_speed = B3000000;
+	}
 
 	if (callbacks == NULL || local_bdaddr == NULL)
 		return -EINVAL;
@@ -371,7 +385,8 @@ int gta04_bt_vendor_op_userial_open(void *param)
 
 	sleep(1);
 
-	rc = gta04_bt_vendor_hci_h4_read_event(NULL, 0, HCI_EVENT_VENDOR);
+	//rc = gta04_bt_vendor_hci_h4_read_event(NULL, 0, HCI_EVENT_VENDOR);
+	rc = gta04_bt_vendor_hci_h4_read_event(NULL, 0, HCI_EVENT_COMMAND_COMPLETE);
 	if (rc < 0) {
 		ALOGE("%s: Reading HCI failed", __func__);
 		return -1;
