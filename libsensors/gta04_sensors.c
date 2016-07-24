@@ -45,10 +45,10 @@ struct sensor_t gta04_sensors[] = {
 		SENSOR_TYPE_ORIENTATION, 360.0f, 0.1f, 0.0f, 10000, {}, },
 	{ "BMP085 Pressure Sensor", "Bosch", 1, SENSOR_TYPE_PRESSURE,
 		SENSOR_TYPE_PRESSURE, 1000.0f, 1.0f, 1.0f, 66700, {}, },
-};
-/*
 	{ "ITG3200 Gyroscope Sensor", "InvenSense", 1, SENSOR_TYPE_GYROSCOPE,
 		SENSOR_TYPE_GYROSCOPE, 500.0f * (3.1415926535f / 180.0f), (70.0f / 4000.0f) * (3.1415926535f / 180.0f), 6.1f, 5000, {}, },
+};
+/*
 	{ "HMC5883L Magnetic Sensor", "Honeywell", 1, SENSOR_TYPE_MAGNETIC_FIELD,
 		SENSOR_TYPE_MAGNETIC_FIELD, 500.0f * (3.1415926535f / 180.0f), (70.0f / 4000.0f) * (3.1415926535f / 180.0f), 6.1f, 5000, {}, }, //TODO: adopt parameters
 */
@@ -60,9 +60,9 @@ struct gta04_sensors_handlers *gta04_sensors_handlers[] = {
 	&tept4400,
 	&orientation,
 	&bmp085,
+	&itg3200,
 };
 /*
-	&itg3200,
 	&hmc5883l,
 */
 

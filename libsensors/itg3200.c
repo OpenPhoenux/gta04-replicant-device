@@ -54,7 +54,7 @@ int itg3200_enable_iio_channels(char* device_name)
 	tmp = make_sysfs_name(device_name, "scan_elements/in_anglvel_x_en");
 	rc = sysfs_value_write(tmp, 1); //1 == enable
 	if (rc < 0) {
-		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 1, tmp);
+		ALOGE("%s: Unable to write sysfs value (%d) to %s (%s)", __func__, 1, tmp, strerror(errno));
 		goto error;
 	}
 	free(tmp);
@@ -63,7 +63,7 @@ int itg3200_enable_iio_channels(char* device_name)
 	tmp = make_sysfs_name(device_name, "scan_elements/in_anglvel_y_en");
 	rc = sysfs_value_write(tmp, 1); //1 == enable
 	if (rc < 0) {
-		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 1, tmp);
+		ALOGE("%s: Unable to write sysfs value (%d) to %s (%s)", __func__, 1, tmp, strerror(errno));
 		goto error;
 	}
 	free(tmp);
@@ -72,7 +72,7 @@ int itg3200_enable_iio_channels(char* device_name)
 	tmp = make_sysfs_name(device_name, "scan_elements/in_anglvel_z_en");
 	rc = sysfs_value_write(tmp, 1); //1 == enable
 	if (rc < 0) {
-		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 1, tmp);
+		ALOGE("%s: Unable to write sysfs value (%d) to %s (%s)", __func__, 1, tmp, strerror(errno));
 		goto error;
 	}
 	free(tmp);
@@ -106,6 +106,9 @@ int itg3200_init(struct gta04_sensors_handlers *handlers,
 	data->name = "itg3200";
 
 	dev_num = find_type_by_name(data->name, "iio:device");
+	if (dev_num < 0)
+		goto error;
+
 	asprintf(&(data->iio_name), "iio:device%d", dev_num); //i.e. data->iio_name = iio:device1
 
 	itg3200_enable_iio_channels(data->iio_name);
@@ -258,7 +261,7 @@ int itg3200_set_delay(struct gta04_sensors_handlers *handlers, long int delay)
 	ALOGD("%s: setting sampling_frequency to %d", __func__, frequency);
 	rc = sysfs_value_write(tmp, frequency);
 	if (rc < 0) {
-		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, 0, tmp);
+		ALOGE("%s: Unable to write sysfs value (%d) to %s (%s)", __func__, 0, tmp, strerror(errno));
 		goto error;
 	}
 	free(tmp);

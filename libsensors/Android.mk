@@ -26,9 +26,9 @@ LOCAL_SRC_FILES := \
 	tept4400.c \
 	orientation.c \
 	bmp085.c \
+	itg3200.c \
 	$(NULL)
 
-#	itg3200.c \
 #	hmc5883l.c \
 
 LOCAL_C_INCLUDES := \

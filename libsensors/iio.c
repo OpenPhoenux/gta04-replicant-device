@@ -65,7 +65,7 @@ int iio_set_default_trigger(char* device_name, char* name, int dev_num)
 	asprintf(&default_trigger, "%s-dev%d", name, dev_num); //construct default trigger name
 	rc = sysfs_string_write(tmp, default_trigger, strlen(default_trigger)+1); //+1 for null byte
 	if (rc < 0) {
-		ALOGE("%s: Unable to write sysfs string (%s) to %s", __func__, default_trigger, tmp);
+		ALOGE("%s: Unable to write sysfs string (%s) to %s (%s)", __func__, default_trigger, tmp, strerror(errno));
 		goto error;
 	}
 	free(tmp);
@@ -92,7 +92,7 @@ int iio_set_buffer_state(char* device_name, int state)
 	tmp = make_sysfs_name(device_name, "buffer/enable");
 	rc = sysfs_value_write(tmp, state);
 	if (rc < 0) {
-		ALOGE("%s: Unable to write sysfs value (%d) to %s", __func__, state, tmp);
+		ALOGE("%s: Unable to write sysfs value (%d) to %s (%s)", __func__, state, tmp, strerror(errno));
 		goto error;
 	}
 	free(tmp);
@@ -126,8 +126,8 @@ int find_type_by_name(const char *name, const char *type)
 
     dp = opendir(iio_dir);
     if (dp == NULL) {
-        ALOGE("No industrialio devices available");
-        return ret;
+        ALOGE("No industrialio devices available (%s)", strerror(errno));
+        return -errno;
     }
 
     while (ent = readdir(dp), ent != NULL) {
