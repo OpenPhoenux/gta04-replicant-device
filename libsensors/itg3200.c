@@ -287,6 +287,7 @@ int itg3200_get_data(struct gta04_sensors_handlers *handlers,
 	int iio_fd;
 	int rc;
 	char buf[1024];
+	int i;
 
 	//ALOGD("%s(%p, %p)", __func__, handlers, event);
 
@@ -300,9 +301,14 @@ int itg3200_get_data(struct gta04_sensors_handlers *handlers,
 		return -EINVAL;
 
 	//clear '/dev/iio:device1', so poll() won't loop infinitely
+	i = 0;
 	do {
 		rc = read(iio_fd, &buf, 1024);
 		//ALOGD("itg3200: read %d bytes", rc);
+		//FIXME: find a proper way to reduce the sample count (e.g. via sampling_frequency)
+		if(i > 50) //take only one sample every 50 interrupts, as the IRQs trigger to often and fully utilize the CPU
+			break;
+		i++;
 	} while (rc > 0);
 
 
