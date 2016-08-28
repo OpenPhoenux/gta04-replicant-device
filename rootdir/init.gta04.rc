@@ -119,11 +119,6 @@ service voicerouting /system/voice-routing-init.sh
 	class main
 	oneshot
 
-# Battery Driver
-service battery /system/battery-init.sh
-	class main
-	oneshot
-
 # Battery Fast Charge
 service batteryd /system/bin/logwrapper /system/bin/batteryd.gta04
 	class main

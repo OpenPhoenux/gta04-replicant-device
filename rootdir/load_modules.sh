@@ -13,7 +13,8 @@
 #twl4030_madc_battery     3998  0 
 
 #This scipt loads some modules, which are not loaded automatically (for some reason)
-DEVICE=$(cat /sys/firmware/devicetree/base/model) #TODO: for later use
+DEVICE=$(cat /sys/firmware/devicetree/base/model)
+echo "Detected model:" $DEVICE
 
 #Graphics
 modprobe panel_tpo_td028ttec1
@@ -40,8 +41,26 @@ modprobe twl4030_madc
 modprobe twl4030_charger
 modprobe omap_hdq
 modprobe w1_bq27000
-modprobe bq27xxx_battery
-#modprobe twl4030_madc_battery #optional for L3740/L7004
+case "$DEVICE" in
+    "Goldelico GTA04A3/Letux 2804" | "Goldelico GTA04A4/Letux 2804" | "Goldelico GTA04A5/Letux 2804" )
+        #GTA04 a3/a4/a5 (Letux 2804)
+        echo "LOADING bq27xxx_battery"
+        modprobe bq27xxx_battery
+        echo 5 > /sys/module/bq27xxx_battery/parameters/poll_interval
+        ;;
+    "Goldelico GTA04b2/Letux 3704" | "Goldelico GTA04b3/Letux 7004" )
+        #GTA04 b2/b3 (Letux 3704 / Letux 7004)
+        echo "LOADING generic_adc_battery"
+        modprobe generic_adc_battery
+        ;;
+    * ) #Fallback
+        echo "Could not detect device variant."
+        echo "Check your device-tree model (/sys/firmware/devicetree/base/model)."
+        echo "Falling back to bq27xxx_battery"
+        modprobe bq27xxx_battery
+        echo 5 > /sys/module/bq27xxx_battery/parameters/poll_interval
+        ;;
+esac
 
 #Power Button
 modprobe twl4030-pwrbutton
