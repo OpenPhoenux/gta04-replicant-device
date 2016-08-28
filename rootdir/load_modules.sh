@@ -11,8 +11,6 @@
 #twl4030_madc_hwmon      3361  0 
 #connector_analog_tv     3566  1 
 #twl4030_madc_battery     3998  0 
-#twl4030_madc            9490  1 twl4030_madc_hwmon
-
 
 #This scipt loads some modules, which are not loaded automatically (for some reason)
 DEVICE=$(cat /sys/firmware/devicetree/base/model) #TODO: for later use
@@ -38,6 +36,7 @@ modprobe tsc2007
 
 #Battery/Charger
 modprobe phy-twl4030-usb
+modprobe twl4030_madc
 modprobe twl4030_charger
 modprobe omap_hdq
 modprobe w1_bq27000
