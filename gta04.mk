@@ -20,8 +20,10 @@ PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/replicant_gta04_install.sh:replicant_gta04_install.sh
 
 # System Root
-# TODO: the device-tree files (*.dtb) are currently Linux-4.5.0 based, find a
+# TODO: the device-tree files (*.dtb) need to by syncronized to the corresponding kernel, find a
 #       way to automatically install the current dtbs via the kernel build env.
+#WARNING: Old U-Boot environments are searching for another DTB scheme (e.g. omap3-gta04+b2.dtb),
+#         which will fail to boot. Update the bootloader of the device to fix this.
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/rootdir/init.rc:root/init.rc \
 	device/goldelico/gta04/rootdir/ueventd.rc:root/ueventd.rc \

@@ -17,7 +17,8 @@ DEVICE=$(cat /sys/firmware/devicetree/base/model)
 echo "Detected model:" $DEVICE
 
 #Graphics
-modprobe panel_tpo_td028ttec1
+modprobe panel_tpo_td028ttec1 #Letux 2804
+modprobe panel_dpi #Letux 3704/7004
 modprobe omapdrm
 
 #Audio
