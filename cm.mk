@@ -1,5 +1,5 @@
 # Inherit some common CM stuff.
-$(call inherit-product, vendor/replicant/config/gsm.mk)
+$(call inherit-product, vendor/replicant/config/telepony.mk)
 
 # Release name
 PRODUCT_RELEASE_NAME := GTA04
