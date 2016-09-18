@@ -15,6 +15,7 @@
 # CPU
 TARGET_CPU_ABI := armeabi-v7a
 TARGET_CPU_ABI2 := armeabi
+TARGET_CPU_VARIANT := cortex-a8
 TARGET_ARCH := arm
 TARGET_ARCH_VARIANT := armv7-a-neon
 TARGET_GLOBAL_CFLAGS += -mtune=cortex-a8 -mfpu=neon -mfloat-abi=softfp
@@ -32,6 +33,7 @@ TARGET_NO_KERNEL := false
 TARGET_NO_RECOVERY := true
 BOARD_USES_UBOOT := true
 BOARD_CUSTOM_BOOTIMG_MK := device/goldelico/gta04/bootimg.mk
+BOARD_KERNEL_IMAGE_NAME := uImage
 
 # Init RC
 TARGET_PROVIDES_INIT_RC := true
