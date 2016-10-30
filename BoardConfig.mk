@@ -67,15 +67,15 @@ BOARD_WPA_SUPPLICANT_DRIVER := NL80211
 BOARD_WLAN_DEVICE := libertas
 
 # Bluetooth
-BOARD_HAVE_BLUETOOTH := true
-BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/goldelico/gta04/bluetooth
+#BOARD_HAVE_BLUETOOTH := true
+#BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := device/goldelico/gta04/bluetooth
 
 # Vibrator
 BOARD_HAS_VIBRATOR_IMPLEMENTATION := ../../device/goldelico/gta04/vibrator/vibrator.c
 
 # SoftwareGL
 USE_OPENGL_RENDERER := false
-TARGET_DISABLE_TRIPLE_BUFFERING := true
+# TARGET_DISABLE_TRIPLE_BUFFERING := true #FIXME: seems do be broken in replicant-6
 
 # Audio
 BOARD_USE_TINYALSA_AUDIO := true
