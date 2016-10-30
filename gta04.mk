@@ -166,8 +166,9 @@ PRODUCT_COPY_FILES += \
 	vendor/replicant/prebuilt/common/etc/apns-conf.xml:system/etc/apns-conf.xml
 
 # Bluetooth
-PRODUCT_PACKAGES += \
-	libbt-vendor
+# FIXME: Bluetooth is disabled for now, as replicnt-6 does not provide bt_vendor_lib.h
+#PRODUCT_PACKAGES += \
+#	libbt-vendor
 
 # Dalvik
 PRODUCT_PROPERTY_OVERRIDES += \
