@@ -17,7 +17,7 @@
  -->
 
 <resources>
-	<string name="def_quick_settings_tiles">toggleUser|toggleBrightness|toggleVolume|toggleSettings|toggleWifi|toggleMobileData|toggleBattery|toggleAirplane|toggleBluetooth</string>
+	<!--<string name="def_quick_settings_tiles">toggleUser|toggleBrightness|toggleVolume|toggleSettings|toggleWifi|toggleMobileData|toggleBattery|toggleAirplane|toggleBluetooth</string>-->
 	<fraction name="def_animator_duration_scale">0%</fraction>
 </resources>
 
