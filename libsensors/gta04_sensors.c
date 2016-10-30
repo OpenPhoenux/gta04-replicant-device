@@ -38,15 +38,20 @@
  */
 struct sensor_t gta04_sensors[] = {
 	{ "BMA180 Acceleration Sensor", "Bosch", 1, SENSOR_TYPE_ACCELEROMETER,
-		SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000, {}, },
+		SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000,
+		1, 1, SENSOR_STRING_TYPE_ACCELEROMETER, "", 100000, SENSOR_FLAG_CONTINUOUS_MODE, {}, },
 	{ "TEPT4400 Light Sensor", "Vishay", 1, SENSOR_TYPE_LIGHT,
-		SENSOR_TYPE_LIGHT, 10.0f, 0.1f, 10.0f, 5000, {}, }, //TODO: power, min_delay
+		SENSOR_TYPE_LIGHT, 10.0f, 0.1f, 10.0f, 5000,
+		1, 1, SENSOR_STRING_TYPE_LIGHT, "", 100000, SENSOR_FLAG_CONTINUOUS_MODE, {}, },
 	{ "Orientation Sensor", "GTA04 Sensors", 1, SENSOR_TYPE_ORIENTATION,
-		SENSOR_TYPE_ORIENTATION, 360.0f, 0.1f, 0.0f, 10000, {}, },
+		SENSOR_TYPE_ORIENTATION, 360.0f, 0.1f, 0.0f, 10000,
+		1, 1, SENSOR_STRING_TYPE_ORIENTATION, "", 100000, SENSOR_FLAG_CONTINUOUS_MODE, {}, },
 	{ "BMP085 Pressure Sensor", "Bosch", 1, SENSOR_TYPE_PRESSURE,
-		SENSOR_TYPE_PRESSURE, 1000.0f, 1.0f, 1.0f, 66700, {}, },
+		SENSOR_TYPE_PRESSURE, 1000.0f, 1.0f, 1.0f, 66700,
+		1, 1, SENSOR_STRING_TYPE_PRESSURE, "", 100000, SENSOR_FLAG_CONTINUOUS_MODE, {}, },
 	{ "ITG3200 Gyroscope Sensor", "InvenSense", 1, SENSOR_TYPE_GYROSCOPE,
-		SENSOR_TYPE_GYROSCOPE, 500.0f * (3.1415926535f / 180.0f), (70.0f / 4000.0f) * (3.1415926535f / 180.0f), 6.1f, 5000, {}, },
+		SENSOR_TYPE_GYROSCOPE, 500.0f * (3.1415926535f / 180.0f), (70.0f / 4000.0f) * (3.1415926535f / 180.0f), 6.1f, 5000,
+		1, 1, SENSOR_STRING_TYPE_GYROSCOPE, "", 100000, SENSOR_FLAG_CONTINUOUS_MODE, {}, },
 };
 /*
 	{ "HMC5883L Magnetic Sensor", "Honeywell", 1, SENSOR_TYPE_MAGNETIC_FIELD,
@@ -83,7 +88,8 @@ int gta04_sensors_hwdetect()
 		//switch accel, because the default BMA180 is not available
 		ALOGD("BMA150/180 accel not available, switching to LIS302.");
 		struct sensor_t lis302_data = { "LIS302 Acceleration Sensor", "STMicroelectronics", 1, SENSOR_TYPE_ACCELEROMETER,
-						SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000, {}, };
+						SENSOR_TYPE_ACCELEROMETER, 2 * GRAVITY_EARTH, 0.0096f, 0.25f, 10000,
+						1, 1, SENSOR_STRING_TYPE_ACCELEROMETER, "", 100000, SENSOR_FLAG_CONTINUOUS_MODE, {}, };
 		gta04_sensors[0] = lis302_data;
 		gta04_sensors_handlers[0] = &lis302; //defined in gta04_sensors.h
 	}
