@@ -51,7 +51,6 @@ ifneq ($(hayes_ril_device_files),)
 	LOCAL_PRELINK_MODULE := false
 
 	LOCAL_C_INCLUDES += $(KERNEL_HEADERS) $(LOCAL_PATH)
-	LOCAL_LDLIBS += -lpthread
 	LOCAL_CFLAGS += -DRIL_SHLIB -D_GNU_SOURCE
 
 	LOCAL_MODULE_TAGS := optional
