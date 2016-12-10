@@ -88,8 +88,8 @@ PRODUCT_COPY_FILES += \
 
 # Bluetooth configuration files
 PRODUCT_COPY_FILES += \
-	system/bluetooth/data/main.le.conf:system/etc/bluetooth/main.conf \
-	frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml
+	frameworks/native/data/etc/handheld_core_hardware.xml:system/etc/permissions/handheld_core_hardware.xml \
+	#system/bluetooth/data/main.le.conf:system/etc/bluetooth/main.conf
 
 # Wi-Fi
 PRODUCT_COPY_FILES += \
