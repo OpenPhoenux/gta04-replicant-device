@@ -50,6 +50,7 @@ TARGET_KERNEL_SOURCE := kernel/goldelico/gta04
 # pass LOADADDR=0x80008000 manually for kernel build.
 # This variable is not considered in Replicant 4.2
 TARGET_KERNEL_LOADADDR := 0x80008000
+TARGET_USES_LOGD := true
 
 # Hardware
 BOARD_HAVE_FM_RADIO := false
