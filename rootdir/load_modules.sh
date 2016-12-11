@@ -94,6 +94,16 @@ insmod /system/lib/modules/snd-pcm-dmaengine.ko
 insmod /system/lib/modules/snd-soc-omap.ko
 insmod /system/lib/modules/snd-soc-omap-mcbsp.ko
 
+#VIBRA
+insmod /system/lib/modules/twl4030-vibra.ko
+
+#BUTTON
+insmod /system/lib/modules/twl4030-pwrbutton.ko
+
+#MISC
+insmod /system/lib/modules/gpio-twl4030.ko
+insmod /system/lib/modules/rtc-twl.ko
+
 #===============================================================================
 
 #Graphics
