@@ -26,7 +26,6 @@ PRODUCT_COPY_FILES += \
 #         which will fail to boot. Update the bootloader of the device to fix this.
 PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/rootdir/init.rc:root/init.rc \
-	device/goldelico/gta04/rootdir/ueventd.rc:root/ueventd.rc \
 	device/goldelico/gta04/rootdir/init.gta04.rc:root/init.gta04.rc \
 	device/goldelico/gta04/rootdir/init.gta04.usb.rc:root/init.gta04.usb.rc \
 	device/goldelico/gta04/rootdir/ueventd.gta04.rc:root/ueventd.gta04.rc \
