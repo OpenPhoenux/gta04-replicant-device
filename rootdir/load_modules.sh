@@ -16,6 +16,86 @@
 DEVICE=$(cat /sys/firmware/devicetree/base/model)
 echo "Detected model:" $DEVICE
 
+#PANEL
+insmod /system/lib/modules/omapdss.ko
+insmod /system/lib/modules/omapdss.ko
+insmod /system/lib/modules/panel-tpo-td028ttec1.ko
+
+#FRAMEBUFFER
+insmod /system/lib/modules/drm.ko
+insmod /system/lib/modules/fb_sys_fops.ko
+insmod /system/lib/modules/cfbfillrect.ko
+insmod /system/lib/modules/syscopyarea.ko
+insmod /system/lib/modules/cfbimgblt.ko
+insmod /system/lib/modules/sysfillrect.ko
+insmod /system/lib/modules/sysimgblt.ko
+insmod /system/lib/modules/cfbcopyarea.ko
+insmod /system/lib/modules/drm_kms_helper.ko
+insmod /system/lib/modules/omapdrm.ko
+
+#BACKLIGHT
+insmod /system/lib/modules/pwm-omap-dmtimer.ko
+insmod /system/lib/modules/pwm_bl.ko
+chown system.system /sys/class/backlight/backlight/brightness
+chown system.system /sys/class/backlight/backlight/max_brightness
+
+#USB
+insmod /system/lib/modules/ehci-omap.ko
+insmod /system/lib/modules/musb_hdrc.ko
+insmod /system/lib/modules/omap_hdq.ko
+insmod /system/lib/modules/phy-twl4030-usb.ko
+insmod /system/lib/modules/twl4030-madc.ko
+insmod /system/lib/modules/twl4030_charger.ko
+
+#CHARGER
+insmod /system/lib/modules/w1_bq27000.ko
+insmod /system/lib/modules/bq27xxx_battery.ko
+
+#TOUCH
+insmod /system/lib/modules/tsc2007.ko
+
+#NETWORKING
+insmod /system/lib/modules/x_tables.ko
+insmod /system/lib/modules/ip_tables.ko
+
+insmod /system/lib/modules/ipv6.ko
+insmod /system/lib/modules/ip6_tables.ko
+insmod /system/lib/modules/ip6table_mangle.ko
+insmod /system/lib/modules/ip6table_raw.ko
+insmod /system/lib/modules/ip6table_filter.ko
+
+insmod /system/lib/modules/nf_conntrack.ko
+insmod /system/lib/modules/nf_defrag_ipv4.ko
+insmod /system/lib/modules/nf_conntrack_ipv4.ko
+insmod /system/lib/modules/nf_nat.ko
+insmod /system/lib/modules/nf_nat_ipv4.ko
+insmod /system/lib/modules/iptable_nat.ko
+insmod /system/lib/modules/iptable_mangle.ko
+insmod /system/lib/modules/iptable_filter.ko
+insmod /system/lib/modules/iptable_raw.ko
+
+#USB/ADB
+insmod /system/lib/modules/omap2430.ko
+insmod /system/lib/modules/configfs.ko
+insmod /system/lib/modules/libcomposite.ko
+insmod /system/lib/modules/usb_f_fs.ko
+#modprobe g_ffs idVendor=0x18d1 idProduct=0x4e26 #FIXME: Busybox modprobe does not correctly pass the module parameters
+insmod /system/lib/modules/g_ffs.ko idVendor=0x18d1 idProduct=0x4e26
+#Temoporary ADB fix:
+mount -o uid=2000,gid=2000 -t functionfs adb /dev/usb-ffs/adb
+restart adbd
+
+#AUDIO
+insmod /system/lib/modules/snd-soc-twl4030.ko
+insmod /system/lib/modules/snd-soc-simple-card-utils.ko
+insmod /system/lib/modules/snd-soc-simple-card.ko
+insmod /system/lib/modules/snd-soc-omap-twl4030.ko
+insmod /system/lib/modules/snd-pcm-dmaengine.ko
+insmod /system/lib/modules/snd-soc-omap.ko
+insmod /system/lib/modules/snd-soc-omap-mcbsp.ko
+
+#===============================================================================
+
 #Graphics
 modprobe panel_tpo_td028ttec1 #Letux 2804
 modprobe panel_dpi #Letux 3704/7004
