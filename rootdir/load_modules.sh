@@ -54,6 +54,9 @@ insmod /system/lib/modules/bq27xxx_battery.ko
 #TOUCH
 insmod /system/lib/modules/tsc2007.ko
 
+#FUSE/VOLD
+insmod /system/lib/modules/fuse.ko
+
 #NETWORKING
 insmod /system/lib/modules/x_tables.ko
 insmod /system/lib/modules/ip_tables.ko
