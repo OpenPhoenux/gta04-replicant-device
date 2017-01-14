@@ -130,12 +130,12 @@ PRODUCT_PACKAGES += \
 	lights.gta04
 
 # Sensors
-PRODUCT_PACKAGES += \
-	sensors.gta04
+#PRODUCT_PACKAGES += \
+#	sensors.gta04
 
 # GPS
-PRODUCT_PACKAGES += \
-	gps.gta04
+#PRODUCT_PACKAGES += \
+#	gps.gta04
 
 # Battery Fast Charge
 PRODUCT_PACKAGES += \
