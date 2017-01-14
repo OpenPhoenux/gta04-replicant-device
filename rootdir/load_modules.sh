@@ -209,3 +209,10 @@ modprobe extcon-gpio
 modprobe gpio_twl4030
 modprobe rtc_twl
 modprobe at24 #I2C-EEPROM
+
+#FIXME: start some services manually, to make the system boot up
+start installd
+start netd
+start media
+start vold
+
