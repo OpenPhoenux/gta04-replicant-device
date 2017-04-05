@@ -46,6 +46,7 @@ PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/rootdir/boot/omap3-gta04a4+b3.dtb:root/boot/omap3-gta04a4+b3.dtb \
 	device/goldelico/gta04/rootdir/boot/omap3-gta04a4.dtb:root/boot/omap3-gta04a4.dtb \
 	device/goldelico/gta04/rootdir/boot/omap3-gta04a5.dtb:root/boot/omap3-gta04a5.dtb \
+	device/goldelico/gta04/rootdir/boot/omap3-gta04a5one.dtb:root/boot/omap3-gta04a5one.dtb \
 	device/goldelico/gta04/rootdir/boot/omap3-n900.dtb:root/boot/omap3-n900.dtb \
 	device/goldelico/gta04/rootdir/boot/omap3-pandora-1ghz.dtb:root/boot/omap3-pandora-1ghz.dtb \
 	device/goldelico/gta04/rootdir/boot/omap3-pandora-600mhz.dtb:root/boot/omap3-pandora-600mhz.dtb \
@@ -61,7 +62,6 @@ PRODUCT_COPY_FILES += \
 	device/goldelico/gta04/rootdir/boot/omap5-pyra+succ.dtb:root/boot/omap5-pyra+succ.dtb \
 	device/goldelico/gta04/rootdir/boot/omap5-pyra-brokenevm.dtb:root/boot/omap5-pyra-brokenevm.dtb \
 	device/goldelico/gta04/rootdir/boot/omap5-pyra.dtb:root/boot/omap5-pyra.dtb \
-	device/goldelico/gta04/rootdir/boot/omap5-uevm.dtb:root/boot/omap5-uevm.dtb \
 	device/goldelico/gta04/rootdir/boot/bootargs.scr:root/boot/bootargs.scr #contains FunctionFS IDs for adb (g_ffs.idVendor=0x18d1 g_ffs.idProduct=0x4e26)
 
 
