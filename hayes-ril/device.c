@@ -682,6 +682,10 @@ int ril_device_at_setup(struct ril_device *ril_device)
 
 	// Enable PCM
 	at_send_string_locked("AT_OPCMENABLE=1"); //TODO: GTA04/GTM601 only
+	at_send_string_locked("AT_ODO=0"); //TODO: GTA04/GTM601 only
+	at_send_string_locked("AT_OPCMPROF=0"); //TODO: GTA04/GTM601 only
+
+	// Enable PCM  Modem->Sound output (needed for newer firmwares)
 	at_send_string_locked("AT+CLVL=7"); //TODO: GTA04/GTM601 only
 
 	//ril_device_sim_ready_setup(); //called after +CREG state is 1 or 5
