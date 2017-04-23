@@ -116,3 +116,5 @@ modprobe extcon-gpio
 modprobe gpio_twl4030
 modprobe rtc_twl
 modprobe at24 #I2C-EEPROM
+sleep 6
+kill `pidof mediaserver`
