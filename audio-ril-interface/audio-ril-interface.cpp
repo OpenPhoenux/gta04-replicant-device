@@ -85,16 +85,16 @@ int gta04_check_hwrouting() {
 		return -1;
 	}
 
-	ctl = mixer_get_ctl_by_name(mixer, "Voice route"); //open "Voice route" ctl
+	ctl = mixer_get_ctl_by_name(mixer, "Voice PCM Interface"); //open "Voice route" ctl
 	active_id = mixer_ctl_get_value(ctl, 0);
 	active_value = mixer_ctl_get_enum_string(ctl, active_id);
-	if (strncmp(active_value, "Voice to twl4030", 16) == 0) {
+	if (strncmp(active_value, "active", 6) == 0) {
 		ALOGD("HW routing detected"); //don't start the SW router in this case
 		sleep(5); //sleep a little, so we won't be called every sec (in each AT+CLCC request)
 		mixer_close(mixer);
 		return 1;
 	}
-	else if(strncmp(active_value, "Voice to SoC", 12) == 0) {
+	else if(strncmp(active_value, "inactive", 8) == 0) {
 		ALOGD("SW routing detected");
 		mixer_close(mixer);
 		return 0;
@@ -399,31 +399,6 @@ int gta04_open_pcm(void *pdata)
 		{
 			ALOGD("Starting call, activating voice!");
 
-			// It seems that on GTA04 A4, microphone voice routing to
-			// the modem only works when a capture channel is active.
-			// Note that Android will close any existing capture channel.
-
-			memset(&config, 0, sizeof(config));
-
-			config.channels = 2;
-			config.rate = 44100;
-			config.period_size = 1056;
-			config.period_count = 2;
-			config.format = PCM_FORMAT_S16_LE;
-
-			gta04_pdata->voice_pcm = pcm_open(0, 0, PCM_IN, &config);
-			if(!gta04_pdata->voice_pcm || !pcm_is_ready(gta04_pdata->voice_pcm)) {
-				ALOGE("Failed to open capture channel!");
-			}
-
-			size = pcm_get_buffer_size(gta04_pdata->voice_pcm);
-			buffer = malloc(size);
-
-			ALOGD("Reading one sample");
-
-			pcm_read(gta04_pdata->voice_pcm, buffer, size);
-
-			free(buffer);
 			gta04_pdata->pcm_active = 1; //only used for hwrouting
 		}
 	}
@@ -440,11 +415,7 @@ int gta04_close_pcm(void *pdata)
 	if(gta04_pdata->pcm_active == 1)
 	{
 		ALOGD("Ending call, deactivating voice!");
-
-		if(gta04_pdata->voice_pcm != NULL)
-			pcm_close(gta04_pdata->voice_pcm);
-
-		gta04_pdata->voice_pcm = NULL;
+		// probably everything is already done by tinyalsa
 	}
 	return 0;
 }
