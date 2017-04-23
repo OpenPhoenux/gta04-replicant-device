@@ -5,7 +5,8 @@
 		<device type="default">
 			<path type="enable">
 				<ctrl name="Codec Operation Mode" value="Option 2 (voice/audio)" /> <!-- needed for hwrouting, can only be set if no streams open -->
-				<ctrl name="Voice route" value="Voice to SoC" />
+				<ctrl name="Voice PCM Interface" value="inactive" /> <!-- needed for hwrouting -->
+				<ctrl name="Voice PCM Out Switch" value="off" /> <!-- needed for hwrouting -->
 				<ctrl name="AVADC Clock Priority" value="HiFi high priority" />
 
 				<ctrl name="DAC1 Analog Playback Switch" value="off" /> <!-- DAC1 not used in GTA04 -->
@@ -132,7 +133,8 @@
 	<modem card="0" device="0">
 		<device type="default">
 			<path type="enable">
-				<ctrl name="Voice route" value="Voice to twl4030" /> <!-- needed for hwrouting -->
+				<ctrl name="Voice PCM Interface" value="active" /> <!-- needed for hwrouting -->
+				<ctrl name="Voice PCM Out Switch" value="on" /> <!-- needed for hwrouting -->
 				<ctrl name="AVADC Clock Priority" value="Voice high priority" /> <!-- needed for hwrouting -->
 
 				<ctrl name="TX1 Capture Route" value="Analog" />
@@ -148,7 +150,8 @@
 				<ctrl name="DAC Voice Analog Downlink Switch" value="off" />
 				<ctrl name="DAC2 Analog Playback Switch" value="on" />
 
-				<ctrl name="Voice route" value="Voice to SoC" />
+				<ctrl name="Voice PCM Interface" value="inactive" />
+				<ctrl name="Voice PCM Out Switch" value="off" /> <!-- needed for hwrouting -->
 				<ctrl name="AVADC Clock Priority" value="HiFi high priority" />
 			</path>
 		</device>
