@@ -216,3 +216,5 @@ start netd
 start media
 start vold
 
+sleep 6
+kill `pidof mediaserver`
