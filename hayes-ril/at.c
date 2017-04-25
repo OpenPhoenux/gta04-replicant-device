@@ -91,6 +91,15 @@ int at_error_process(char *string)
 		if (rc == 1 && d >= 0)
 			error |= d << 8;
 	}
+	if (at_strings_compare("+CMS ERROR", string)) {
+		error = AT_ERROR_CMS_ERROR;
+		rc = sscanf(string, "+CMS ERROR: %d", &d);
+		if (rc == 1 && d >= 0)
+			error |= d << 8;
+	}
+	if (at_strings_compare("NO CARRIER", string))
+		error = AT_ERROR_NO_CARRIER;
+
 	if (at_strings_compare("NO CARRIER", string))
 		error = AT_ERROR_NO_CARRIER;
 
