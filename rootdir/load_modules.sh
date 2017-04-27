@@ -39,7 +39,7 @@ modprobe tsc2007
 #Battery/Charger
 modprobe phy-twl4030-usb
 modprobe twl4030_madc
-modprobe twl4030_charger
+modprobe twl4030_charger allow_usb=1
 modprobe omap_hdq
 modprobe w1_bq27000
 case "$DEVICE" in
