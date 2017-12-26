@@ -5,7 +5,7 @@ $(call inherit-product, vendor/replicant/config/telephony.mk)
 PRODUCT_RELEASE_NAME := GTA04
 
 # Boot animation
-TARGET_BOOTANIMATION_NAME := square-480x480
+TARGET_BOOTANIMATION_NAME := vertical-480x640
 
 # Inherit some common CM stuff.
 $(call inherit-product, vendor/replicant/config/common_full_phone.mk)
