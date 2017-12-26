@@ -77,6 +77,7 @@ BOARD_HAS_VIBRATOR_IMPLEMENTATION := ../../device/goldelico/gta04/vibrator/vibra
 # SoftwareGL
 USE_OPENGL_RENDERER := false
 # TARGET_DISABLE_TRIPLE_BUFFERING := true #FIXME: seems do be broken in replicant-6
+BOARD_USES_DRM_HWCOMPOSER := true
 
 # Audio
 BOARD_USE_TINYALSA_AUDIO := true

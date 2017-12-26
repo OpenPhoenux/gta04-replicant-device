@@ -104,6 +104,8 @@ PRODUCT_COPY_FILES += \
 
 # Graphics
 PRODUCT_LOCALES := hdpi
+PRODUCT_PACKAGES += \
+	hwcomposer.drm
 
 # Media
 PRODUCT_COPY_FILES += \
