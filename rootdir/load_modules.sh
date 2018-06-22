@@ -56,6 +56,7 @@ insmod /system/lib/modules/twl4030_charger.ko
 #CHARGER
 insmod /system/lib/modules/w1_bq27000.ko
 insmod /system/lib/modules/bq27xxx_battery.ko
+insmod /system/lib/modules/bq27xxx_battery_hdq.ko
 
 #TOUCH
 insmod /system/lib/modules/tsc2007.ko
