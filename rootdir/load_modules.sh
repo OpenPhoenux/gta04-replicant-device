@@ -22,6 +22,7 @@ insmod /system/lib/modules/omapdss.ko
 insmod /system/lib/modules/panel-tpo-td028ttec1.ko
 
 #FRAMEBUFFER
+insmod /system/lib/modules/drm_panel_orientation_quirks.ko
 insmod /system/lib/modules/drm.ko
 insmod /system/lib/modules/fb_sys_fops.ko
 insmod /system/lib/modules/cfbfillrect.ko
