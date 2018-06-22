@@ -45,6 +45,7 @@ insmod /system/lib/modules/ehci-omap.ko
 insmod /system/lib/modules/musb_hdrc.ko
 insmod /system/lib/modules/omap_hdq.ko
 insmod /system/lib/modules/phy-twl4030-usb.ko
+insmod /system/lib/modules/industrialio.ko
 insmod /system/lib/modules/twl4030-madc.ko
 insmod /system/lib/modules/twl4030_charger.ko
 
