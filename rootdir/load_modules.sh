@@ -21,6 +21,10 @@ insmod /system/lib/modules/omapdss-base.ko
 insmod /system/lib/modules/omapdss.ko
 insmod /system/lib/modules/panel-tpo-td028ttec1.ko
 
+#TV-Out - needed by omapdrm unless disabled in DT
+insmod /system/lib/modules/encoder-opa362.ko
+insmod /system/lib/modules/connector-analog-tv.ko
+
 #FRAMEBUFFER
 insmod /system/lib/modules/drm_panel_orientation_quirks.ko
 insmod /system/lib/modules/drm.ko
