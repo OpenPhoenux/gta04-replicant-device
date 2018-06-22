@@ -17,7 +17,7 @@ DEVICE=$(cat /sys/firmware/devicetree/base/model)
 echo "Detected model:" $DEVICE
 
 #PANEL
-insmod /system/lib/modules/omapdss.ko
+insmod /system/lib/modules/omapdss-base.ko
 insmod /system/lib/modules/omapdss.ko
 insmod /system/lib/modules/panel-tpo-td028ttec1.ko
 
