@@ -18,6 +18,11 @@ typedef unsigned short int sa_family_t;
 #define HOTPLUG_NUM_ENVP                32
 #define OBJECT_SIZE                     512
 
+// kernel API constants
+const char change_event_twl4030usb[] = "change@/devices/platform/68000000.ocp/48070000.i2c/i2c-0/0-0048/48070000.i2c:twl@48:bci/power_supply/twl4030_usb";
+const char path_sysfs_twl4030usb_id[] = "/sys/devices/platform/68000000.ocp/48070000.i2c/i2c-0/0-0048/48070000.i2c:twl@48:twl4030-usb/id";
+const char path_sysfs_twl4030usb_maxcurrent[] = "/sys/devices/platform/68000000.ocp/48070000.i2c/i2c-0/0-0048/48070000.i2c:twl@48:bci/power_supply/twl4030_usb/input_current_limit";
+
 int main(int argc, char **argv, char **envp) {
         //Start listening
         int fd;
@@ -53,10 +58,10 @@ int main(int argc, char **argv, char **envp) {
                         exit(1);
                 }
                 //printf("%s\n", buffer);
-                ret = strncmp(buffer, "change@/devices/platform/omap_i2c.1/i2c-1/1-004a/twl4030_bci/power_supply/twl4030_usb", 85);
+                ret = strncmp(buffer, change_event_twl4030usb, sizeof(change_event_twl4030usb));
                 /* USB/Charger plugged or unplugged */
                 if(ret == 0) {
-                    id_fd = fopen("/sys/devices/platform/omap_i2c.1/i2c-1/1-0048/twl4030_usb/id","r");
+                    id_fd = fopen(path_sysfs_twl4030usb_id,"r");
                     fscanf(id_fd, "%s", &id_status[0]); //read content of id_fd
                     fclose(id_fd);
 
@@ -72,7 +77,7 @@ int main(int argc, char **argv, char **envp) {
                     else
                         max_current = max_current_500000;
 
-                    max_current_fd = fopen("/sys/devices/platform/omap_i2c.1/i2c-1/1-004a/twl4030_bci/max_current","w");
+                    max_current_fd = fopen(path_sysfs_twl4030usb_maxcurrent,"w");
                     fprintf(max_current_fd, "%s\n", max_current); //write max_current
                     fclose(max_current_fd);
                 }

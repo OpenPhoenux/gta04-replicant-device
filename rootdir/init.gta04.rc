@@ -85,8 +85,8 @@ on boot
 	chmod 0660 /sys/class/switch/gps_antenna/state
 
 	# Battery Fast Charge
-	chmod 777 /sys/devices/platform/omap_i2c.1/i2c-1/1-0048/twl4030_usb/id
-	chmod 777 /sys/devices/platform/omap_i2c.1/i2c-1/1-004a/twl4030_bci/max_current
+	chmod 777 /sys/devices/platform/68000000.ocp/48070000.i2c/i2c-0/0-0048/48070000.i2c:twl@48:twl4030-usb/id
+	chmod 777 /sys/devices/platform/68000000.ocp/48070000.i2c/i2c-0/0-0048/48070000.i2c:twl@48:bci/power_supply/twl4030_usb/input_current_limit
 
 	#Bluetooth
 	#insmod /system/lib/modules/bluetooth.ko
