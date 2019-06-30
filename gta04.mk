@@ -96,6 +96,10 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PROPERTY_OVERRIDES += \
 	wifi.interface=wlan0
+PRODUCT_PACKAGES += \
+	wpa_supplicant \
+	wpa_supplicant.conf \
+	libwpa_client
 
 # FIXME: Do we want to deploy nonfree firmware?
 PRODUCT_COPY_FILES += \
