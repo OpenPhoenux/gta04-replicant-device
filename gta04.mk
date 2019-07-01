@@ -106,6 +106,29 @@ PRODUCT_COPY_FILES += \
     device/goldelico/gta04/nonfree/sd8686_v8.bin:system/vendor/firmware/sd8686.bin \
     device/goldelico/gta04/nonfree/sd8686_v8_helper.bin:system/vendor/firmware/sd8686_helper.bin
 
+# ti stuff
+PRODUCT_COPY_FILES += \
+   device/goldelico/gta04/nonfree/ti-connectivity/copyright:system/vendor/firmware/ti-connectivity/copyright \
+   device/goldelico/gta04/nonfree/ti-connectivity/TIInit_6.2.31.bts:system/vendor/firmware/ti-connectivity/TIInit_6.2.31.bts \
+   device/goldelico/gta04/nonfree/ti-connectivity/TIInit_6.6.15.bts:system/vendor/firmware/ti-connectivity/TIInit_6.6.15.bts \
+   device/goldelico/gta04/nonfree/ti-connectivity/TIInit_7.2.31.bts:system/vendor/firmware/ti-connectivity/TIInit_7.2.31.bts \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl1251-fw.bin:system/vendor/firmware/ti-connectivity/wl1251-fw.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl1251-nvs.bin:system/vendor/firmware/ti-connectivity/wl1251-nvs.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl1271-nvs.bin:system/vendor/firmware/ti-connectivity/wl1271-nvs.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl127x-fw-5-mr.bin:system/vendor/firmware/ti-connectivity/wl127x-fw-5-mr.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl127x-fw-5-plt.bin:system/vendor/firmware/ti-connectivity/wl127x-fw-5-plt.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl127x-fw-5-sr.bin:system/vendor/firmware/ti-connectivity/wl127x-fw-5-sr.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl127x-nvs.bin:system/vendor/firmware/ti-connectivity/wl127x-nvs.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl128x-fw-5-mr.bin:system/vendor/firmware/ti-connectivity/wl128x-fw-5-mr.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl128x-fw-5-plt.bin:system/vendor/firmware/ti-connectivity/wl128x-fw-5-plt.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl128x-fw-5-sr.bin:system/vendor/firmware/ti-connectivity/wl128x-fw-5-sr.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl128x-nvs.bin:system/vendor/firmware/ti-connectivity/wl128x-nvs.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl12xx-nvs.bin:system/vendor/firmware/ti-connectivity/wl12xx-nvs.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl18xx-fw-2.bin:system/vendor/firmware/ti-connectivity/wl18xx-fw-2.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl18xx-fw-3.bin:system/vendor/firmware/ti-connectivity/wl18xx-fw-3.bin \
+   device/goldelico/gta04/nonfree/ti-connectivity/wl18xx-fw-4.bin:system/vendor/firmware/ti-connectivity/wl18xx-fw-4.bin
+
+
 # Graphics
 PRODUCT_LOCALES := hdpi
 PRODUCT_PACKAGES += \
